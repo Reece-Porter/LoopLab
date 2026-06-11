@@ -1,0 +1,397 @@
+[
+  {
+    "id": "eurodance",
+    "name": "Eurodance",
+    "description": "High-energy dance music with catchy hooks, pounding kicks, and Euro-style synth leads. Popularised in the 90s by artists like Haddaway, Snap! and Ace of Base.",
+    "bpm": "128–145",
+    "key": "Minor keys (e.g. A minor, D minor)",
+    "color": "from-purple-600 to-pink-500",
+    "emoji": "🎉",
+    "parts": [
+      {
+        "name": "Kick",
+        "icon": "🥁",
+        "tips": [
+          "Use a tight, punchy 4-on-the-floor kick pattern (every beat).",
+          "Layer a sub-bass sine click underneath the kick for body.",
+          "Keep the kick around 60–80 Hz fundamental with a sharp transient.",
+          "Sidechain compression from kick to bass for a pumping effect."
+        ]
+      },
+      {
+        "name": "Bass",
+        "icon": "🎸",
+        "tips": [
+          "A short, staccato synth bass playing on the off-beats or 16th-note runs.",
+          "Use a sawtooth or square wave with a fast attack and medium decay.",
+          "Keep the bassline simple — root note on beat 1, octave jumps for energy.",
+          "Roll off everything below 50 Hz and above 400 Hz to sit cleanly."
+        ]
+      },
+      {
+        "name": "Snare / Clap",
+        "icon": "👏",
+        "tips": [
+          "Clap or snare on beats 2 and 4, often layered for a thick crack.",
+          "Add a snare roll leading into the chorus or drop.",
+          "Use reverb with a short tail (0.4–0.8 s) for a stadium feel.",
+          "Pitch the snare up slightly for brightness in higher-energy sections."
+        ]
+      },
+      {
+        "name": "Hi-Hats",
+        "icon": "🔔",
+        "tips": [
+          "Straight 8th-note closed hi-hats to drive momentum.",
+          "Open hi-hat on the upbeat of beat 4 before the kick.",
+          "Automate the hi-hat volume for subtle groove variations.",
+          "Keep velocity slightly random to avoid a mechanical feel."
+        ]
+      },
+      {
+        "name": "Lead Synth",
+        "icon": "🎹",
+        "tips": [
+          "Detuned supersaw or saw-stack patch for that classic Euro sound.",
+          "Use a portamento/glide setting for smooth note-to-note movement.",
+          "Add a chorus and a stereo enhancer to widen the sound.",
+          "Drive through a light distortion or saturation for edge."
+        ]
+      },
+      {
+        "name": "Pad / Chord",
+        "icon": "🌊",
+        "tips": [
+          "Lush, wide chord pads that fill the mid-range without muddying.",
+          "Use a slow attack (200–400 ms) so chords bloom behind the lead.",
+          "Pan slightly left and right to create width and space.",
+          "High-pass everything below 200 Hz on the pad to keep the low end clean."
+        ]
+      },
+      {
+        "name": "Vocal Hook",
+        "icon": "🎤",
+        "tips": [
+          "A short, catchy 4-bar melody that repeats every 8–16 bars.",
+          "Add tight delay (1/8 note) and moderate reverb for gloss.",
+          "Use pitch correction (subtle) and doubling for a polished sound.",
+          "Keep the hook in the chorus and strip it back in verses."
+        ]
+      },
+      {
+        "name": "Structure",
+        "icon": "🗺️",
+        "tips": [
+          "Intro (8 bars) → Verse (16 bars) → Pre-chorus (8 bars) → Chorus (16 bars) → Bridge → Chorus out.",
+          "Drop all elements except kick for 2 bars before the main chorus for impact.",
+          "Use a riser synth or snare roll in the last 4 bars before each chorus.",
+          "Outro fades or ends with a reverse crash and silence."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "trap",
+    "name": "Trap",
+    "description": "Dark, hard-hitting beats defined by rolling hi-hats, 808 bass, and cinematic atmospheres. Rooted in Atlanta hip-hop and now spanning multiple subgenres.",
+    "bpm": "130–170 (half-time feel at 65–85)",
+    "key": "Minor keys, chromatic melodies",
+    "color": "from-gray-800 to-red-700",
+    "emoji": "🔥",
+    "parts": [
+      {
+        "name": "808 Bass",
+        "icon": "💣",
+        "tips": [
+          "Use an 808 sample pitched to the key of your track.",
+          "Long sustain with a slow release — let it ring under the melody.",
+          "Sidechain the 808 to the kick for tightness, but keep a pumping feel.",
+          "Distort or saturate lightly to cut through on small speakers."
+        ]
+      },
+      {
+        "name": "Kick",
+        "icon": "🥁",
+        "tips": [
+          "Short, hard kick — usually on beat 1 with syncopated hits.",
+          "Layer a click sample with a deep punchy thud.",
+          "Keep kick transients sharp — use a limiter/clipper on the kick bus.",
+          "Avoid clashing with the 808 frequency-wise; high-pass one or the other."
+        ]
+      },
+      {
+        "name": "Hi-Hats",
+        "icon": "🔔",
+        "tips": [
+          "Rapid triplet/sextuplet hi-hat rolls are the signature of trap.",
+          "Vary velocity heavily for a human, bouncing feel.",
+          "Automate roll speed — slow in verses, rapid rolls building to the drop.",
+          "Use a closed hat with a very short decay and high pitch."
+        ]
+      },
+      {
+        "name": "Snare",
+        "icon": "👏",
+        "tips": [
+          "Sparse snare placement — often only on beat 3, or skipped entirely.",
+          "Clap layers add texture; use 3–4 layered clap samples.",
+          "Long reverb tail (1–2 s) for that atmospheric, cave-like sound.",
+          "Pitch the snare to match the key subtly."
+        ]
+      },
+      {
+        "name": "Melody / Lead",
+        "icon": "🎹",
+        "tips": [
+          "Dark, eerie melodies — flute, bells, strings or synth plucks.",
+          "Keep melodic phrases short (2–4 bars) and looping.",
+          "Use pentatonic or chromatic notes for tension.",
+          "Add subtle pitch vibrato to a melodic lead for authenticity."
+        ]
+      },
+      {
+        "name": "FX & Atmosphere",
+        "icon": "🌫️",
+        "tips": [
+          "Risers, whooshes, and impacts between sections.",
+          "Reversed cymbal or pad before a drop for anticipation.",
+          "Sub-bass rumble in quiet sections for tension.",
+          "Vinyl crackle or cassette noise on a very low volume for texture."
+        ]
+      },
+      {
+        "name": "Structure",
+        "icon": "🗺️",
+        "tips": [
+          "Intro (4–8 bars) → Verse → Hook → Verse → Hook → Bridge → Hook out.",
+          "Keep hooks minimal so they hit harder in contrast to the verse.",
+          "Mute the 808 and kick for 1 bar for a 'breathing' moment.",
+          "End drops with silence or a reversed crash for drama."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "deep-house",
+    "name": "Deep House",
+    "description": "Soulful, hypnotic house music with warm chord progressions, rolling basslines, and subtle groove. Think late-night dance floors and silky vocals.",
+    "bpm": "120–128",
+    "key": "Minor or Dorian mode (warm, soulful feel)",
+    "color": "from-blue-700 to-teal-500",
+    "emoji": "🌊",
+    "parts": [
+      {
+        "name": "Kick",
+        "icon": "🥁",
+        "tips": [
+          "Soft, deep 4-on-the-floor kick with subtle low-mid warmth.",
+          "Avoid sharp transients — aim for a thud, not a crack.",
+          "Keep the kick consistent but automate velocity for groove.",
+          "Compress gently with a slow attack so the transient breathes."
+        ]
+      },
+      {
+        "name": "Bass",
+        "icon": "🎸",
+        "tips": [
+          "Rolling, melodic bass with movement every 2–4 bars.",
+          "Use a round, warm synth bass or sampled upright bass.",
+          "Sidechain lightly so the bass ducks slightly under the kick.",
+          "Add subtle filter modulation to give the bassline life."
+        ]
+      },
+      {
+        "name": "Chords",
+        "icon": "🎹",
+        "tips": [
+          "Jazz-influenced chords: 7ths, 9ths, and 11ths.",
+          "Stab chords on the off-beat (every upbeat) for rhythmic movement.",
+          "Use a warm electric piano, Rhodes, or soft synth pad.",
+          "Spread chords wide in the stereo field."
+        ]
+      },
+      {
+        "name": "Hi-Hats",
+        "icon": "🔔",
+        "tips": [
+          "Subtle, swung 16th-note hi-hats with light velocity variation.",
+          "Open hi-hat on the upbeat of beat 4 is classic deep house.",
+          "Keep hats low in the mix — they support groove, not dominate.",
+          "Add gentle reverb to blend hats into the mix."
+        ]
+      },
+      {
+        "name": "Vocal",
+        "icon": "🎤",
+        "tips": [
+          "Breathy, intimate vocal — often chopped into rhythmic stabs.",
+          "Use soulful ad-libs and whispers as texture.",
+          "Delay throws on select words add a hypnotic feel.",
+          "Keep vocals low-key in the mix; they float over rather than dominate."
+        ]
+      },
+      {
+        "name": "FX & Atmosphere",
+        "icon": "🌫️",
+        "tips": [
+          "Subtle atmospheric pads and ambient textures underneath everything.",
+          "Use long reverb tails (2–4 s) on pads to create spaciousness.",
+          "Add an occasional shaker or tambourine for organic feel.",
+          "Filter sweeps slowly throughout the track for movement."
+        ]
+      },
+      {
+        "name": "Structure",
+        "icon": "🗺️",
+        "tips": [
+          "Long intro (16–32 bars) to build the atmosphere slowly.",
+          "Elements gradually introduced every 8–16 bars.",
+          "Breakdown: strip to just kick and bass, then rebuild.",
+          "Deep house is about the journey — avoid abrupt transitions."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "drum-and-bass",
+    "name": "Drum & Bass",
+    "description": "Fast-paced electronic music built around breakbeats and heavy sub-bass. Originating from UK rave culture, it spans liquid, neurofunk, jungle, and more.",
+    "bpm": "160–180",
+    "key": "Minor keys, often chromatic",
+    "color": "from-orange-600 to-yellow-500",
+    "emoji": "⚡",
+    "parts": [
+      {
+        "name": "Breakbeat",
+        "icon": "🥁",
+        "tips": [
+          "Start from a classic break (Amen, Think Break, Apache) and chop it up.",
+          "Use time-stretching to pitch and time-match to your project BPM.",
+          "Layer additional claps, kicks and snares for punch.",
+          "Use a compressor on the break bus with a fast attack to glue the layers."
+        ]
+      },
+      {
+        "name": "Sub Bass",
+        "icon": "💣",
+        "tips": [
+          "Deep, heavy sub — use a sine wave or round-edged waveform.",
+          "Reese bass (detuned saws with heavy modulation) for neurofunk flavor.",
+          "Alternate between held notes and faster modulated bass for variation.",
+          "High-pass above 30 Hz to avoid subsonic rumble."
+        ]
+      },
+      {
+        "name": "Mid Bass / Reese",
+        "icon": "🎸",
+        "tips": [
+          "A distorted, growling mid-range bass is a DnB staple.",
+          "Use multiple detuned oscillators with heavy filter modulation.",
+          "Automate the filter cutoff to create movement and tension.",
+          "Layer with a sub bass (separate channel) for full spectrum coverage."
+        ]
+      },
+      {
+        "name": "Pads & Atmosphere",
+        "icon": "🌊",
+        "tips": [
+          "Dark, evolving pads in the background for depth.",
+          "For liquid DnB: warm, lush pads and melodic strings.",
+          "For neurofunk: cold, metallic textures and sci-fi atmospheres.",
+          "Use long reverb and modulation to make pads feel huge."
+        ]
+      },
+      {
+        "name": "Lead / Melody",
+        "icon": "🎹",
+        "tips": [
+          "Liquid DnB: Rhodes, piano, and lush synth leads.",
+          "Neurofunk: glitchy, distorted synth leads with heavy processing.",
+          "Keep melodies relatively simple — the rhythm does the heavy lifting.",
+          "Use a 1/4 or dotted 1/8 delay to create call-and-response phrases."
+        ]
+      },
+      {
+        "name": "Structure",
+        "icon": "🗺️",
+        "tips": [
+          "Intro (16 bars of atmosphere) → Build → Drop → Breakdown → Drop 2 → Outro.",
+          "The 'drop' is the full break + bass hitting simultaneously.",
+          "Halftime sections (8 bars) where the break plays at half-speed for contrast.",
+          "Use silence or a single high note before drops for maximum impact."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "lo-fi-hip-hop",
+    "name": "Lo-Fi Hip-Hop",
+    "description": "Mellow, sample-based hip-hop defined by warm tape saturation, dusty drums, and jazzy chords. Perfect study and relaxation music.",
+    "bpm": "70–95",
+    "key": "Major or Dorian (warm and nostalgic feel)",
+    "color": "from-amber-600 to-rose-400",
+    "emoji": "☕",
+    "parts": [
+      {
+        "name": "Drums",
+        "icon": "🥁",
+        "tips": [
+          "Swung or shuffled 808 or vintage drum machine samples.",
+          "Kick on beat 1, light snare on beat 2 and 4 with ghost notes.",
+          "Humanise the hi-hats — vary velocity and add micro-timing offsets.",
+          "Apply vinyl crackle or tape saturation on the drum bus."
+        ]
+      },
+      {
+        "name": "Chords / Sample",
+        "icon": "🎹",
+        "tips": [
+          "Sample jazz, soul, or bossa nova records — chop and loop 2–4 bars.",
+          "Or program Rhodes/Wurlitzer chords with jazz extensions (7, 9, 11).",
+          "Apply a low-pass filter to roll off the highs for a warm, muffled sound.",
+          "Pitch the sample slightly sharp or flat (+/- 20 cents) for character."
+        ]
+      },
+      {
+        "name": "Bass",
+        "icon": "🎸",
+        "tips": [
+          "Simple, melodic bass following the chord root notes.",
+          "Electric bass sample or a round synth bass with subtle saturation.",
+          "Keep the bass laid-back — slightly behind the beat.",
+          "Low-pass filter at around 500–800 Hz for a muffled, warm tone."
+        ]
+      },
+      {
+        "name": "Melody",
+        "icon": "🎵",
+        "tips": [
+          "Soft piano or flute melody playing a simple 2–4 bar loop.",
+          "Leave space in the melody — lo-fi is about breathing room.",
+          "Add slight pitch wobble via automation to simulate tape wow and flutter.",
+          "Use a room reverb with pre-delay for a close, intimate sound."
+        ]
+      },
+      {
+        "name": "Texture & FX",
+        "icon": "🌫️",
+        "tips": [
+          "Vinyl crackle sample looped underneath everything.",
+          "Rain, cafe, or city ambience on a separate low-volume track.",
+          "Tape saturation plugin on the master bus (RC-20, Vinyl Distortion).",
+          "Subtle pitch modulation (LFO on tune) to simulate cassette wobble."
+        ]
+      },
+      {
+        "name": "Structure",
+        "icon": "🗺️",
+        "tips": [
+          "Lo-fi tracks are often minimal — just a loop with subtle variation.",
+          "Introduce elements slowly every 8 bars: first drums, then bass, then chords.",
+          "Keep the song short (2–3 mins) or loop endlessly for study playlists.",
+          "Variation is light: add a hi-hat fill here, mute the bass there."
+        ]
+      }
+    ]
+  }
+]
