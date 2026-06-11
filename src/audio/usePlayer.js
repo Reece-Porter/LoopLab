@@ -16,6 +16,11 @@ function stopActive() {
   if (prev) listeners.forEach(l => l(null))
 }
 
+// Stop whatever is currently playing (used by the global spacebar shortcut).
+export function stopAllPlayback() {
+  stopActive()
+}
+
 export function usePlayer(id) {
   const [playing, setPlaying] = useState(false)
   const [step, setStep] = useState(-1)
