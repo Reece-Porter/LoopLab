@@ -4,5 +4,14 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   base: '/LoopLab/',
-  plugins: [react(), tailwindcss()],
+  plugins: [
+    react(),
+    tailwindcss(),
+    {
+      name: 'remove-crossorigin',
+      transformIndexHtml(html) {
+        return html.replace(/\scrossorigin/g, '')
+      }
+    }
+  ],
 })
