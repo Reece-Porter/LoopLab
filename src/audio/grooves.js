@@ -28,6 +28,7 @@ export const GENRE_GROOVES = {
       supersaw:{ steps: on(0, 3, 6, 8, 11, 14), notes: ['A4', 'C5', 'E5', 'A4', 'G4', 'E5'] },
       pluck:   { steps: on(0, 3, 6, 8, 11, 14), notes: ['A4', 'C5', 'E5', 'A4', 'G4', 'E5'] },
       chord:   { steps: on(0, 4, 8, 12), chords: ['Am', 'F', 'C', 'G'] },
+      vox:     { steps: on(0, 8), notes: ['A4', 'C5'] },
     },
   },
 
@@ -43,6 +44,7 @@ export const GENRE_GROOVES = {
       bass:    { steps: on(0, 6, 10), notes: ['C1', 'C1', 'D#1'], long: true },
       pluck:   { steps: on(0, 3, 6, 7, 10, 12), notes: ['C5', 'D#5', 'G5', 'F5', 'D#5', 'C5'] },
       chord:   { steps: on(0, 10), chords: ['Cm', 'G#'] },
+      vox:     { steps: on(0, 8, 12), notes: ['Eb4', 'G4', 'Bb4'] },
     },
   },
 
@@ -57,6 +59,7 @@ export const GENRE_GROOVES = {
       bass:    { steps: on(2, 6, 10, 14), notes: ['F1', 'F1', 'A#1', 'C2'] },
       chord:   { steps: on(2, 10), chords: ['Fm7', 'A#maj7'], keys: true },
       pluck:   { steps: on(0, 6, 8, 14), notes: ['F4', 'A#4', 'C5', 'A#4'] },
+      vox:     { steps: on(2, 10), notes: ['A4', 'G4'] },
     },
   },
 
@@ -74,6 +77,7 @@ export const GENRE_GROOVES = {
       reese:   { steps: on(0, 6, 8, 14), notes: ['D2', 'D2', 'F2', 'A2'] },
       pluck:   { steps: on(0, 4, 8, 12), notes: ['D5', 'F5', 'A5', 'D5'] },
       chord:   { steps: on(0), chords: ['Dm'], pad: true },
+      vox:     { steps: on(0, 12), notes: ['C5', 'Eb5'] },
     },
   },
 
@@ -88,6 +92,7 @@ export const GENRE_GROOVES = {
       bass:    { steps: on(0, 8), notes: ['D2', 'G2'] },
       chord:   { steps: on(0, 8), chords: ['Dm7', 'Gmaj7'], keys: true },
       pluck:   { steps: on(2, 6, 10, 14), notes: ['F4', 'A4', 'C5', 'D5'] },
+      vox:     { steps: on(4, 12), notes: ['E4', 'G4'] },
     },
   },
 }

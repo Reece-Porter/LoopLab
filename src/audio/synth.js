@@ -236,3 +236,34 @@ export function vinyl(context, time, out, gain = 0.04, dur = 0.5) {
   noise.start(time)
   noise.stop(time + dur)
 }
+
+// Formant-filtered sawtooth with vibrato — approximate sung "aah/ooh" vowel.
+// The two bandpass filters mimic the first two vocal formants.
+export function vox(context, time, out, freq, gain = 0.28, dur = 0.45) {
+  const osc = context.createOscillator()
+  osc.type = 'sawtooth'
+  osc.frequency.setValueAtTime(freq, time)
+
+  // Vibrato LFO kicks in ~80 ms after the note starts.
+  const vib = context.createOscillator()
+  vib.frequency.value = 5.2
+  const vibDepth = context.createGain()
+  vibDepth.gain.value = freq * 0.012
+  const vibEnv = context.createGain()
+  vibEnv.gain.setValueAtTime(0, time)
+  vibEnv.gain.linearRampToValueAtTime(1, time + 0.08)
+  vib.connect(vibDepth).connect(vibEnv).connect(osc.frequency)
+  vib.start(time); vib.stop(time + dur + 0.1)
+
+  // Formant 1 ~700 Hz ("ah"), Formant 2 ~1200 Hz.
+  const f1 = context.createBiquadFilter()
+  f1.type = 'bandpass'; f1.frequency.value = 700; f1.Q.value = 4
+  const f2 = context.createBiquadFilter()
+  f2.type = 'bandpass'; f2.frequency.value = 1200; f2.Q.value = 3
+
+  // Soft envelope.
+  const g = envGain(context, time, gain, 0.06, dur, out)
+  osc.connect(f1); osc.connect(f2)
+  f1.connect(g); f2.connect(g)
+  osc.start(time); osc.stop(time + dur + 0.15)
+}

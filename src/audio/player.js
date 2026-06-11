@@ -16,8 +16,9 @@ export function voiceFor(partName) {
   if (n.includes('break')) return 'break'
   if (n.includes('sub') || n.includes('bass')) return 'bass'
   if (n.includes('chord') || n.includes('pad')) return 'chord'
+  if (n.includes('vocal') || n.includes('vox') || n.includes('voice')) return 'vox'
   if (n.includes('lead') || n.includes('melody') || n.includes('synth') ||
-      n.includes('vocal') || n.includes('sample')) return 'pluck'
+      n.includes('sample')) return 'pluck'
   return 'pluck'
 }
 
@@ -194,6 +195,7 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
       if (voice === 'eight08') return S.eight08(ctx, t, out, f, 0.9, evt.long ? stepDur * 6 : 0.5)
       if (voice === 'bass') return S.bass(ctx, t, out, f, 0.5, evt.long ? stepDur * 4 : stepDur * 1.5)
       if (voice === 'supersaw') return S.supersaw(ctx, t, out, f, 0.28, stepDur * 1.8)
+      if (voice === 'vox') return S.vox(ctx, t, out, f, 0.28, stepDur * 3)
       return S.pluck(ctx, t, out, f, 0.3, stepDur * 2)
     }
   }
