@@ -105,8 +105,12 @@ export function patternClip(voice, pattern) {
   return clip // structure / unknown → empty
 }
 
-// source: { type:'groove', genreId } | { type:'pattern', pattern }
+// source: { type:'groove', genreId, override? } | { type:'pattern', pattern }
+// `override` is a per-voice groove map (a reference song's hook) that takes
+// precedence over the genre default for any voice it defines.
 export function buildTrackClip(voice, source) {
   if (source.type === 'pattern') return patternClip(voice, source.pattern)
-  return grooveClip(voice, grooveFor(source.genreId).voices[voice])
+  const base = grooveFor(source.genreId).voices[voice]
+  const gp = (source.override && source.override[voice]) || base
+  return grooveClip(voice, gp)
 }

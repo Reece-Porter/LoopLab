@@ -156,7 +156,7 @@ export default function GenrePage() {
               ))}
             </div>
           )}
-          <ArrangementView arrangement={activeArrangement} accentClass={genre.color} bpm={bpm} genreId={genre.id} parts={genre.parts} />
+          <ArrangementView arrangement={activeArrangement} accentClass={genre.color} bpm={bpm} genreId={genre.id} parts={genre.parts} songGroove={selectedSong?.groove || null} />
         </div>
 
         {/* Custom arrangement builder */}

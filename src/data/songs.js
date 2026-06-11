@@ -1,7 +1,21 @@
 // Reference song arrangements for each genre.
-// Each entry maps genreId → array of songs. A song's `tracks` array overrides
-// the on/off pattern (sections[]) for each named track in the genre's default
-// arrangement, letting the UI show how a real track was structured.
+// Each entry maps genreId → array of songs. A song has:
+//   - tracks: per-section on/off overrides (how the track is structured)
+//   - groove: per-voice note/chord overrides that recreate the song's most
+//     recognisable hook (bassline, lead riff, chord stabs, vocal). Voices not
+//     listed fall back to the genre's default groove, so drums stay consistent.
+//
+// Voice keys must match the resolved synth voice for each track name:
+//   bass, reese, donk, piano, supersaw, pluck, chord, vox, perc, kick…
+// (see voiceFor in player.js). Patterns use the same shape as grooves.js:
+//   { steps:[16], notes:[...] }  |  { steps:[16], chords:[...], pad/keys }
+
+// 16-step helper: list the steps that fire.
+const on = (...steps) => {
+  const a = new Array(16).fill(0)
+  steps.forEach(s => { a[s] = 1 })
+  return a
+}
 
 export const GENRE_SONGS = {
 
@@ -21,6 +35,13 @@ export const GENRE_SONGS = {
         { name: 'Vocal Hook', sections: [0,1,0,1,1,1,1,1,0] },
         { name: 'FX/Riser',   sections: [0,0,1,0,0,1,0,0,0] },
       ],
+      // Iconic stabby Dm riff + "what is love" vocal answer.
+      groove: {
+        bass:  { steps: on(0,2,4,6,8,10,12,14), notes: ['D2','D2','D2','D2','C2','C2','A1','A1'] },
+        pluck: { steps: on(0,3,6,8,11,14),      notes: ['A4','A4','D5','A4','F4','A4'] },
+        chord: { steps: on(0,8), chords: ['Dm','C'], pad: true },
+        vox:   { steps: on(0,8), notes: ['D5','A4'] },
+      },
     },
     {
       title: 'Rhythm Is a Dancer',
@@ -36,6 +57,13 @@ export const GENRE_SONGS = {
         { name: 'Vocal Hook', sections: [0,0,0,1,0,1,1,1,0] },
         { name: 'FX/Riser',   sections: [0,0,1,0,0,1,0,0,0] },
       ],
+      // The descending Am synth-lead hook.
+      groove: {
+        bass:  { steps: on(0,2,4,6,8,10,12,14), notes: ['A1','A1','A1','A1','G1','G1','F1','F1'] },
+        pluck: { steps: on(0,2,4,6,8,10,12,14), notes: ['E5','E5','D5','C5','B4','C5','A4','E4'] },
+        chord: { steps: on(0,8), chords: ['Am','F'], pad: true },
+        vox:   { steps: on(0,8), notes: ['A4','C5'] },
+      },
     },
   ],
 
@@ -53,6 +81,12 @@ export const GENRE_SONGS = {
         { name: 'Vocal',     sections: [0,0,1,1,0,1,0] },
         { name: 'FX/Atmos',  sections: [1,1,0,1,1,0,1] },
       ],
+      // Bouncing off-beat chord stabs + soulful vocal leap.
+      groove: {
+        bass:  { steps: on(2,6,10,14), notes: ['F1','F1','A#1','C2'] },
+        chord: { steps: on(0,2,6,8,10,14), chords: ['Fm7','Fm7','A#maj7','D#maj7','Fm7','A#maj7'], keys: true },
+        vox:   { steps: on(0,4,8,12), notes: ['F4','G#4','C5','A#4'] },
+      },
     },
     {
       title: 'Need U (100%)',
@@ -66,6 +100,11 @@ export const GENRE_SONGS = {
         { name: 'Vocal',     sections: [0,1,1,1,1,1,0] },
         { name: 'FX/Atmos',  sections: [1,1,0,1,1,0,1] },
       ],
+      groove: {
+        bass:  { steps: on(2,6,10,14), notes: ['F1','A#1','C2','C2'] },
+        chord: { steps: on(0,4,8,12), chords: ['Fm7','D#maj7','A#maj7','Cm7'], keys: true },
+        vox:   { steps: on(0,8), notes: ['C5','A#4'] },
+      },
     },
   ],
 
@@ -84,6 +123,11 @@ export const GENRE_SONGS = {
         { name: 'Groove Stab', sections: [0,0,1,0,0,1,0] },
         { name: 'Vocal',       sections: [0,0,0,0,0,0,0] },
       ],
+      // Stabbed Dm groove riff over a locked off-beat bass.
+      groove: {
+        bass:     { steps: on(0,3,6,10,14), notes: ['D2','D2','A1','D2','C2'] },
+        supersaw: { steps: on(0,4,8,12), notes: ['D4','D4','F4','D4'] },
+      },
     },
     {
       title: 'Hardgroove For Life',
@@ -98,6 +142,11 @@ export const GENRE_SONGS = {
         { name: 'Groove Stab', sections: [0,1,1,0,1,1,0] },
         { name: 'Vocal',       sections: [0,0,1,0,0,1,0] },
       ],
+      groove: {
+        bass:     { steps: on(0,3,6,8,11,14), notes: ['A1','A1','C2','A1','A1','G1'] },
+        supersaw: { steps: on(0,2,8,10), notes: ['A3','C4','A3','G3'] },
+        vox:      { steps: on(0,8), notes: ['A4','D5'] },
+      },
     },
   ],
 
@@ -116,6 +165,13 @@ export const GENRE_SONGS = {
         { name: 'Hoover Stab', sections: [0,1,1,0,1,1,0] },
         { name: 'Vocal',       sections: [0,0,1,0,0,1,0] },
       ],
+      // Anthemic rising hoover stab + bouncing donk in Cm.
+      groove: {
+        bass:     { steps: on(0,2,6,8,10,14), notes: ['C2','C2','G2','C2','A#1','G1'] },
+        donk:     { steps: on(2,4,6,8,10,12,14), notes: ['C3','C4','G3','C3','C4','A#3','G3'] },
+        supersaw: { steps: on(0,4,8,12), notes: ['C4','C4','D#4','G4'] },
+        vox:      { steps: on(0,8), notes: ['C5','G4'] },
+      },
     },
     {
       title: 'Burning Up',
@@ -130,6 +186,12 @@ export const GENRE_SONGS = {
         { name: 'Hoover Stab', sections: [0,1,1,0,1,1,0] },
         { name: 'Vocal',       sections: [0,1,1,1,0,1,0] },
       ],
+      groove: {
+        bass:     { steps: on(0,2,6,8,10,14), notes: ['C2','C2','G1','C2','A#1','C2'] },
+        donk:     { steps: on(0,2,4,6,8,10,12,14), notes: ['C3','C4','C3','C4','G2','G3','A#2','A#3'] },
+        supersaw: { steps: on(0,2,4,8,10,12), notes: ['G3','C4','G3','D#4','C4','G3'] },
+        vox:      { steps: on(0,8), notes: ['C5','A#4'] },
+      },
     },
   ],
 
@@ -147,6 +209,12 @@ export const GENRE_SONGS = {
         { name: 'Piano',  sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',  sections: [0,0,1,1,0,1,0] },
       ],
+      // The rolling piano-house chord riff — "the house anthem".
+      groove: {
+        bass:  { steps: on(2,6,10,14), notes: ['F1','A#1','C2','A#1'] },
+        piano: { steps: on(0,2,4,6,8,10,12,14), chords: ['Fm7','Fm7','A#maj7','A#maj7','Cm7','Cm7','Fm7','Fm7'] },
+        vox:   { steps: on(0,8), notes: ['F4','A#4'] },
+      },
     },
     {
       title: 'Ride on Time',
@@ -160,6 +228,11 @@ export const GENRE_SONGS = {
         { name: 'Piano',  sections: [0,0,1,1,1,1,0] },
         { name: 'Vocal',  sections: [0,1,1,1,1,1,0] },
       ],
+      groove: {
+        bass:  { steps: on(0,3,6,10,14), notes: ['F1','F1','A#1','C2','A#1'] },
+        piano: { steps: on(0,4,8,12), chords: ['Fm7','A#maj7','Gm7','Cm7'] },
+        vox:   { steps: on(0,4,8,12), notes: ['F4','G#4','C5','A#4'] },
+      },
     },
   ],
 
@@ -178,6 +251,12 @@ export const GENRE_SONGS = {
         { name: 'Organ',     sections: [0,0,1,0,0,1,0] },
         { name: 'Vocal',     sections: [0,0,0,0,0,0,0] },
       ],
+      // The growling, walking Reese sub IS the hook.
+      groove: {
+        reese: { steps: on(0,3,6,8,11,14), notes: ['G1','G1','A#1','C2','C2','D2'] },
+        bass:  { steps: on(0,6,10), notes: ['G1','A#1','C2'], long: true },
+        piano: { steps: on(2,8,11), chords: ['Gm7','Cm7','D7'] },
+      },
     },
     {
       title: 'Sweet Like Chocolate',
@@ -192,6 +271,11 @@ export const GENRE_SONGS = {
         { name: 'Organ',     sections: [0,0,1,0,0,1,0] },
         { name: 'Vocal',     sections: [0,0,1,1,0,1,0] },
       ],
+      groove: {
+        reese: { steps: on(0,6,10), notes: ['G1','A#1','C2'] },
+        piano: { steps: on(0,4,8,12), chords: ['Gm7','D#maj7','A#maj7','Cm7'] },
+        vox:   { steps: on(0,4,8,12), notes: ['G4','A#4','D5','A#4'] },
+      },
     },
   ],
 
@@ -209,6 +293,12 @@ export const GENRE_SONGS = {
         { name: 'Rave Stab', sections: [0,1,1,0,1,1,0] },
         { name: 'Vocal',     sections: [0,0,1,0,0,1,0] },
       ],
+      // Relentless bouncing donk + euphoric rave stab in Am.
+      groove: {
+        donk:     { steps: on(0,2,4,6,8,10,12,14), notes: ['A2','A3','A2','A3','G2','G3','A2','A3'] },
+        supersaw: { steps: on(0,4,8,12), notes: ['A4','A4','C5','E5'] },
+        vox:      { steps: on(0,8), notes: ['A4','E5'] },
+      },
     },
     {
       title: 'Obsession',
@@ -222,6 +312,11 @@ export const GENRE_SONGS = {
         { name: 'Rave Stab', sections: [0,1,1,0,1,1,0] },
         { name: 'Vocal',     sections: [0,1,1,1,1,1,0] },
       ],
+      groove: {
+        donk:     { steps: on(0,2,4,6,8,10,12,14), notes: ['A2','A3','A2','A3','C3','C4','E3','E4'] },
+        supersaw: { steps: on(0,2,8,10), notes: ['E5','C5','A4','E5'] },
+        vox:      { steps: on(0,8), notes: ['A4','E5'] },
+      },
     },
   ],
 
@@ -240,6 +335,12 @@ export const GENRE_SONGS = {
         { name: 'Vocal Stab', sections: [0,0,1,0,0,1,0] },
         { name: 'Vocal',      sections: [0,0,1,1,0,1,0] },
       ],
+      // Rolling Cm acid-ish riff + the "losing it" vocal stab.
+      groove: {
+        bass:     { steps: on(0,2,4,6,8,10,12,14), notes: ['C2','C2','C2','D#2','C2','C2','A#1','G1'] },
+        supersaw: { steps: on(0,2,4,6,8,10,12,14), notes: ['C4','C4','C4','D#4','C4','C4','A#3','G3'] },
+        vox:      { steps: on(0,8), notes: ['C5','D#5'] },
+      },
     },
     {
       title: 'La La Land',
@@ -254,6 +355,11 @@ export const GENRE_SONGS = {
         { name: 'Vocal Stab', sections: [0,1,1,0,1,1,0] },
         { name: 'Vocal',      sections: [0,1,1,1,1,1,0] },
       ],
+      groove: {
+        bass:     { steps: on(0,4,8,12), notes: ['C2','C2','C2','C2'] },
+        supersaw: { steps: on(0,2,8,10), notes: ['C4','D#4','C4','G3'] },
+        vox:      { steps: on(0,2,4,8,10,12), notes: ['C5','C5','D#5','C5','C5','G4'] },
+      },
     },
   ],
 
@@ -271,6 +377,11 @@ export const GENRE_SONGS = {
         { name: 'Hypno Stab', sections: [0,0,1,0,0,1,0] },
         { name: 'Vocal',      sections: [0,0,0,0,0,0,0] },
       ],
+      // The hypnotic repeating "Bells" synth motif.
+      groove: {
+        bass:     { steps: on(0,2,4,6,8,10,12,14), notes: ['A1','A1','A1','A1','A1','A1','A1','A1'] },
+        supersaw: { steps: on(0,2,4,6,8,10,12,14), notes: ['A4','E5','A4','C5','A4','E5','A4','B4'] },
+      },
     },
     {
       title: 'Spastik',
@@ -281,9 +392,14 @@ export const GENRE_SONGS = {
         { name: 'Hi-Hats',    sections: [0,1,1,0,1,1,1] },
         { name: 'Percussion', sections: [0,1,1,0,1,1,1] },
         { name: 'Sub Bass',   sections: [0,1,1,0,1,1,0] },
-        { name: 'Hypno Stab', sections: [0,0,1,0,0,1,0] },
+        { name: 'Hypno Stab', sections: [0,0,0,0,0,0,0] },
         { name: 'Vocal',      sections: [0,0,0,0,0,0,0] },
       ],
+      // Pure rhythmic workout — rolling shaker/perc, no melody.
+      groove: {
+        perc: { steps: on(0,2,3,4,6,7,8,10,11,12,14,15) },
+        bass: { steps: on(0,4,8,12), notes: ['A1','A1','A1','A1'] },
+      },
     },
   ],
 
@@ -302,6 +418,12 @@ export const GENRE_SONGS = {
         { name: 'Hoover',         sections: [0,1,1,0,1,1,0] },
         { name: 'Vocal',          sections: [0,0,1,0,0,1,0] },
       ],
+      // Screaming Em hoover + chanted vocal hook.
+      groove: {
+        bass:     { steps: on(0,2,4,6,8,10,12,14), notes: ['E2','E2','E2','B1','E2','E2','D2','B1'] },
+        supersaw: { steps: on(0,4,8,12), notes: ['E4','E4','G4','E4'] },
+        vox:      { steps: on(0,4,8,12), notes: ['E5','E5','B4','E5'] },
+      },
     },
     {
       title: 'Purple Widow',
@@ -316,6 +438,11 @@ export const GENRE_SONGS = {
         { name: 'Hoover',         sections: [0,1,1,0,1,1,0] },
         { name: 'Vocal',          sections: [0,0,1,1,0,1,0] },
       ],
+      groove: {
+        bass:     { steps: on(0,4,8,12), notes: ['E2','E2','E2','E2'] },
+        supersaw: { steps: on(0,2,8,10), notes: ['E4','G4','E4','B3'] },
+        vox:      { steps: on(0,8), notes: ['E5','B4'] },
+      },
     },
   ],
 
@@ -333,6 +460,12 @@ export const GENRE_SONGS = {
         { name: 'Distorted Bass', sections: [0,1,1,0,1,1,0] },
         { name: 'Rave Stab',      sections: [0,1,1,0,1,1,0] },
       ],
+      // Hammered Cm loop, crushing every-beat stab and dense perc.
+      groove: {
+        perc:     { steps: on(0,2,3,4,6,7,8,10,11,12,14,15) },
+        bass:     { steps: on(0,4,8,12), notes: ['C2','C2','C2','C2'] },
+        supersaw: { steps: on(0,4,8,12), notes: ['C4','C4','C4','C4'] },
+      },
     },
     {
       title: 'I See You, I Am You',
@@ -346,6 +479,11 @@ export const GENRE_SONGS = {
         { name: 'Distorted Bass', sections: [0,1,1,0,1,1,0] },
         { name: 'Rave Stab',      sections: [0,0,1,0,0,1,0] },
       ],
+      groove: {
+        perc:     { steps: on(0,2,4,6,8,10,12,14) },
+        bass:     { steps: on(0,4,8,12), notes: ['C2','C2','C2','C2'] },
+        supersaw: { steps: on(0,8), notes: ['C4','D#4'] },
+      },
     },
   ],
 }

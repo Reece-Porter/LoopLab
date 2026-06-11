@@ -55,7 +55,7 @@ function ClipPreview({ clip, color, bars }) {
   )
 }
 
-export default function ArrangementView({ arrangement, accentClass, bpm, genreId, parts = [] }) {
+export default function ArrangementView({ arrangement, accentClass, bpm, genreId, parts = [], songGroove = null }) {
   const [hidden, setHidden] = useState({})
   const [selection, setSelection] = useState({}) // trackName -> 'groove' | patternIndex
   const { playing, start, stop, getPosition } = usePlayer('arrangement')
@@ -104,11 +104,11 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
       const options = partFor[t.name]
       const source = (sel != null && sel !== 'groove' && options[sel])
         ? { type: 'pattern', pattern: options[sel] }
-        : { type: 'groove', genreId }
+        : { type: 'groove', genreId, override: songGroove }
       map[t.name] = buildTrackClip(v, source)
     })
     return map
-  }, [arrangement.tracks, selection, partFor, genreId])
+  }, [arrangement.tracks, selection, partFor, genreId, songGroove])
 
   // Keep the live refs the audio scheduler reads in sync with React state.
   useEffect(() => { clipsRef.current = clips }, [clips])
