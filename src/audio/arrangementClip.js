@@ -13,19 +13,25 @@ function freqLevel(f) {
   return f ? 0.25 + 0.75 * Math.min(1, Math.max(0, (Math.log2(f) - 5.2) / 5.2)) : 0.6
 }
 
-// Vowels cycled per sung note so the vocal sounds like it's forming words.
-const VOWEL_SEQ = ['ah', 'oh', 'ee', 'eh', 'oo']
+// Pick ONE vowel for a whole vocal phrase. Cycling vowels per note sounds
+// goofy (like babbling syllables); real vocal hooks/pads hold "ooohs"/"aaahs".
+function vowelFor(name = '') {
+  const n = name.toLowerCase()
+  if (/ooh|\boo\b|hum|breath|whisper|warm|cosy|atmos|late|background|pad/.test(n)) return 'oo'
+  if (/aah|\bah\b/.test(n)) return 'ah'
+  return 'ah'
+}
 
 // Post-process a finished clip so any vocal notes sustain right up to the next
-// note (covering the bar) and each gets a cycling vowel. Mutates + returns clip.
-function shapeVocal(clip) {
+// note (covering the bar), all on one held vowel. Mutates + returns clip.
+function shapeVocal(clip, vowel = 'ah') {
   const steps = []
   for (let i = 0; i < 16; i++) if (clip[i] && clip[i].freq != null) steps.push(i)
   steps.forEach((s, k) => {
     // hold until the next sung note (wrapping to the first note of next bar)
     const next = k + 1 < steps.length ? steps[k + 1] : steps[0] + 16
     const span = Math.min(8, Math.max(2, next - s)) // cap so holds don't pile up
-    clip[s] = { ...clip[s], vowel: VOWEL_SEQ[k % VOWEL_SEQ.length], sustain: span }
+    clip[s] = { ...clip[s], vowel, sustain: span }
   })
   return clip
 }
@@ -53,7 +59,7 @@ export function grooveClip(voice, gp) {
       hit++
     }
   }
-  if (voice === 'vox') return shapeVocal(clip)
+  if (voice === 'vox') return shapeVocal(clip, 'oo') // default groove = soft "oohs"
   return clip
 }
 
@@ -82,7 +88,7 @@ export function patternClip(voice, pattern) {
       const f = noteToFreq(tok)
       if (f) clip[step] = { freq: f, level: freqLevel(f) }
     })
-    if (voice === 'vox') return shapeVocal(clip)
+    if (voice === 'vox') return shapeVocal(clip, vowelFor(pattern.name))
     return clip
   }
 

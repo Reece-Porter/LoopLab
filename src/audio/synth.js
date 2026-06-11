@@ -330,18 +330,18 @@ export function vox(context, time, out, freq, gain = 0.3, dur = 0.8, vowel = 'ah
   const src = context.createGain()
   src.gain.value = 1
 
-  // Delayed vibrato (singers ease vibrato in on held notes).
+  // Subtle, slow vibrato that eases in late — too much reads as "cartoon opera".
   const vib = context.createOscillator()
-  vib.frequency.value = 5.5
+  vib.frequency.value = 4.8
   const vibDepth = context.createGain()
-  vibDepth.gain.value = freq * 0.018
+  vibDepth.gain.value = freq * 0.007
   const vibEnv = context.createGain()
   vibEnv.gain.setValueAtTime(0, time)
-  vibEnv.gain.linearRampToValueAtTime(1, time + Math.min(0.3, dur * 0.5))
+  vibEnv.gain.linearRampToValueAtTime(1, time + Math.min(0.45, dur * 0.7))
   vib.connect(vibDepth).connect(vibEnv)
   vib.start(time); vib.stop(time + dur + 0.05)
 
-  const detunes = choir ? [-9, 0, 9] : [0]
+  const detunes = choir ? [-5, 0, 5] : [0]
   detunes.forEach(d => {
     const osc = context.createOscillator()
     osc.type = 'sawtooth'
@@ -352,16 +352,24 @@ export function vox(context, time, out, freq, gain = 0.3, dur = 0.8, vowel = 'ah
     osc.start(time); osc.stop(time + dur + 0.05)
   })
 
-  // Parallel vowel formant filters.
+  // Parallel vowel formant filters — moderate Q so it's smooth, not nasal.
   formants.forEach(([f, a]) => {
     const bp = context.createBiquadFilter()
     bp.type = 'bandpass'
     bp.frequency.value = f
-    bp.Q.value = 9
+    bp.Q.value = 5
     const fg = context.createGain()
     fg.gain.value = a
     src.connect(bp).connect(fg).connect(env)
   })
+
+  // A little of the raw source, gently low-passed, adds warmth/body so it
+  // doesn't sound thin and vocodery.
+  const body = context.createBiquadFilter()
+  body.type = 'lowpass'; body.frequency.value = 1600
+  const bodyGain = context.createGain()
+  bodyGain.gain.value = 0.18
+  src.connect(body).connect(bodyGain).connect(env)
 
   // A touch of breath noise on the attack.
   const noise = context.createBufferSource()
