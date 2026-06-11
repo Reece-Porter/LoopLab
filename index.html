@@ -8,6 +8,19 @@
   </head>
   <body>
     <div id="root"></div>
+    <div id="err" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#030712;color:#f87171;padding:32px;font-family:monospace;font-size:13px;white-space:pre-wrap;z-index:9999;overflow:auto"></div>
+    <script>
+      window.onerror = function(msg, src, line, col, err) {
+        var el = document.getElementById('err');
+        el.style.display = 'block';
+        el.textContent = 'JS Error:\n' + msg + '\n' + (src||'') + ':' + line + ':' + col + '\n\n' + (err && err.stack ? err.stack : '');
+      };
+      window.addEventListener('unhandledrejection', function(e) {
+        var el = document.getElementById('err');
+        el.style.display = 'block';
+        el.textContent = (el.textContent || '') + '\nUnhandled rejection:\n' + (e.reason && e.reason.stack ? e.reason.stack : String(e.reason));
+      });
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
