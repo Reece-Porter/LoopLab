@@ -86,7 +86,7 @@ export default function GenrePage() {
         {/* Arrangement View */}
         <div className="mt-12">
           <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Full Arrangement</p>
-          <ArrangementView arrangement={genre.arrangement} accentClass={genre.color} bpm={parseInt(/\d+/.exec(genre.bpm)[0], 10)} genreId={genre.id} />
+          <ArrangementView arrangement={genre.arrangement} accentClass={genre.color} bpm={parseInt(/\d+/.exec(genre.bpm)[0], 10)} genreId={genre.id} parts={genre.parts} />
         </div>
       </div>
     </div>

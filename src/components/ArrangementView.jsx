@@ -2,40 +2,19 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { usePlayer } from '../audio/usePlayer'
 import { voiceFor } from '../audio/player'
 import { grooveFor } from '../audio/grooves'
-import { noteToFreq, chordToFreqs } from '../audio/theory'
+import { buildTrackClip } from '../audio/arrangementClip'
 import PlayButton from './PlayButton'
 
 const LABEL_W = 176 // px — width of the track-name column
 const PX_PER_BAR = 26 // px — horizontal zoom of the timeline
 
-// Build a 16-step "clip" of note levels (0 = rest, 0..1 = pitch/intensity)
-// so each block shows the actual rhythm and rough pitch of that track.
-function buildClip(voice, pat) {
-  const clip = new Array(16).fill(0)
-  if (!pat) return clip
-  // Drum voices: fixed intensity per voice.
-  const drumLevel = { kick: 1, snare: 0.82, hat: 0.4, break: 0.9 }[voice]
-  let hitOrder = 0
-  for (let i = 0; i < 16; i++) {
-    if (!pat.steps[i]) continue
-    if (drumLevel != null && !pat.notes && !pat.chords) {
-      clip[i] = drumLevel
-    } else {
-      let freq = null
-      if (pat.notes) freq = noteToFreq(pat.notes[hitOrder % pat.notes.length])
-      else if (pat.chords) { const f = chordToFreqs(pat.chords[hitOrder % pat.chords.length]); freq = f[0] }
-      // Map ~D1(36Hz)..C6(1047Hz) onto 0.25..1 on a log scale.
-      const level = freq ? 0.25 + 0.75 * Math.min(1, Math.max(0, (Math.log2(freq) - 5.2) / 5.2)) : 0.6
-      clip[i] = level
-      hitOrder++
-    }
-  }
-  return clip
-}
+// Normalise a track name for matching arrangement tracks to part definitions.
+const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, '')
 
-// Piano-roll style preview drawn on a canvas: the 16-step pattern is tiled
-// once per bar across the whole section, so you see every individual note
-// exactly where it sounds — like clips in the FL Studio playlist.
+// Piano-roll style preview drawn on a canvas: the 16-step clip is tiled once
+// per bar across the whole section, so you see every individual note exactly
+// where it sounds — like clips in the FL Studio playlist. Each slot is an
+// event with a `level` (0..1 height) or null (rest).
 function ClipPreview({ clip, color, bars }) {
   const ref = useRef(null)
   useEffect(() => {
@@ -52,8 +31,9 @@ function ClipPreview({ clip, color, bars }) {
       c.fillStyle = color
       for (let b = 0; b < bars; b++) {
         for (let i = 0; i < 16; i++) {
-          const lvl = clip[i]
-          if (lvl <= 0) continue
+          const evt = clip[i]
+          if (!evt) continue
+          const lvl = evt.level || 0.6
           const x = b * 16 + i
           const h = Math.max(3, lvl * (H - 4))
           c.fillRect(x + 0.12, H - h - 2, 0.76, h)
@@ -76,21 +56,39 @@ function ClipPreview({ clip, color, bars }) {
   )
 }
 
-export default function ArrangementView({ arrangement, accentClass, bpm, genreId }) {
+export default function ArrangementView({ arrangement, accentClass, bpm, genreId, parts = [] }) {
   const [hidden, setHidden] = useState({})
-  const { playing, toggle, start, stop, getPosition } = usePlayer('arrangement')
+  const [selection, setSelection] = useState({}) // trackName -> 'groove' | patternIndex
+  const { playing, start, stop, getPosition } = usePlayer('arrangement')
   const scrollRef = useRef(null)
   const seekRef = useRef(null)
+  const clipsRef = useRef({})  // live: trackName -> clip16
+  const mutedRef = useRef({})  // live: trackName -> true
   const [frac, setFrac] = useState(null) // smooth playhead 0..1
   const [startBar, setStartBar] = useState(0) // where playback begins
 
   const toggleTrack = name => setHidden(h => ({ ...h, [name]: !h[name] }))
 
   const totalBars = arrangement.sections.reduce((sum, s) => sum + s.bars, 0)
-  const visibleTracks = arrangement.tracks.filter(t => !hidden[t.name])
 
   const groove = useMemo(() => grooveFor(genreId), [genreId])
   const timelineWidth = Math.max(584, totalBars * PX_PER_BAR)
+
+  // Static lineup the player walks (name + voice + per-section on/off).
+  const lineup = useMemo(
+    () => arrangement.tracks.map(t => ({ name: t.name, voice: voiceFor(t.name), sections: t.sections })),
+    [arrangement.tracks],
+  )
+
+  // For each track, the matching part (for its selectable example patterns).
+  const partFor = useMemo(() => {
+    const map = {}
+    arrangement.tracks.forEach(t => {
+      const p = parts.find(p => norm(p.name) === norm(t.name))
+      map[t.name] = p && p.patterns ? p.patterns.filter(pt => pt.type !== 'structure') : []
+    })
+    return map
+  }, [arrangement.tracks, parts])
 
   // Bar at the start of each section, for highlighting the live section.
   const sectionStartBars = useMemo(() => {
@@ -98,18 +96,31 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
     return arrangement.sections.map(s => { const b = acc; acc += s.bars; return b })
   }, [arrangement.sections])
 
-  // Precompute a clip preview per track.
+  // Build a clip per track from its current selection ('groove' or a pattern).
   const clips = useMemo(() => {
     const map = {}
     arrangement.tracks.forEach(t => {
       const v = voiceFor(t.name)
-      map[t.name] = buildClip(v, groove.voices[v])
+      const sel = selection[t.name]
+      const options = partFor[t.name]
+      const source = (sel != null && sel !== 'groove' && options[sel])
+        ? { type: 'pattern', pattern: options[sel] }
+        : { type: 'groove', genreId }
+      map[t.name] = buildTrackClip(v, source)
     })
     return map
-  }, [arrangement.tracks, groove])
+  }, [arrangement.tracks, selection, partFor, genreId])
+
+  // Keep the live refs the audio scheduler reads in sync with React state.
+  useEffect(() => { clipsRef.current = clips }, [clips])
+  useEffect(() => {
+    const m = {}
+    Object.keys(hidden).forEach(k => { if (hidden[k]) m[k] = true })
+    mutedRef.current = m
+  }, [hidden])
 
   const play = (fromBar = startBar) =>
-    start('arrangement', { genreId, arrangement, tracks: visibleTracks, startStep: fromBar * 16 })
+    start('arrangement', { genreId, arrangement, tracks: lineup, startStep: fromBar * 16, clipsRef, mutedRef })
 
   const onPlay = () => (playing ? stop() : play())
 
@@ -206,25 +217,53 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
           {arrangement.tracks.map(track => {
             const isHidden = hidden[track.name]
             const clip = clips[track.name]
+            const options = partFor[track.name] || []
+            const sel = selection[track.name] ?? 'groove'
             return (
               <div key={track.name} className={`flex border-b border-white/5 group ${isHidden ? 'opacity-40' : ''}`}>
-                <button
-                  onClick={() => toggleTrack(track.name)}
-                  className="shrink-0 flex items-center gap-2.5 px-4 py-3.5 border-r border-white/10 hover:bg-white/5 transition-colors text-left"
+                <div
+                  className="shrink-0 flex flex-col justify-center gap-1.5 px-3 py-2 border-r border-white/10"
                   style={{ width: LABEL_W }}
-                  title={isHidden ? 'Show track' : 'Hide track'}
                 >
-                  <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: track.color, opacity: isHidden ? 0.3 : 1 }} />
-                  <span className="text-sm text-gray-300 truncate">{track.icon} {track.name}</span>
-                  <span className="ml-auto text-gray-700 group-hover:text-gray-500 text-sm shrink-0">{isHidden ? '○' : '●'}</span>
-                </button>
+                  <button
+                    onClick={() => toggleTrack(track.name)}
+                    className="flex items-center gap-2 hover:opacity-80 transition-opacity text-left"
+                    title={isHidden ? 'Click to un-mute (start playing live)' : 'Click to mute (stop playing live)'}
+                  >
+                    <span
+                      className="w-4 h-4 rounded-[3px] shrink-0 flex items-center justify-center text-[9px] text-black font-bold"
+                      style={{ backgroundColor: isHidden ? 'transparent' : track.color, border: `1.5px solid ${track.color}` }}
+                    >
+                      {isHidden ? '' : '✓'}
+                    </span>
+                    <span className={`text-sm truncate ${isHidden ? 'text-gray-600 line-through' : 'text-gray-200'}`}>
+                      {track.icon} {track.name}
+                    </span>
+                  </button>
+                  {options.length > 0 && (
+                    <select
+                      value={sel}
+                      onChange={e => {
+                        const v = e.target.value === 'groove' ? 'groove' : Number(e.target.value)
+                        setSelection(s => ({ ...s, [track.name]: v }))
+                      }}
+                      className="w-full bg-gray-900 border border-white/10 rounded px-1.5 py-1 text-[11px] text-gray-300 focus:outline-none focus:border-purple-500 cursor-pointer"
+                      title="Choose which example pattern this track plays"
+                    >
+                      <option value="groove">Default groove</option>
+                      {options.map((p, i) => (
+                        <option key={i} value={i}>{p.name}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
 
                 {/* Pattern blocks with note previews */}
                 <div className="flex py-2 px-1 gap-1 items-center bg-black/20" style={{ width: timelineWidth }}>
                   {arrangement.sections.map((section, i) => {
                     const on = !!track.sections[i]
                     const active = on && !isHidden
-                    const hasNotes = clip.some(v => v > 0)
+                    const hasNotes = clip.some(e => e)
                     return (
                       <div
                         key={i}
@@ -294,7 +333,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
       </div>
 
       <div className="px-5 py-3 border-t border-white/5 flex gap-4 flex-wrap items-center">
-        <span className="text-xs text-gray-600">Click a track name to mute/unmute · click the timeline to set where playback starts (cyan marker) · the bars inside each block show its rhythm &amp; pitch</span>
+        <span className="text-xs text-gray-600">Tick a track to mute/un-mute it live while playing · pick an example pattern per track from its dropdown · click the timeline to set where playback starts (cyan marker)</span>
         <button onClick={() => setHidden({})} className="text-xs text-gray-500 hover:text-gray-300 transition-colors ml-auto">Show all</button>
       </div>
     </div>
