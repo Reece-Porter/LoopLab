@@ -298,6 +298,68 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
   })
 }
 
+// Lush detuned-saw trance pad — slow attack, airy octave, no muddiness.
+// Used for Eurodance and trance chord beds.
+export function synthPad(context, time, out, freqs, gain = 0.22, dur = 1.0) {
+  const env = context.createGain()
+  const attack = 0.22
+  const rel = Math.min(0.5, dur * 0.28)
+  const holdAt = Math.max(time + attack, time + dur - rel)
+  env.gain.setValueAtTime(0, time)
+  env.gain.linearRampToValueAtTime(gain, time + attack)
+  env.gain.setValueAtTime(gain, holdAt)
+  env.gain.exponentialRampToValueAtTime(0.0001, time + dur)
+  const lp = context.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.frequency.setValueAtTime(5000, time)
+  lp.frequency.linearRampToValueAtTime(3200, time + dur)
+  lp.Q.value = 0.5
+  lp.connect(env)
+  env.connect(out)
+  const detunes = [-8, -2, 0, 2, 8]
+  freqs.forEach(freq => {
+    detunes.forEach(d => {
+      const osc = context.createOscillator()
+      osc.type = 'sawtooth'
+      osc.frequency.value = freq
+      osc.detune.value = d
+      osc.connect(lp)
+      osc.start(time)
+      osc.stop(time + dur + 0.05)
+    })
+  })
+}
+
+// Rising noise+pitch sweep for FX/Riser sections before a drop.
+export function riser(context, time, out, gain = 0.14, dur = 4.0) {
+  const noise = context.createBufferSource()
+  noise.buffer = getNoise(context)
+  const lp = context.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.frequency.setValueAtTime(200, time)
+  lp.frequency.exponentialRampToValueAtTime(9000, time + dur)
+  const g = context.createGain()
+  g.gain.setValueAtTime(0, time)
+  g.gain.linearRampToValueAtTime(gain, time + dur * 0.5)
+  g.gain.linearRampToValueAtTime(gain * 1.8, time + dur)
+  g.connect(out)
+  noise.connect(lp).connect(g)
+  noise.start(time)
+  noise.stop(time + dur + 0.05)
+  const osc = context.createOscillator()
+  osc.type = 'sawtooth'
+  osc.frequency.setValueAtTime(80, time)
+  osc.frequency.exponentialRampToValueAtTime(3200, time + dur)
+  const og = context.createGain()
+  og.gain.setValueAtTime(0, time)
+  og.gain.linearRampToValueAtTime(gain * 0.35, time + dur * 0.4)
+  og.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.9)
+  og.connect(out)
+  osc.connect(og)
+  osc.start(time)
+  osc.stop(time + dur + 0.05)
+}
+
 // ---- Vocal (formant) synth -------------------------------------------------
 // Three parallel band-pass filters tuned to real vowel formants turn a buzzy
 // glottal source into a sung vowel. Cycling the vowel per note makes it sound

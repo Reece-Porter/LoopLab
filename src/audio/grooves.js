@@ -35,6 +35,7 @@ export const GENRE_GROOVES = {
       // Warm sustained pad (2 chords/bar) rather than a cheesy per-beat stab.
       chord:   { steps: on(0,8), chords: ['Am','F'], pad: true },
       vox:     { steps: on(0,8),     notes: ['A4','C5'] },
+      riser:   { steps: on(0),       notes: ['A4'] },
     },
   },
 

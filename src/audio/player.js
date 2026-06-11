@@ -22,6 +22,7 @@ export function voiceFor(partName) {
   if (n.includes('reese')) return 'reese'
   if (n.includes('sub') || n.includes('bass')) return 'bass'
   if (n.includes('rumble')) return 'kick'
+  if (n.includes('fx') || n.includes('riser') || n.includes('atmos')) return 'riser'
   if (n.includes('chord') || n.includes('pad') || n.includes('key')) return 'chord'
   if (n.includes('vocal') || n.includes('vox') || n.includes('voice')) return 'vox'
   if (n.includes('hoover') || n.includes('stab') || n.includes('rave') ||
@@ -165,9 +166,11 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
   }
   if (evt.freqs) {
     if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24, evt.pad ? stepDur * 8 : stepDur * 3)
+    if (evt.pad) return S.synthPad(ctx, t, out, evt.freqs, 0.20, stepDur * 12)
     if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.22, stepDur * 6)
-    return S.chordStab(ctx, t, out, evt.freqs, evt.pad ? 0.18 : 0.26, evt.pad ? stepDur * 12 : stepDur * 4, true)
+    return S.chordStab(ctx, t, out, evt.freqs, 0.26, stepDur * 4, true)
   }
+  if (voice === 'riser') return S.riser(ctx, t, out, 0.14, stepDur * 64)
   if (evt.freq != null) {
     const f = evt.freq
     if (voice === 'reese') return S.reese(ctx, t, out, f, 0.4, stepDur * 3)

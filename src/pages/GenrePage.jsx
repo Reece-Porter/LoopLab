@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import genres from '../data/genres.json'
+import { GENRE_SONGS } from '../data/songs'
 import { parseBpm } from '../audio/theory'
 import PartPanel from '../components/PartPanel'
 import ArrangementView from '../components/ArrangementView'
@@ -12,6 +13,21 @@ export default function GenrePage() {
   const genre = genres.find(g => g.id === id)
   const [activePart, setActivePart] = useState(null)
   const [bpm, setBpm] = useState(() => (genre ? parseBpm(genre.bpm) : 120))
+  const [selectedSong, setSelectedSong] = useState(null)
+
+  const songs = (genre && GENRE_SONGS[genre.id]) || []
+
+  // Merge a reference song's track sections into the genre's arrangement.
+  const activeArrangement = useMemo(() => {
+    if (!genre || !selectedSong) return genre?.arrangement
+    return {
+      ...genre.arrangement,
+      tracks: genre.arrangement.tracks.map(t => {
+        const override = selectedSong.tracks.find(s => s.name === t.name)
+        return override ? { ...t, sections: override.sections } : t
+      }),
+    }
+  }, [genre, selectedSong])
 
   if (!genre) {
     return (
@@ -112,8 +128,35 @@ export default function GenrePage() {
 
         {/* Arrangement View */}
         <div className="mt-12">
-          <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Full Arrangement</p>
-          <ArrangementView arrangement={genre.arrangement} accentClass={genre.color} bpm={bpm} genreId={genre.id} parts={genre.parts} />
+          <p className="text-xs text-gray-500 uppercase tracking-widest mb-1">Full Arrangement</p>
+          {songs.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4 mt-3">
+              <button
+                onClick={() => setSelectedSong(null)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  !selectedSong
+                    ? `bg-gradient-to-r ${genre.color} text-white shadow-lg`
+                    : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                Genre template
+              </button>
+              {songs.map(song => (
+                <button
+                  key={song.title}
+                  onClick={() => setSelectedSong(selectedSong?.title === song.title ? null : song)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    selectedSong?.title === song.title
+                      ? `bg-gradient-to-r ${genre.color} text-white shadow-lg`
+                      : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  {song.artist} — {song.title} <span className="opacity-60">({song.year})</span>
+                </button>
+              ))}
+            </div>
+          )}
+          <ArrangementView arrangement={activeArrangement} accentClass={genre.color} bpm={bpm} genreId={genre.id} parts={genre.parts} />
         </div>
 
         {/* Custom arrangement builder */}
