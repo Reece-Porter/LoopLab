@@ -1312,6 +1312,26 @@
       "name": "Vocal hook",
       "type": "notes",
       "value": "A4 – – – G4 – – – A4 – – – C5 – – –"
+     },
+     {
+      "name": "Aah pad (held)",
+      "type": "notes",
+      "value": "D4 – – – – – – – F4 – – – – – – –"
+     },
+     {
+      "name": "Ooh hook",
+      "type": "notes",
+      "value": "D4 – – – F4 – – – A4 – – – F4 – – –"
+     },
+     {
+      "name": "Vocal chops",
+      "type": "notes",
+      "value": "D4 – D4 – F4 – A4 – D4 – D4 – F4 A4 – –"
+     },
+     {
+      "name": "High response",
+      "type": "notes",
+      "value": "A4 – – – C5 – – – D5 – – – A4 – – –"
      }
     ]
    },
@@ -1757,6 +1777,26 @@
       "name": "Vocal hook",
       "type": "notes",
       "value": "C5 – – – G4 – – – A#4 – – – C5 – – –"
+     },
+     {
+      "name": "Aah pad (held)",
+      "type": "notes",
+      "value": "C4 – – – – – – – G4 – – – – – – –"
+     },
+     {
+      "name": "Ooh hook",
+      "type": "notes",
+      "value": "C4 – – – D#4 – – – G4 – – – D#4 – – –"
+     },
+     {
+      "name": "Vocal chops",
+      "type": "notes",
+      "value": "C4 – C4 – D#4 – G4 – C4 – C4 – G4 A#4 – –"
+     },
+     {
+      "name": "High diva response",
+      "type": "notes",
+      "value": "G4 – – – A#4 – – – C5 – – – G4 – – –"
      }
     ]
    },
@@ -2185,6 +2225,26 @@
       "name": "Vocal hook",
       "type": "notes",
       "value": "F4 – – – A#4 – – – C5 – – – A#4 – – –"
+     },
+     {
+      "name": "Aah pad (held)",
+      "type": "notes",
+      "value": "F4 – – – – – – – C5 – – – – – – –"
+     },
+     {
+      "name": "Ooh hook",
+      "type": "notes",
+      "value": "F4 – – – G#4 – – – C5 – – – G#4 – – –"
+     },
+     {
+      "name": "Soulful chops",
+      "type": "notes",
+      "value": "F4 – F4 – G#4 – C5 – F4 – F4 – G#4 C5 – –"
+     },
+     {
+      "name": "Gospel response",
+      "type": "notes",
+      "value": "C5 – – – D#5 – – – F5 – – – C5 – – –"
      }
     ]
    },
@@ -2638,6 +2698,26 @@
       "name": "Vocal hook",
       "type": "notes",
       "value": "G4 – – – A#4 – – – C5 – – – D5 – – –"
+     },
+     {
+      "name": "Aah pad (held)",
+      "type": "notes",
+      "value": "G4 – – – – – – – D5 – – – – – – –"
+     },
+     {
+      "name": "Ooh hook",
+      "type": "notes",
+      "value": "G4 – – – A#4 – – – D5 – – – A#4 – – –"
+     },
+     {
+      "name": "Garage chops",
+      "type": "notes",
+      "value": "G4 – G4 – A#4 – D5 – G4 – G4 – A#4 D5 – –"
+     },
+     {
+      "name": "High response",
+      "type": "notes",
+      "value": "D5 – – – F5 – – – G5 – – – D5 – – –"
      }
     ]
    },
@@ -3061,6 +3141,26 @@
       "name": "Vocal hook",
       "type": "notes",
       "value": "A4 – – – E5 – – – A4 – – – C5 – – –"
+     },
+     {
+      "name": "Aah pad (held)",
+      "type": "notes",
+      "value": "A4 – – – – – – – E5 – – – – – – –"
+     },
+     {
+      "name": "Ooh hook",
+      "type": "notes",
+      "value": "A4 – – – C5 – – – E5 – – – C5 – – –"
+     },
+     {
+      "name": "Rave vocal chops",
+      "type": "notes",
+      "value": "A4 – A4 – C5 – E5 – A4 – A4 – C5 E5 – –"
+     },
+     {
+      "name": "High response",
+      "type": "notes",
+      "value": "E5 – – – G5 – – – A5 – – – E5 – – –"
      }
     ]
    },
@@ -3531,6 +3631,26 @@
       "name": "Vocal hook",
       "type": "notes",
       "value": "C5 – – – G4 – – – C5 – – – D#5 – – –"
+     },
+     {
+      "name": "Aah pad (held)",
+      "type": "notes",
+      "value": "C4 – – – – – – – G4 – – – – – – –"
+     },
+     {
+      "name": "Ooh hook",
+      "type": "notes",
+      "value": "C4 – – – D#4 – – – G4 – – – D#4 – – –"
+     },
+     {
+      "name": "Vocal chops",
+      "type": "notes",
+      "value": "C4 – C4 – D#4 – G4 – C4 – C4 – G4 A#4 – –"
+     },
+     {
+      "name": "High response",
+      "type": "notes",
+      "value": "G4 – – – A#4 – – – C5 – – – G4 – – –"
      }
     ]
    },
@@ -3959,6 +4079,26 @@
       "name": "Vocal hook",
       "type": "notes",
       "value": "A4 – – – A4 – – – C5 – – – A4 – – –"
+     },
+     {
+      "name": "Aah pad (held)",
+      "type": "notes",
+      "value": "A4 – – – – – – – E4 – – – – – – –"
+     },
+     {
+      "name": "Ooh hook",
+      "type": "notes",
+      "value": "A4 – – – C5 – – – E5 – – – C5 – – –"
+     },
+     {
+      "name": "Hypno vocal chops",
+      "type": "notes",
+      "value": "A4 – A4 – C5 – E5 – A4 – A4 – E4 A4 – –"
+     },
+     {
+      "name": "Low monotone",
+      "type": "notes",
+      "value": "A3 – – – A3 – – – C4 – – – A3 – – –"
      }
     ]
    },
@@ -4429,6 +4569,26 @@
       "name": "Vocal hook",
       "type": "notes",
       "value": "E4 – – – E4 – – – G4 – – – E4 – – –"
+     },
+     {
+      "name": "Aah pad (held)",
+      "type": "notes",
+      "value": "E4 – – – – – – – B4 – – – – – – –"
+     },
+     {
+      "name": "Ooh hook",
+      "type": "notes",
+      "value": "E4 – – – G4 – – – B4 – – – G4 – – –"
+     },
+     {
+      "name": "Rave vocal chops",
+      "type": "notes",
+      "value": "E4 – E4 – G4 – B4 – E4 – E4 – G4 B4 – –"
+     },
+     {
+      "name": "High response",
+      "type": "notes",
+      "value": "B4 – – – D5 – – – E5 – – – B4 – – –"
      }
     ]
    },

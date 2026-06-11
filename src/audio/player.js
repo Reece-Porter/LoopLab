@@ -176,7 +176,7 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
     if (voice === 'bass') return S.bass(ctx, t, out, f, 0.5, evt.long ? stepDur * 4 : stepDur * 1.5)
     if (voice === 'supersaw') return S.supersaw(ctx, t, out, f, 0.28, stepDur * 1.8)
     if (voice === 'piano') return S.piano(ctx, t, out, [f], 0.22, stepDur * 3)
-    if (voice === 'vox') return S.vox(ctx, t, out, f, 0.28, stepDur * 3)
+    if (voice === 'vox') return S.vox(ctx, t, out, f, 0.3, stepDur * (evt.sustain || 6), evt.vowel || 'ah', true)
     return S.pluck(ctx, t, out, f, 0.3, stepDur * 2)
   }
 }

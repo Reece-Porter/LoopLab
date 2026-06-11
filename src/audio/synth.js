@@ -298,33 +298,80 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
   })
 }
 
-// Formant-filtered sawtooth with vibrato — approximate sung "aah/ooh" vowel.
-// The two bandpass filters mimic the first two vocal formants.
-export function vox(context, time, out, freq, gain = 0.28, dur = 0.45) {
-  const osc = context.createOscillator()
-  osc.type = 'sawtooth'
-  osc.frequency.setValueAtTime(freq, time)
+// ---- Vocal (formant) synth -------------------------------------------------
+// Three parallel band-pass filters tuned to real vowel formants turn a buzzy
+// glottal source into a sung vowel. Cycling the vowel per note makes it sound
+// like it's actually singing words rather than holding one "eee". A detuned
+// 3-voice "choir" plus a little breath noise and delayed vibrato sell it.
+const VOWEL_FORMANTS = {
+  // [frequency Hz, relative gain] for F1, F2, F3
+  ah: [[800, 1.0], [1150, 0.55], [2800, 0.12]],
+  eh: [[440, 1.0], [1700, 0.45], [2600, 0.12]],
+  ee: [[350, 1.0], [2100, 0.35], [2900, 0.12]],
+  oh: [[450, 1.0], [800, 0.6], [2830, 0.08]],
+  oo: [[325, 1.0], [700, 0.5], [2530, 0.06]],
+}
 
-  // Vibrato LFO kicks in ~80 ms after the note starts.
+export function vox(context, time, out, freq, gain = 0.3, dur = 0.8, vowel = 'ah', choir = true) {
+  const formants = VOWEL_FORMANTS[vowel] || VOWEL_FORMANTS.ah
+
+  // Master amplitude envelope: soft attack, hold, gentle release — so a note
+  // sustains and "covers" its bar instead of plinking.
+  const env = context.createGain()
+  const rel = Math.min(0.3, dur * 0.45)
+  const holdAt = Math.max(time + 0.08, time + dur - rel)
+  env.gain.setValueAtTime(0, time)
+  env.gain.linearRampToValueAtTime(gain, time + 0.08)
+  env.gain.setValueAtTime(gain, holdAt)
+  env.gain.exponentialRampToValueAtTime(0.0001, time + dur)
+  env.connect(out)
+
+  // Source bus feeding the formant filters.
+  const src = context.createGain()
+  src.gain.value = 1
+
+  // Delayed vibrato (singers ease vibrato in on held notes).
   const vib = context.createOscillator()
-  vib.frequency.value = 5.2
+  vib.frequency.value = 5.5
   const vibDepth = context.createGain()
-  vibDepth.gain.value = freq * 0.012
+  vibDepth.gain.value = freq * 0.018
   const vibEnv = context.createGain()
   vibEnv.gain.setValueAtTime(0, time)
-  vibEnv.gain.linearRampToValueAtTime(1, time + 0.08)
-  vib.connect(vibDepth).connect(vibEnv).connect(osc.frequency)
-  vib.start(time); vib.stop(time + dur + 0.1)
+  vibEnv.gain.linearRampToValueAtTime(1, time + Math.min(0.3, dur * 0.5))
+  vib.connect(vibDepth).connect(vibEnv)
+  vib.start(time); vib.stop(time + dur + 0.05)
 
-  // Formant 1 ~700 Hz ("ah"), Formant 2 ~1200 Hz.
-  const f1 = context.createBiquadFilter()
-  f1.type = 'bandpass'; f1.frequency.value = 700; f1.Q.value = 4
-  const f2 = context.createBiquadFilter()
-  f2.type = 'bandpass'; f2.frequency.value = 1200; f2.Q.value = 3
+  const detunes = choir ? [-9, 0, 9] : [0]
+  detunes.forEach(d => {
+    const osc = context.createOscillator()
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(freq, time)
+    osc.detune.value = d
+    vibEnv.connect(osc.frequency)
+    osc.connect(src)
+    osc.start(time); osc.stop(time + dur + 0.05)
+  })
 
-  // Soft envelope.
-  const g = envGain(context, time, gain, 0.06, dur, out)
-  osc.connect(f1); osc.connect(f2)
-  f1.connect(g); f2.connect(g)
-  osc.start(time); osc.stop(time + dur + 0.15)
+  // Parallel vowel formant filters.
+  formants.forEach(([f, a]) => {
+    const bp = context.createBiquadFilter()
+    bp.type = 'bandpass'
+    bp.frequency.value = f
+    bp.Q.value = 9
+    const fg = context.createGain()
+    fg.gain.value = a
+    src.connect(bp).connect(fg).connect(env)
+  })
+
+  // A touch of breath noise on the attack.
+  const noise = context.createBufferSource()
+  noise.buffer = getNoise(context)
+  const hp = context.createBiquadFilter()
+  hp.type = 'highpass'; hp.frequency.value = 2500
+  const ng = context.createGain()
+  ng.gain.setValueAtTime(0, time)
+  ng.gain.linearRampToValueAtTime(gain * 0.05, time + 0.04)
+  ng.gain.exponentialRampToValueAtTime(0.0001, time + Math.min(dur, 0.4))
+  noise.connect(hp).connect(ng).connect(out)
+  noise.start(time); noise.stop(time + Math.min(dur, 0.4) + 0.05)
 }
