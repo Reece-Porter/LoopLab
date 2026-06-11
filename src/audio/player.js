@@ -147,6 +147,40 @@ export function playPattern(pattern, partName, bpm, { withClick = true, onStep }
   }
 }
 
+// Shared synth dispatch: render one normalised clip event for a voice at an
+// absolute audio time. Used by both the genre arrangement and the custom
+// arrangement builder so they always sound identical.
+function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
+  if (evt.drum) {
+    if (voice === 'kick') return S.kick(ctx, t, out, 1)
+    if (voice === 'clap') return S.clap(ctx, t, out, 0.6)
+    if (voice === 'perc') return S.hat(ctx, t, out, 0.32, true)
+    if (voice === 'snare') return (snareAsClap ? S.clap : S.snare)(ctx, t, out, 0.6)
+    if (voice === 'hat') return S.hat(ctx, t, out, 0.3, !!evt.open)
+    if (voice === 'break') {
+      const isSnare = evt.breakSnare || (evt.breakStep != null && evt.breakStep % 8 >= 4)
+      return isSnare ? S.snare(ctx, t, out, 0.55) : S.kick(ctx, t, out, 0.9)
+    }
+    return S.kick(ctx, t, out, 1)
+  }
+  if (evt.freqs) {
+    if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24, evt.pad ? stepDur * 8 : stepDur * 3)
+    if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.22, stepDur * 6)
+    return S.chordStab(ctx, t, out, evt.freqs, evt.pad ? 0.18 : 0.26, evt.pad ? stepDur * 12 : stepDur * 4, true)
+  }
+  if (evt.freq != null) {
+    const f = evt.freq
+    if (voice === 'reese') return S.reese(ctx, t, out, f, 0.4, stepDur * 3)
+    if (voice === 'donk') return S.donk(ctx, t, out, f, 0.5, stepDur * 1.4)
+    if (voice === 'eight08') return S.eight08(ctx, t, out, f, 0.9, evt.long ? stepDur * 6 : 0.5)
+    if (voice === 'bass') return S.bass(ctx, t, out, f, 0.5, evt.long ? stepDur * 4 : stepDur * 1.5)
+    if (voice === 'supersaw') return S.supersaw(ctx, t, out, f, 0.28, stepDur * 1.8)
+    if (voice === 'piano') return S.piano(ctx, t, out, [f], 0.22, stepDur * 3)
+    if (voice === 'vox') return S.vox(ctx, t, out, f, 0.28, stepDur * 3)
+    return S.pluck(ctx, t, out, f, 0.3, stepDur * 2)
+  }
+}
+
 // Play a full arrangement, genre-accurately. Walks every bar of the song,
 // only sounding tracks that are active in the current section (and visible),
 // using the genre's own groove table. Reports the global 16th-step index so
@@ -180,38 +214,11 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
   let timer = null
   let stopped = false
 
-  // Play a single pre-normalised clip event for a voice at a given time.
+  // Play a single pre-normalised clip event for a voice at a given time,
+  // applying this genre's swing on the off-steps.
   function fire(voice, evt, stepInBar, time) {
     const t = time + (stepInBar % 2 === 1 ? swing * stepDur : 0)
-
-    if (evt.drum) {
-      if (voice === 'kick') return S.kick(ctx, t, out, 1)
-      if (voice === 'clap') return S.clap(ctx, t, out, 0.6)
-      if (voice === 'perc') return S.hat(ctx, t, out, 0.32, true)
-      if (voice === 'snare') return (genreId === 'deep-house' ? S.clap : S.snare)(ctx, t, out, 0.6)
-      if (voice === 'hat') return S.hat(ctx, t, out, 0.3, !!evt.open)
-      if (voice === 'break') {
-        const isSnare = evt.breakSnare || (evt.breakStep != null && evt.breakStep % 8 >= 4)
-        return isSnare ? S.snare(ctx, t, out, 0.55) : S.kick(ctx, t, out, 0.9)
-      }
-      return S.kick(ctx, t, out, 1)
-    }
-    if (evt.freqs) {
-      if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24, evt.pad ? stepDur * 8 : stepDur * 3)
-      if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.22, stepDur * 6)
-      return S.chordStab(ctx, t, out, evt.freqs, evt.pad ? 0.18 : 0.26, evt.pad ? stepDur * 12 : stepDur * 4, true)
-    }
-    if (evt.freq != null) {
-      const f = evt.freq
-      if (voice === 'reese') return S.reese(ctx, t, out, f, 0.4, stepDur * 3)
-      if (voice === 'donk') return S.donk(ctx, t, out, f, 0.5, stepDur * 1.4)
-      if (voice === 'eight08') return S.eight08(ctx, t, out, f, 0.9, evt.long ? stepDur * 6 : 0.5)
-      if (voice === 'bass') return S.bass(ctx, t, out, f, 0.5, evt.long ? stepDur * 4 : stepDur * 1.5)
-      if (voice === 'supersaw') return S.supersaw(ctx, t, out, f, 0.28, stepDur * 1.8)
-      if (voice === 'piano') return S.piano(ctx, t, out, [f], 0.22, stepDur * 3)
-      if (voice === 'vox') return S.vox(ctx, t, out, f, 0.28, stepDur * 3)
-      return S.pluck(ctx, t, out, f, 0.3, stepDur * 2)
-    }
+    fireEvent(ctx, out, voice, evt, t, stepDur, genreId === 'deep-house')
   }
 
   function scheduler() {
@@ -254,6 +261,74 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
   return {
     totalSteps,
     // Audio-clock-accurate fractional position (0..1) for a smooth playhead.
+    position() {
+      const elapsed = ctx.currentTime - startAudioTime
+      if (elapsed < 0) return (startStepIndex / totalSteps)
+      const abs = (startStepIndex + elapsed / stepDur) % totalSteps
+      return abs / totalSteps
+    },
+    stop() {
+      stopped = true
+      if (timer) clearTimeout(timer)
+      try { out.disconnect() } catch { /* already gone */ }
+      if (onStep) onStep(-1)
+    },
+  }
+}
+
+// Play a user-built custom arrangement. Unlike playArrangement (one clip per
+// track for the whole song), this plays a *different* clip per bar per track,
+// so the user can paint distinct example patterns into each bar. gridRef is a
+// live ref: gridRef.current = { trackName: [clip16 | null, ... per bar] }.
+export function playCustom(tracks, bars, bpm, { onStep, gridRef, mutedRef, snareAsClap = false, startStep = 0 } = {}) {
+  const ctx = getContext()
+  const out = ctx.createGain()
+  out.gain.value = 0.8
+  out.connect(ctx.destination)
+
+  const totalSteps = Math.max(16, bars * 16)
+  const stepDur = 60 / bpm / 4
+
+  let currentStep = ((startStep % totalSteps) + totalSteps) % totalSteps
+  const startStepIndex = currentStep
+  const startAudioTime = ctx.currentTime + 0.08
+  let nextStepTime = startAudioTime
+  let timer = null
+  let stopped = false
+
+  function scheduler() {
+    if (stopped) return
+    const grid = gridRef ? gridRef.current : {}
+    const muted = mutedRef ? mutedRef.current : {}
+    while (nextStepTime < ctx.currentTime + 0.12) {
+      const gpos = currentStep % totalSteps
+      const bar = Math.floor(gpos / 16)
+      const stepInBar = gpos % 16
+
+      tracks.forEach(track => {
+        if (muted[track.name]) return
+        const lane = grid[track.name]
+        const clip = lane && lane[bar]
+        const evt = clip && clip[stepInBar]
+        if (!evt) return
+        fireEvent(ctx, out, track.voice, evt, nextStepTime, stepDur, snareAsClap)
+      })
+
+      if (onStep) {
+        const ms = (nextStepTime - ctx.currentTime) * 1000
+        const s = gpos
+        setTimeout(() => { if (!stopped) onStep(s) }, Math.max(0, ms))
+      }
+
+      nextStepTime += stepDur
+      currentStep++
+    }
+    timer = setTimeout(scheduler, 25)
+  }
+  scheduler()
+
+  return {
+    totalSteps,
     position() {
       const elapsed = ctx.currentTime - startAudioTime
       if (elapsed < 0) return (startStepIndex / totalSteps)

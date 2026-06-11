@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { playPattern, playGroove, playArrangement } from './player'
+import { playPattern, playGroove, playArrangement, playCustom } from './player'
 
 // A single shared transport so only one sound plays at a time across the page.
 let activeTransport = null
@@ -40,6 +40,11 @@ export function usePlayer(id) {
     if (kind === 'arrangement') {
       activeTransport = playArrangement(args.genreId, args.arrangement, args.tracks, {
         onStep, startStep: args.startStep, clipsRef: args.clipsRef, mutedRef: args.mutedRef, bpm: args.bpm,
+      })
+    } else if (kind === 'custom') {
+      activeTransport = playCustom(args.tracks, args.bars, args.bpm, {
+        onStep, gridRef: args.gridRef, mutedRef: args.mutedRef,
+        snareAsClap: args.snareAsClap, startStep: args.startStep,
       })
     } else if (kind === 'groove') {
       activeTransport = playGroove(args.voices, args.bpm, { onStep })

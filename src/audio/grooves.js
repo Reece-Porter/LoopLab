@@ -205,8 +205,8 @@ export const GENRE_GROOVES = {
     voices: {
       kick:    { steps: on(0, 4, 8, 12) },
       clap:    { steps: on(4, 12) },
-      hat:     { steps: on(2, 6, 10, 14) },
-      perc:    { steps: on(3, 7, 11, 15) },
+      hat:     { steps: on(2, 6, 10, 14), open: true },
+      perc:    { steps: on(7, 15) },
       bass:    { steps: on(2, 6, 10, 14), notes: ['E2', 'E2', 'E2', 'E2'] },
       supersaw:{ steps: on(0, 4, 8, 12), notes: ['E4', 'E4', 'G4', 'E4'] },
       vox:     { steps: on(0, 8), notes: ['E4', 'E4'] },

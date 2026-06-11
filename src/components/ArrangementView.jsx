@@ -65,6 +65,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   const mutedRef = useRef({})  // live: trackName -> true
   const [frac, setFrac] = useState(null) // smooth playhead 0..1
   const [startBar, setStartBar] = useState(0) // where playback begins
+  const [follow, setFollow] = useState(true) // auto-scroll to track the playhead
 
   const toggleTrack = name => setHidden(h => ({ ...h, [name]: !h[name] }))
 
@@ -152,9 +153,9 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
     }
   }
 
-  // Auto-scroll to keep the playhead in view.
+  // Auto-scroll to keep the playhead in view (only when "follow" is on).
   useEffect(() => {
-    if (frac == null || !scrollRef.current) return
+    if (!follow || frac == null || !scrollRef.current) return
     const el = scrollRef.current
     const x = LABEL_W + frac * timelineWidth
     const view = el.scrollLeft
@@ -162,7 +163,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
     if (x < view + LABEL_W + 40 || x > view + w - 60) {
       el.scrollTo({ left: Math.max(0, x - w / 2), behavior: 'smooth' })
     }
-  }, [frac, timelineWidth])
+  }, [frac, timelineWidth, follow])
 
   return (
     <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden">
@@ -180,7 +181,20 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
             </span>
           </div>
         </div>
-        <PlayButton playing={playing} onClick={onPlay} accentClass={accentClass} label="Play arrangement" />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setFollow(f => !f)}
+            className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+              follow
+                ? 'border-purple-500/50 bg-purple-500/15 text-purple-200'
+                : 'border-white/10 bg-white/5 text-gray-400 hover:text-gray-200'
+            }`}
+            title="When on, the view scrolls to follow the playhead. Turn off to scroll/edit freely while it plays."
+          >
+            {follow ? '🔒 Following' : '🔓 Free scroll'}
+          </button>
+          <PlayButton playing={playing} onClick={onPlay} accentClass={accentClass} label="Play arrangement" />
+        </div>
       </div>
 
       <div ref={scrollRef} className="overflow-x-auto looplab-scroll">

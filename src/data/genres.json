@@ -563,571 +563,6 @@
   }
  },
  {
-  "id": "trap",
-  "name": "Trap",
-  "description": "Dark, hard-hitting beats defined by rolling hi-hats, 808 bass, and cinematic atmospheres. Rooted in Atlanta hip-hop and now spanning multiple subgenres.",
-  "bpm": "130–170 (half-time feel at 65–85)",
-  "key": "Minor keys, chromatic melodies",
-  "color": "from-gray-800 to-red-700",
-  "emoji": "🔥",
-  "parts": [
-   {
-    "name": "808 Bass",
-    "icon": "💣",
-    "tips": [
-     "Use an 808 sample pitched to the key of your track.",
-     "Long sustain with a slow release — let it ring under the melody.",
-     "Sidechain the 808 to the kick for tightness, but keep a pumping feel.",
-     "Distort or saturate lightly to cut through on small speakers."
-    ],
-    "patterns": [
-     {
-      "name": "Slow melodic 808",
-      "type": "notes",
-      "value": "C2 (long) – – – G1 (long) – – – F1 – – – G1 – – –"
-     },
-     {
-      "name": "Sliding 808 run",
-      "type": "notes",
-      "value": "C2 → B1 → A1 → G1 (glide between each, held 2 beats each)"
-     },
-     {
-      "name": "Punchy 808 stabs",
-      "type": "notes",
-      "value": "C2 C2 – – F1 – C2 – G1 G1 – – F1 – – –"
-     },
-     {
-      "name": "Dembow-flavoured 808",
-      "type": "notes",
-      "value": "C2 – – C2 – – F1 – G1 – – C2 – – Bb1 –"
-     }
-    ]
-   },
-   {
-    "name": "Kick",
-    "icon": "🥁",
-    "tips": [
-     "Short, hard kick — usually on beat 1 with syncopated hits.",
-     "Layer a click sample with a deep punchy thud.",
-     "Keep kick transients sharp — use a limiter/clipper on the kick bus.",
-     "Avoid clashing with the 808 frequency-wise; high-pass one or the other."
-    ],
-    "patterns": [
-     {
-      "name": "Half-time kick",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       1,
-       0,
-       1,
-       0,
-       0,
-       0,
-       0,
-       0
-      ]
-     },
-     {
-      "name": "Syncopated trap kick",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0
-      ]
-     },
-     {
-      "name": "Double-tap kick",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       0,
-       0,
-       0,
-       0,
-       1,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       0,
-       0,
-       0
-      ]
-     }
-    ]
-   },
-   {
-    "name": "Hi-Hats",
-    "icon": "🔔",
-    "tips": [
-     "Rapid triplet/sextuplet hi-hat rolls are the signature of trap.",
-     "Vary velocity heavily for a human, bouncing feel.",
-     "Automate roll speed — slow in verses, rapid rolls building to the drop.",
-     "Use a closed hat with a very short decay and high pitch."
-    ],
-    "patterns": [
-     {
-      "name": "Triplet roll",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       1
-      ]
-     },
-     {
-      "name": "Classic trap hats",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       1,
-       1,
-       0,
-       1,
-       1,
-       0,
-       1,
-       0,
-       1,
-       1,
-       0,
-       1,
-       1,
-       0
-      ]
-     },
-     {
-      "name": "Rapid 32nd roll (last 2 beats)",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       0,
-       0,
-       1,
-       0,
-       0,
-       0,
-       1,
-       1,
-       1,
-       1,
-       1,
-       1,
-       1,
-       1
-      ]
-     },
-     {
-      "name": "Sextuplet burst",
-      "type": "steps",
-      "steps": [
-       1,
-       1,
-       0,
-       1,
-       1,
-       0,
-       1,
-       1,
-       1,
-       1,
-       1,
-       1,
-       1,
-       0,
-       1,
-       0
-      ]
-     }
-    ]
-   },
-   {
-    "name": "Snare",
-    "icon": "👏",
-    "tips": [
-     "Sparse snare placement — often only on beat 3, or skipped entirely.",
-     "Clap layers add texture; use 3–4 layered clap samples.",
-     "Long reverb tail (1–2 s) for that atmospheric, cave-like sound.",
-     "Pitch the snare to match the key subtly."
-    ],
-    "patterns": [
-     {
-      "name": "Half-time snare (beat 3 only)",
-      "type": "steps",
-      "steps": [
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       1,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-      ]
-     },
-     {
-      "name": "Snare + clap layer",
-      "type": "steps",
-      "steps": [
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       0,
-       0
-      ]
-     },
-     {
-      "name": "Off-grid snare",
-      "type": "steps",
-      "steps": [
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       1,
-       0,
-       0,
-       0,
-       0,
-       1,
-       0,
-       0
-      ]
-     }
-    ]
-   },
-   {
-    "name": "Melody / Lead",
-    "icon": "🎹",
-    "tips": [
-     "Dark, eerie melodies — flute, bells, strings or synth plucks.",
-     "Keep melodic phrases short (2–4 bars) and looping.",
-     "Use pentatonic or chromatic notes for tension.",
-     "Add subtle pitch vibrato to a melodic lead for authenticity."
-    ],
-    "patterns": [
-     {
-      "name": "Minor pentatonic loop",
-      "type": "notes",
-      "value": "C4 Eb4 F4 G4 Bb4 G4 F4 Eb4 – – – – C4 – – –"
-     },
-     {
-      "name": "Chromatic descent",
-      "type": "notes",
-      "value": "G4 – F#4 – F4 – E4 – Eb4 – D4 – C4 – – –"
-     },
-     {
-      "name": "Dark chord progression",
-      "type": "chords",
-      "value": "Cm – Ab – Eb – Bb – (minor feel)"
-     },
-     {
-      "name": "Bell arpeggio",
-      "type": "notes",
-      "value": "C5 – G4 – Eb5 – C5 – G4 – Eb4 – C4 – – –"
-     },
-     {
-      "name": "Low dark sub-lead",
-      "type": "notes",
-      "value": "C3 – Eb3 – G3 – F3 – Eb3 – D3 – C3 – – –"
-     },
-     {
-      "name": "High flip melody",
-      "type": "notes",
-      "value": "C5 Bb4 – G4 – – Eb5 – C5 – Bb4 – G4 – – –"
-     },
-     {
-      "name": "Chromatic high run",
-      "type": "notes",
-      "value": "C5 B4 Bb4 A4 Ab4 G4 – – C5 – – – – – – –"
-     },
-     {
-      "name": "Memphis-style lick",
-      "type": "notes",
-      "value": "Eb4 G4 Bb4 – G4 – Eb4 – C4 – Bb3 – G3 – – –"
-     }
-    ]
-   },
-   {
-    "name": "FX & Atmosphere",
-    "icon": "🌫️",
-    "tips": [
-     "Risers, whooshes, and impacts between sections.",
-     "Reversed cymbal or pad before a drop for anticipation.",
-     "Sub-bass rumble in quiet sections for tension.",
-     "Vinyl crackle or cassette noise on a very low volume for texture."
-    ],
-    "patterns": [
-     {
-      "name": "Build sequence",
-      "type": "structure",
-      "value": "Bar 1–6: silence → Bar 7: riser starts → Bar 8: riser peak + reverse cymbal → Bar 9: DROP"
-     }
-    ]
-   },
-   {
-    "name": "Structure",
-    "icon": "🗺️",
-    "tips": [
-     "Intro (4–8 bars) → Verse → Hook → Verse → Hook → Bridge → Hook out.",
-     "Keep hooks minimal so they hit harder in contrast to the verse.",
-     "Mute the 808 and kick for 1 bar for a 'breathing' moment.",
-     "End drops with silence or a reversed crash for drama."
-    ],
-    "patterns": [
-     {
-      "name": "Trap song layout",
-      "type": "structure",
-      "value": "Intro (8) → Verse (16) → Hook (8) → Verse (16) → Hook (8) → Bridge (8) → Hook (16) → Outro (4)"
-     }
-    ]
-   },
-   {
-    "name": "Vocals / Ad-libs",
-    "icon": "🎤",
-    "tips": [
-     "Trap vocals are heavily Auto-Tuned — pitch-slide into every note from a semitone below.",
-     "Keep the verse vocal sparse and monotone; save melodic leaps for the hook.",
-     "Ad-libs (short high-pitched fills) fill the space between main vocal phrases.",
-     "Triplet vocal flows work over the triplet hi-hat patterns."
-    ],
-    "patterns": [
-     {
-      "name": "Hook refrain",
-      "type": "notes",
-      "value": "Eb4 – G4 – Bb4 – G4 – Eb4 – – – C4 – – –"
-     },
-     {
-      "name": "Verse melody",
-      "type": "notes",
-      "value": "C4 Eb4 – G4 – F4 Eb4 – C4 – – – – – – –"
-     },
-     {
-      "name": "High chorus refrain",
-      "type": "notes",
-      "value": "Bb4 – G4 Bb4 C5 – Bb4 – G4 – Eb4 – – – – –"
-     },
-     {
-      "name": "Ad-lib run down",
-      "type": "notes",
-      "value": "G5 F5 Eb5 D5 C5 – Bb4 – G4 – – – – – – –"
-     },
-     {
-      "name": "Low trap monotone",
-      "type": "notes",
-      "value": "C4 – – C4 – – C4 – Eb4 – – C4 – – – –"
-     }
-    ]
-   }
-  ],
-  "arrangement": {
-   "sections": [
-    {
-     "name": "Intro",
-     "bars": 8
-    },
-    {
-     "name": "Verse 1",
-     "bars": 16
-    },
-    {
-     "name": "Hook 1",
-     "bars": 8
-    },
-    {
-     "name": "Verse 2",
-     "bars": 16
-    },
-    {
-     "name": "Hook 2",
-     "bars": 8
-    },
-    {
-     "name": "Bridge",
-     "bars": 8
-    },
-    {
-     "name": "Hook 3",
-     "bars": 16
-    },
-    {
-     "name": "Outro",
-     "bars": 4
-    }
-   ],
-   "tracks": [
-    {
-     "name": "808 Bass",
-     "icon": "💣",
-     "color": "#ef4444",
-     "sections": [
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      1,
-      0
-     ]
-    },
-    {
-     "name": "Kick",
-     "icon": "🥁",
-     "color": "#f97316",
-     "sections": [
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      1,
-      0
-     ]
-    },
-    {
-     "name": "Hi-Hats",
-     "icon": "🔔",
-     "color": "#eab308",
-     "sections": [
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      1,
-      0
-     ]
-    },
-    {
-     "name": "Snare",
-     "icon": "👏",
-     "color": "#a855f7",
-     "sections": [
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      1,
-      0
-     ]
-    },
-    {
-     "name": "Melody",
-     "icon": "🎹",
-     "color": "#06b6d4",
-     "sections": [
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      0
-     ]
-    },
-    {
-     "name": "FX/Atmos",
-     "icon": "🌫️",
-     "color": "#6b7280",
-     "sections": [
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0
-     ]
-    },
-    {
-     "name": "Vocals",
-     "icon": "🎤",
-     "color": "#c084fc",
-     "sections": [
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      1,
-      0
-     ]
-    }
-   ]
-  }
- },
- {
   "id": "deep-house",
   "name": "Deep House",
   "description": "Soulful, hypnotic house music with warm chord progressions, rolling basslines, and subtle groove. Think late-night dance floors and silky vocals.",
@@ -1542,820 +977,6 @@
       1,
       0,
       1
-     ]
-    }
-   ]
-  }
- },
- {
-  "id": "drum-and-bass",
-  "name": "Drum & Bass",
-  "description": "Fast-paced electronic music built around breakbeats and heavy sub-bass. Originating from UK rave culture, it spans liquid, neurofunk, jungle, and more.",
-  "bpm": "160–180",
-  "key": "Minor keys, often chromatic",
-  "color": "from-orange-600 to-yellow-500",
-  "emoji": "⚡",
-  "parts": [
-   {
-    "name": "Breakbeat",
-    "icon": "🥁",
-    "tips": [
-     "Start from a classic break (Amen, Think Break, Apache) and chop it up.",
-     "Use time-stretching to pitch and time-match to your project BPM.",
-     "Layer additional claps, kicks and snares for punch.",
-     "Use a compressor on the break bus with a fast attack to glue the layers."
-    ],
-    "patterns": [
-     {
-      "name": "Basic Amen pattern",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       0,
-       1,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0
-      ]
-     },
-     {
-      "name": "Two-step DnB",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       0,
-       0,
-       0,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       0
-      ]
-     },
-     {
-      "name": "Snare placement",
-      "type": "steps",
-      "steps": [
-       0,
-       0,
-       0,
-       0,
-       1,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       1,
-       1,
-       0,
-       0,
-       0
-      ]
-     },
-     {
-      "name": "Rolling amen variation",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       0,
-       1,
-       0,
-       1,
-       0,
-       0
-      ]
-     }
-    ]
-   },
-   {
-    "name": "Sub Bass",
-    "icon": "💣",
-    "tips": [
-     "Deep, heavy sub — use a sine wave or round-edged waveform.",
-     "Reese bass (detuned saws with heavy modulation) for neurofunk flavor.",
-     "Alternate between held notes and faster modulated bass for variation.",
-     "High-pass above 30 Hz to avoid subsonic rumble."
-    ],
-    "patterns": [
-     {
-      "name": "Sustained sub notes",
-      "type": "notes",
-      "value": "C1 (4 beats) – G1 (2 beats) – F1 (2 beats) – repeat"
-     },
-     {
-      "name": "Rolling sub",
-      "type": "notes",
-      "value": "C1 C1 – C1 – C1 C1 – G0 – – G0 – – – –"
-     },
-     {
-      "name": "Wobble sub",
-      "type": "notes",
-      "value": "C1 C1 C1 G0 C1 C1 F1 F1 C1 C1 C1 G0 Bb0 Bb0 – –"
-     }
-    ]
-   },
-   {
-    "name": "Mid Bass / Reese",
-    "icon": "🎸",
-    "tips": [
-     "A distorted, growling mid-range bass is a DnB staple.",
-     "Use multiple detuned oscillators with heavy filter modulation.",
-     "Automate the filter cutoff to create movement and tension.",
-     "Layer with a sub bass (separate channel) for full spectrum coverage."
-    ],
-    "patterns": [
-     {
-      "name": "Reese movement",
-      "type": "notes",
-      "value": "C2 (filter opens slowly over 4 bars) → peak at bar 4 → close"
-     },
-     {
-      "name": "Stab & sustain",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       1,
-       0,
-       0,
-       0,
-       1,
-       0,
-       1,
-       1,
-       0,
-       0,
-       0,
-       0,
-       1,
-       0
-      ]
-     },
-     {
-      "name": "Neuro snarl pattern",
-      "type": "notes",
-      "value": "C2 – C2 C2 – G1 – C2 – F1 – – C2 – – –"
-     }
-    ]
-   },
-   {
-    "name": "Pads & Atmosphere",
-    "icon": "🌊",
-    "tips": [
-     "Dark, evolving pads in the background for depth.",
-     "For liquid DnB: warm, lush pads and melodic strings.",
-     "For neurofunk: cold, metallic textures and sci-fi atmospheres.",
-     "Use long reverb and modulation to make pads feel huge."
-    ],
-    "patterns": [
-     {
-      "name": "Liquid DnB progression",
-      "type": "chords",
-      "value": "Cm – Ab – Eb – Bb –"
-     },
-     {
-      "name": "Neurofunk tension",
-      "type": "chords",
-      "value": "Cm – Bdim – Bb – Ab – (chromatic tension)"
-     },
-     {
-      "name": "Jungle warmth",
-      "type": "chords",
-      "value": "Am7 – Dm7 – Em7 – Am7 –"
-     }
-    ]
-   },
-   {
-    "name": "Lead / Melody",
-    "icon": "🎹",
-    "tips": [
-     "Liquid DnB: Rhodes, piano, and lush synth leads.",
-     "Neurofunk: glitchy, distorted synth leads with heavy processing.",
-     "Keep melodies relatively simple — the rhythm does the heavy lifting.",
-     "Use a 1/4 or dotted 1/8 delay to create call-and-response phrases."
-    ],
-    "patterns": [
-     {
-      "name": "Liquid melody",
-      "type": "notes",
-      "value": "C5 Eb5 G5 Bb5 – – G5 – Eb5 – C5 – – – – –"
-     },
-     {
-      "name": "Neurofunk lead",
-      "type": "notes",
-      "value": "C4 B3 Bb3 A3 – Ab3 G3 – F#3 – – – C4 – – –"
-     },
-     {
-      "name": "Rhodes liquid riff",
-      "type": "notes",
-      "value": "C5 Eb5 G5 – F5 – Eb5 – C5 – – – Bb4 – – –"
-     },
-     {
-      "name": "High neurofunk synth",
-      "type": "notes",
-      "value": "C5 Eb5 G5 Bb5 – – Ab5 – G5 Eb5 C5 – Bb4 – – –"
-     },
-     {
-      "name": "Low atmospheric line",
-      "type": "notes",
-      "value": "C3 – Eb3 – G3 – F3 – Eb3 – D3 – C3 – – –"
-     },
-     {
-      "name": "Breakbeat hop melody",
-      "type": "notes",
-      "value": "G4 – Eb4 – C4 – G4 – F4 – Eb4 – D4 C4 – –"
-     },
-     {
-      "name": "Liquid high phrases",
-      "type": "notes",
-      "value": "G5 – Eb5 – C5 – Bb4 – G4 – F4 – Eb4 – – –"
-     }
-    ]
-   },
-   {
-    "name": "Structure",
-    "icon": "🗺️",
-    "tips": [
-     "Intro (16 bars of atmosphere) → Build → Drop → Breakdown → Drop 2 → Outro.",
-     "The 'drop' is the full break + bass hitting simultaneously.",
-     "Halftime sections (8 bars) where the break plays at half-speed for contrast.",
-     "Use silence or a single high note before drops for maximum impact."
-    ],
-    "patterns": [
-     {
-      "name": "DnB layout",
-      "type": "structure",
-      "value": "Intro (16) → Drop 1 (32) → Breakdown (16) → Drop 2 (32) → Outro (16)"
-     }
-    ]
-   },
-   {
-    "name": "Vocals / Ragga",
-    "icon": "🎤",
-    "tips": [
-     "DnB vocals range from liquid soul to ragga MC toasting — keep them high-energy.",
-     "Liquid DnB uses smooth melodic female vocals pitched around C5–G5.",
-     "Jungle/ragga tracks use short sharp vocal chops or MC phrases in a call-response pattern.",
-     "Reverse the tail of the vocal for a classic jungle effect."
-    ],
-    "patterns": [
-     {
-      "name": "Liquid vocal phrase",
-      "type": "notes",
-      "value": "C5 Eb5 – G5 – F5 Eb5 – C5 – – – Bb4 – – –"
-     },
-     {
-      "name": "Jungle MC chant",
-      "type": "notes",
-      "value": "G4 – F4 – Eb4 – D4 – C4 – – – Eb4 – G4 –"
-     },
-     {
-      "name": "High liquid run",
-      "type": "notes",
-      "value": "G5 – Eb5 C5 – Bb4 G4 – Eb4 – – – C4 – – –"
-     },
-     {
-      "name": "Ragga stab phrase",
-      "type": "notes",
-      "value": "C4 C4 – Eb4 – G4 C4 – – – C4 – Eb4 – – –"
-     },
-     {
-      "name": "Atmospheric breath",
-      "type": "notes",
-      "value": "C5 – – – G4 – – – Eb5 – – – C5 – – –"
-     }
-    ]
-   }
-  ],
-  "arrangement": {
-   "sections": [
-    {
-     "name": "Intro",
-     "bars": 16
-    },
-    {
-     "name": "Drop 1",
-     "bars": 32
-    },
-    {
-     "name": "Breakdown",
-     "bars": 16
-    },
-    {
-     "name": "Drop 2",
-     "bars": 32
-    },
-    {
-     "name": "Outro",
-     "bars": 16
-    }
-   ],
-   "tracks": [
-    {
-     "name": "Breakbeat",
-     "icon": "🥁",
-     "color": "#f97316",
-     "sections": [
-      0,
-      1,
-      0,
-      1,
-      0
-     ]
-    },
-    {
-     "name": "Sub Bass",
-     "icon": "💣",
-     "color": "#ef4444",
-     "sections": [
-      0,
-      1,
-      1,
-      1,
-      0
-     ]
-    },
-    {
-     "name": "Mid Bass",
-     "icon": "🎸",
-     "color": "#a855f7",
-     "sections": [
-      0,
-      1,
-      0,
-      1,
-      0
-     ]
-    },
-    {
-     "name": "Pads/Atmos",
-     "icon": "🌊",
-     "color": "#3b82f6",
-     "sections": [
-      1,
-      0,
-      1,
-      0,
-      1
-     ]
-    },
-    {
-     "name": "Lead/Melody",
-     "icon": "🎹",
-     "color": "#06b6d4",
-     "sections": [
-      0,
-      1,
-      1,
-      1,
-      0
-     ]
-    },
-    {
-     "name": "Vocals",
-     "icon": "🎤",
-     "color": "#818cf8",
-     "sections": [
-      0,
-      1,
-      0,
-      1,
-      0
-     ]
-    }
-   ]
-  }
- },
- {
-  "id": "lo-fi-hip-hop",
-  "name": "Lo-Fi Hip-Hop",
-  "description": "Mellow, sample-based hip-hop defined by warm tape saturation, dusty drums, and jazzy chords. Perfect study and relaxation music.",
-  "bpm": "70–95",
-  "key": "Major or Dorian (warm and nostalgic feel)",
-  "color": "from-amber-600 to-rose-400",
-  "emoji": "☕",
-  "parts": [
-   {
-    "name": "Drums",
-    "icon": "🥁",
-    "tips": [
-     "Swung or shuffled 808 or vintage drum machine samples.",
-     "Kick on beat 1, light snare on beat 2 and 4 with ghost notes.",
-     "Humanise the hi-hats — vary velocity and add micro-timing offsets.",
-     "Apply vinyl crackle or tape saturation on the drum bus."
-    ],
-    "patterns": [
-     {
-      "name": "Classic lo-fi kick",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       0,
-       0,
-       0,
-       0,
-       1,
-       0,
-       1,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0
-      ]
-     },
-     {
-      "name": "Snare / clap (beats 2 & 4)",
-      "type": "steps",
-      "steps": [
-       0,
-       0,
-       0,
-       0,
-       1,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       0,
-       1,
-       0,
-       0,
-       0
-      ]
-     },
-     {
-      "name": "Swung hi-hat",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       1,
-       1,
-       0,
-       1,
-       1,
-       0,
-       1,
-       0,
-       1,
-       1,
-       0,
-       1,
-       0,
-       0
-      ]
-     },
-     {
-      "name": "Boom-bap groove",
-      "type": "steps",
-      "steps": [
-       1,
-       0,
-       0,
-       0,
-       1,
-       0,
-       1,
-       0,
-       0,
-       0,
-       1,
-       0,
-       1,
-       0,
-       0,
-       0
-      ]
-     }
-    ]
-   },
-   {
-    "name": "Chords / Sample",
-    "icon": "🎹",
-    "tips": [
-     "Sample jazz, soul, or bossa nova records — chop and loop 2–4 bars.",
-     "Or program Rhodes/Wurlitzer chords with jazz extensions (7, 9, 11).",
-     "Apply a low-pass filter to roll off the highs for a warm, muffled sound.",
-     "Pitch the sample slightly sharp or flat (+/- 20 cents) for character."
-    ],
-    "patterns": [
-     {
-      "name": "Jazzy lo-fi progression",
-      "type": "chords",
-      "value": "Cmaj7 – Am7 – Dm7 – G7 –"
-     },
-     {
-      "name": "Bossa-influenced loop",
-      "type": "chords",
-      "value": "Fmaj9 – Em7 – Am9 – Dm7 –"
-     },
-     {
-      "name": "Dorian groove",
-      "type": "chords",
-      "value": "Dm7 – Em7b5 – Am7 – Gm7 –"
-     },
-     {
-      "name": "ii–V–I in C",
-      "type": "chords",
-      "value": "Dm7 – G7 – Cmaj7 – Cmaj7 –"
-     }
-    ]
-   },
-   {
-    "name": "Bass",
-    "icon": "🎸",
-    "tips": [
-     "Simple, melodic bass following the chord root notes.",
-     "Electric bass sample or a round synth bass with subtle saturation.",
-     "Keep the bass laid-back — slightly behind the beat.",
-     "Low-pass filter at around 500–800 Hz for a muffled, warm tone."
-    ],
-    "patterns": [
-     {
-      "name": "Root note groove",
-      "type": "notes",
-      "value": "C2 – – C2 – A1 – – D2 – – D2 – G1 – –"
-     },
-     {
-      "name": "Walking bass feel",
-      "type": "notes",
-      "value": "C2 E2 G2 – A1 C2 E2 – D2 F2 A2 – G1 B1 D2 –"
-     },
-     {
-      "name": "Laid-back fifths",
-      "type": "notes",
-      "value": "C2 – – G2 – C2 – – A1 – – E2 – G1 – –"
-     }
-    ]
-   },
-   {
-    "name": "Melody",
-    "icon": "🎵",
-    "tips": [
-     "Soft piano or flute melody playing a simple 2–4 bar loop.",
-     "Leave space in the melody — lo-fi is about breathing room.",
-     "Add slight pitch wobble via automation to simulate tape wow and flutter.",
-     "Use a room reverb with pre-delay for a close, intimate sound."
-    ],
-    "patterns": [
-     {
-      "name": "Sparse piano hook",
-      "type": "notes",
-      "value": "E5 – D5 – C5 – – – B4 – A4 – G4 – – –"
-     },
-     {
-      "name": "Pentatonic lick",
-      "type": "notes",
-      "value": "G5 E5 D5 C5 – – E5 – G5 – – – – – – –"
-     },
-     {
-      "name": "Music-box motif",
-      "type": "notes",
-      "value": "G5 – E5 – C5 – D5 – E5 – – – G4 – – –"
-     },
-     {
-      "name": "Low vibraphone riff",
-      "type": "notes",
-      "value": "C3 – E3 – G3 – A3 – G3 – E3 – D3 C3 – –"
-     },
-     {
-      "name": "High sparkle piano",
-      "type": "notes",
-      "value": "G5 – – – E5 – – – C5 – D5 – E5 – – –"
-     },
-     {
-      "name": "Jazzy melodic phrase",
-      "type": "notes",
-      "value": "E4 G4 A4 C5 – B4 A4 – G4 – E4 – D4 – – –"
-     },
-     {
-      "name": "Low melancholic hook",
-      "type": "notes",
-      "value": "D3 – F3 – A3 – G3 – F3 – E3 – D3 – – –"
-     }
-    ]
-   },
-   {
-    "name": "Texture & FX",
-    "icon": "🌫️",
-    "tips": [
-     "Vinyl crackle sample looped underneath everything.",
-     "Rain, cafe, or city ambience on a separate low-volume track.",
-     "Tape saturation plugin on the master bus (RC-20, Vinyl Distortion).",
-     "Subtle pitch modulation (LFO on tune) to simulate cassette wobble."
-    ],
-    "patterns": [
-     {
-      "name": "Layer order",
-      "type": "structure",
-      "value": "Track 1: vinyl crackle (always on) → Track 2: rain ambience (from bar 2) → Track 3: tape wobble automation (subtle LFO)"
-     }
-    ]
-   },
-   {
-    "name": "Structure",
-    "icon": "🗺️",
-    "tips": [
-     "Lo-fi tracks are often minimal — just a loop with subtle variation.",
-     "Introduce elements slowly every 8 bars: first drums, then bass, then chords.",
-     "Keep the song short (2–3 mins) or loop endlessly for study playlists.",
-     "Variation is light: add a hi-hat fill here, mute the bass there."
-    ],
-    "patterns": [
-     {
-      "name": "Minimal loop layout",
-      "type": "structure",
-      "value": "Intro: drums only (8) → + bass (8) → + chords (8) → + melody (8) → variations (32) → fade out (8)"
-     }
-    ]
-   },
-   {
-    "name": "Vocals / Hums",
-    "icon": "🎤",
-    "tips": [
-     "Lo-fi vocals are warm and slightly muffled — run them through a low-pass filter around 6 kHz.",
-     "Sparse hummed or \"mm\"-style melodies work best; leave plenty of space.",
-     "Pitch-shifting the vocal down a semitone gives a dreamy, cassette-tape feel.",
-     "A short reverb tail (0.8–1.2 s) softens the vocal into the texture."
-    ],
-    "patterns": [
-     {
-      "name": "Soft hum melody",
-      "type": "notes",
-      "value": "E4 – G4 – A4 – G4 – E4 – D4 – C4 – – –"
-     },
-     {
-      "name": "Jazz scat phrase",
-      "type": "notes",
-      "value": "G4 – E4 G4 – A4 G4 – E4 – – D4 – E4 – –"
-     },
-     {
-      "name": "Breathy high line",
-      "type": "notes",
-      "value": "C5 – – – B4 – – – A4 – G4 – E4 – – –"
-     },
-     {
-      "name": "Low cosy hum",
-      "type": "notes",
-      "value": "A3 – C4 – E4 – C4 – A3 – G3 – E3 – – –"
-     },
-     {
-      "name": "Muted background phrase",
-      "type": "notes",
-      "value": "G4 – – – F4 – – – E4 – D4 – C4 – – –"
-     }
-    ]
-   }
-  ],
-  "arrangement": {
-   "sections": [
-    {
-     "name": "Intro",
-     "bars": 8
-    },
-    {
-     "name": "+ Bass",
-     "bars": 8
-    },
-    {
-     "name": "+ Chords",
-     "bars": 8
-    },
-    {
-     "name": "+ Melody",
-     "bars": 8
-    },
-    {
-     "name": "Full Loop",
-     "bars": 32
-    },
-    {
-     "name": "Variation",
-     "bars": 16
-    },
-    {
-     "name": "Fade Out",
-     "bars": 8
-    }
-   ],
-   "tracks": [
-    {
-     "name": "Drums",
-     "icon": "🥁",
-     "color": "#f97316",
-     "sections": [
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1
-     ]
-    },
-    {
-     "name": "Bass",
-     "icon": "🎸",
-     "color": "#a855f7",
-     "sections": [
-      0,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1
-     ]
-    },
-    {
-     "name": "Chords",
-     "icon": "🎹",
-     "color": "#06b6d4",
-     "sections": [
-      0,
-      0,
-      1,
-      1,
-      1,
-      1,
-      1
-     ]
-    },
-    {
-     "name": "Melody",
-     "icon": "🎵",
-     "color": "#ec4899",
-     "sections": [
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      0
-     ]
-    },
-    {
-     "name": "Texture/FX",
-     "icon": "🌫️",
-     "color": "#6b7280",
-     "sections": [
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1
-     ]
-    },
-    {
-     "name": "Vocals",
-     "icon": "🎤",
-     "color": "#fb923c",
-     "sections": [
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      0
      ]
     }
    ]
@@ -6408,6 +5029,1385 @@
       1,
       0,
       1,
+      1,
+      0
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "trap",
+  "name": "Trap",
+  "description": "Dark, hard-hitting beats defined by rolling hi-hats, 808 bass, and cinematic atmospheres. Rooted in Atlanta hip-hop and now spanning multiple subgenres.",
+  "bpm": "130–170 (half-time feel at 65–85)",
+  "key": "Minor keys, chromatic melodies",
+  "color": "from-gray-800 to-red-700",
+  "emoji": "🔥",
+  "parts": [
+   {
+    "name": "808 Bass",
+    "icon": "💣",
+    "tips": [
+     "Use an 808 sample pitched to the key of your track.",
+     "Long sustain with a slow release — let it ring under the melody.",
+     "Sidechain the 808 to the kick for tightness, but keep a pumping feel.",
+     "Distort or saturate lightly to cut through on small speakers."
+    ],
+    "patterns": [
+     {
+      "name": "Slow melodic 808",
+      "type": "notes",
+      "value": "C2 (long) – – – G1 (long) – – – F1 – – – G1 – – –"
+     },
+     {
+      "name": "Sliding 808 run",
+      "type": "notes",
+      "value": "C2 → B1 → A1 → G1 (glide between each, held 2 beats each)"
+     },
+     {
+      "name": "Punchy 808 stabs",
+      "type": "notes",
+      "value": "C2 C2 – – F1 – C2 – G1 G1 – – F1 – – –"
+     },
+     {
+      "name": "Dembow-flavoured 808",
+      "type": "notes",
+      "value": "C2 – – C2 – – F1 – G1 – – C2 – – Bb1 –"
+     }
+    ]
+   },
+   {
+    "name": "Kick",
+    "icon": "🥁",
+    "tips": [
+     "Short, hard kick — usually on beat 1 with syncopated hits.",
+     "Layer a click sample with a deep punchy thud.",
+     "Keep kick transients sharp — use a limiter/clipper on the kick bus.",
+     "Avoid clashing with the 808 frequency-wise; high-pass one or the other."
+    ],
+    "patterns": [
+     {
+      "name": "Half-time kick",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       1,
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "name": "Syncopated trap kick",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "name": "Double-tap kick",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       0,
+       0,
+       0,
+       0,
+       1,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Hi-Hats",
+    "icon": "🔔",
+    "tips": [
+     "Rapid triplet/sextuplet hi-hat rolls are the signature of trap.",
+     "Vary velocity heavily for a human, bouncing feel.",
+     "Automate roll speed — slow in verses, rapid rolls building to the drop.",
+     "Use a closed hat with a very short decay and high pitch."
+    ],
+    "patterns": [
+     {
+      "name": "Triplet roll",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       1
+      ]
+     },
+     {
+      "name": "Classic trap hats",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       1,
+       1,
+       0,
+       1,
+       1,
+       0,
+       1,
+       0,
+       1,
+       1,
+       0,
+       1,
+       1,
+       0
+      ]
+     },
+     {
+      "name": "Rapid 32nd roll (last 2 beats)",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0,
+       1,
+       1,
+       1,
+       1,
+       1,
+       1,
+       1,
+       1
+      ]
+     },
+     {
+      "name": "Sextuplet burst",
+      "type": "steps",
+      "steps": [
+       1,
+       1,
+       0,
+       1,
+       1,
+       0,
+       1,
+       1,
+       1,
+       1,
+       1,
+       1,
+       1,
+       0,
+       1,
+       0
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Snare",
+    "icon": "👏",
+    "tips": [
+     "Sparse snare placement — often only on beat 3, or skipped entirely.",
+     "Clap layers add texture; use 3–4 layered clap samples.",
+     "Long reverb tail (1–2 s) for that atmospheric, cave-like sound.",
+     "Pitch the snare to match the key subtly."
+    ],
+    "patterns": [
+     {
+      "name": "Half-time snare (beat 3 only)",
+      "type": "steps",
+      "steps": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "name": "Snare + clap layer",
+      "type": "steps",
+      "steps": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "name": "Off-grid snare",
+      "type": "steps",
+      "steps": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Melody / Lead",
+    "icon": "🎹",
+    "tips": [
+     "Dark, eerie melodies — flute, bells, strings or synth plucks.",
+     "Keep melodic phrases short (2–4 bars) and looping.",
+     "Use pentatonic or chromatic notes for tension.",
+     "Add subtle pitch vibrato to a melodic lead for authenticity."
+    ],
+    "patterns": [
+     {
+      "name": "Minor pentatonic loop",
+      "type": "notes",
+      "value": "C4 Eb4 F4 G4 Bb4 G4 F4 Eb4 – – – – C4 – – –"
+     },
+     {
+      "name": "Chromatic descent",
+      "type": "notes",
+      "value": "G4 – F#4 – F4 – E4 – Eb4 – D4 – C4 – – –"
+     },
+     {
+      "name": "Dark chord progression",
+      "type": "chords",
+      "value": "Cm – Ab – Eb – Bb – (minor feel)"
+     },
+     {
+      "name": "Bell arpeggio",
+      "type": "notes",
+      "value": "C5 – G4 – Eb5 – C5 – G4 – Eb4 – C4 – – –"
+     },
+     {
+      "name": "Low dark sub-lead",
+      "type": "notes",
+      "value": "C3 – Eb3 – G3 – F3 – Eb3 – D3 – C3 – – –"
+     },
+     {
+      "name": "High flip melody",
+      "type": "notes",
+      "value": "C5 Bb4 – G4 – – Eb5 – C5 – Bb4 – G4 – – –"
+     },
+     {
+      "name": "Chromatic high run",
+      "type": "notes",
+      "value": "C5 B4 Bb4 A4 Ab4 G4 – – C5 – – – – – – –"
+     },
+     {
+      "name": "Memphis-style lick",
+      "type": "notes",
+      "value": "Eb4 G4 Bb4 – G4 – Eb4 – C4 – Bb3 – G3 – – –"
+     }
+    ]
+   },
+   {
+    "name": "FX & Atmosphere",
+    "icon": "🌫️",
+    "tips": [
+     "Risers, whooshes, and impacts between sections.",
+     "Reversed cymbal or pad before a drop for anticipation.",
+     "Sub-bass rumble in quiet sections for tension.",
+     "Vinyl crackle or cassette noise on a very low volume for texture."
+    ],
+    "patterns": [
+     {
+      "name": "Build sequence",
+      "type": "structure",
+      "value": "Bar 1–6: silence → Bar 7: riser starts → Bar 8: riser peak + reverse cymbal → Bar 9: DROP"
+     }
+    ]
+   },
+   {
+    "name": "Structure",
+    "icon": "🗺️",
+    "tips": [
+     "Intro (4–8 bars) → Verse → Hook → Verse → Hook → Bridge → Hook out.",
+     "Keep hooks minimal so they hit harder in contrast to the verse.",
+     "Mute the 808 and kick for 1 bar for a 'breathing' moment.",
+     "End drops with silence or a reversed crash for drama."
+    ],
+    "patterns": [
+     {
+      "name": "Trap song layout",
+      "type": "structure",
+      "value": "Intro (8) → Verse (16) → Hook (8) → Verse (16) → Hook (8) → Bridge (8) → Hook (16) → Outro (4)"
+     }
+    ]
+   },
+   {
+    "name": "Vocals / Ad-libs",
+    "icon": "🎤",
+    "tips": [
+     "Trap vocals are heavily Auto-Tuned — pitch-slide into every note from a semitone below.",
+     "Keep the verse vocal sparse and monotone; save melodic leaps for the hook.",
+     "Ad-libs (short high-pitched fills) fill the space between main vocal phrases.",
+     "Triplet vocal flows work over the triplet hi-hat patterns."
+    ],
+    "patterns": [
+     {
+      "name": "Hook refrain",
+      "type": "notes",
+      "value": "Eb4 – G4 – Bb4 – G4 – Eb4 – – – C4 – – –"
+     },
+     {
+      "name": "Verse melody",
+      "type": "notes",
+      "value": "C4 Eb4 – G4 – F4 Eb4 – C4 – – – – – – –"
+     },
+     {
+      "name": "High chorus refrain",
+      "type": "notes",
+      "value": "Bb4 – G4 Bb4 C5 – Bb4 – G4 – Eb4 – – – – –"
+     },
+     {
+      "name": "Ad-lib run down",
+      "type": "notes",
+      "value": "G5 F5 Eb5 D5 C5 – Bb4 – G4 – – – – – – –"
+     },
+     {
+      "name": "Low trap monotone",
+      "type": "notes",
+      "value": "C4 – – C4 – – C4 – Eb4 – – C4 – – – –"
+     }
+    ]
+   }
+  ],
+  "arrangement": {
+   "sections": [
+    {
+     "name": "Intro",
+     "bars": 8
+    },
+    {
+     "name": "Verse 1",
+     "bars": 16
+    },
+    {
+     "name": "Hook 1",
+     "bars": 8
+    },
+    {
+     "name": "Verse 2",
+     "bars": 16
+    },
+    {
+     "name": "Hook 2",
+     "bars": 8
+    },
+    {
+     "name": "Bridge",
+     "bars": 8
+    },
+    {
+     "name": "Hook 3",
+     "bars": 16
+    },
+    {
+     "name": "Outro",
+     "bars": 4
+    }
+   ],
+   "tracks": [
+    {
+     "name": "808 Bass",
+     "icon": "💣",
+     "color": "#ef4444",
+     "sections": [
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Kick",
+     "icon": "🥁",
+     "color": "#f97316",
+     "sections": [
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Hi-Hats",
+     "icon": "🔔",
+     "color": "#eab308",
+     "sections": [
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Snare",
+     "icon": "👏",
+     "color": "#a855f7",
+     "sections": [
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Melody",
+     "icon": "🎹",
+     "color": "#06b6d4",
+     "sections": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "FX/Atmos",
+     "icon": "🌫️",
+     "color": "#6b7280",
+     "sections": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0
+     ]
+    },
+    {
+     "name": "Vocals",
+     "icon": "🎤",
+     "color": "#c084fc",
+     "sections": [
+      0,
+      1,
+      1,
+      1,
+      1,
+      0,
+      1,
+      0
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "lo-fi-hip-hop",
+  "name": "Lo-Fi Hip-Hop",
+  "description": "Mellow, sample-based hip-hop defined by warm tape saturation, dusty drums, and jazzy chords. Perfect study and relaxation music.",
+  "bpm": "70–95",
+  "key": "Major or Dorian (warm and nostalgic feel)",
+  "color": "from-amber-600 to-rose-400",
+  "emoji": "☕",
+  "parts": [
+   {
+    "name": "Drums",
+    "icon": "🥁",
+    "tips": [
+     "Swung or shuffled 808 or vintage drum machine samples.",
+     "Kick on beat 1, light snare on beat 2 and 4 with ghost notes.",
+     "Humanise the hi-hats — vary velocity and add micro-timing offsets.",
+     "Apply vinyl crackle or tape saturation on the drum bus."
+    ],
+    "patterns": [
+     {
+      "name": "Classic lo-fi kick",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       1,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "name": "Snare / clap (beats 2 & 4)",
+      "type": "steps",
+      "steps": [
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "name": "Swung hi-hat",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       1,
+       1,
+       0,
+       1,
+       1,
+       0,
+       1,
+       0,
+       1,
+       1,
+       0,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "name": "Boom-bap groove",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       0,
+       0,
+       1,
+       0,
+       1,
+       0,
+       0,
+       0,
+       1,
+       0,
+       1,
+       0,
+       0,
+       0
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Chords / Sample",
+    "icon": "🎹",
+    "tips": [
+     "Sample jazz, soul, or bossa nova records — chop and loop 2–4 bars.",
+     "Or program Rhodes/Wurlitzer chords with jazz extensions (7, 9, 11).",
+     "Apply a low-pass filter to roll off the highs for a warm, muffled sound.",
+     "Pitch the sample slightly sharp or flat (+/- 20 cents) for character."
+    ],
+    "patterns": [
+     {
+      "name": "Jazzy lo-fi progression",
+      "type": "chords",
+      "value": "Cmaj7 – Am7 – Dm7 – G7 –"
+     },
+     {
+      "name": "Bossa-influenced loop",
+      "type": "chords",
+      "value": "Fmaj9 – Em7 – Am9 – Dm7 –"
+     },
+     {
+      "name": "Dorian groove",
+      "type": "chords",
+      "value": "Dm7 – Em7b5 – Am7 – Gm7 –"
+     },
+     {
+      "name": "ii–V–I in C",
+      "type": "chords",
+      "value": "Dm7 – G7 – Cmaj7 – Cmaj7 –"
+     }
+    ]
+   },
+   {
+    "name": "Bass",
+    "icon": "🎸",
+    "tips": [
+     "Simple, melodic bass following the chord root notes.",
+     "Electric bass sample or a round synth bass with subtle saturation.",
+     "Keep the bass laid-back — slightly behind the beat.",
+     "Low-pass filter at around 500–800 Hz for a muffled, warm tone."
+    ],
+    "patterns": [
+     {
+      "name": "Root note groove",
+      "type": "notes",
+      "value": "C2 – – C2 – A1 – – D2 – – D2 – G1 – –"
+     },
+     {
+      "name": "Walking bass feel",
+      "type": "notes",
+      "value": "C2 E2 G2 – A1 C2 E2 – D2 F2 A2 – G1 B1 D2 –"
+     },
+     {
+      "name": "Laid-back fifths",
+      "type": "notes",
+      "value": "C2 – – G2 – C2 – – A1 – – E2 – G1 – –"
+     }
+    ]
+   },
+   {
+    "name": "Melody",
+    "icon": "🎵",
+    "tips": [
+     "Soft piano or flute melody playing a simple 2–4 bar loop.",
+     "Leave space in the melody — lo-fi is about breathing room.",
+     "Add slight pitch wobble via automation to simulate tape wow and flutter.",
+     "Use a room reverb with pre-delay for a close, intimate sound."
+    ],
+    "patterns": [
+     {
+      "name": "Sparse piano hook",
+      "type": "notes",
+      "value": "E5 – D5 – C5 – – – B4 – A4 – G4 – – –"
+     },
+     {
+      "name": "Pentatonic lick",
+      "type": "notes",
+      "value": "G5 E5 D5 C5 – – E5 – G5 – – – – – – –"
+     },
+     {
+      "name": "Music-box motif",
+      "type": "notes",
+      "value": "G5 – E5 – C5 – D5 – E5 – – – G4 – – –"
+     },
+     {
+      "name": "Low vibraphone riff",
+      "type": "notes",
+      "value": "C3 – E3 – G3 – A3 – G3 – E3 – D3 C3 – –"
+     },
+     {
+      "name": "High sparkle piano",
+      "type": "notes",
+      "value": "G5 – – – E5 – – – C5 – D5 – E5 – – –"
+     },
+     {
+      "name": "Jazzy melodic phrase",
+      "type": "notes",
+      "value": "E4 G4 A4 C5 – B4 A4 – G4 – E4 – D4 – – –"
+     },
+     {
+      "name": "Low melancholic hook",
+      "type": "notes",
+      "value": "D3 – F3 – A3 – G3 – F3 – E3 – D3 – – –"
+     }
+    ]
+   },
+   {
+    "name": "Texture & FX",
+    "icon": "🌫️",
+    "tips": [
+     "Vinyl crackle sample looped underneath everything.",
+     "Rain, cafe, or city ambience on a separate low-volume track.",
+     "Tape saturation plugin on the master bus (RC-20, Vinyl Distortion).",
+     "Subtle pitch modulation (LFO on tune) to simulate cassette wobble."
+    ],
+    "patterns": [
+     {
+      "name": "Layer order",
+      "type": "structure",
+      "value": "Track 1: vinyl crackle (always on) → Track 2: rain ambience (from bar 2) → Track 3: tape wobble automation (subtle LFO)"
+     }
+    ]
+   },
+   {
+    "name": "Structure",
+    "icon": "🗺️",
+    "tips": [
+     "Lo-fi tracks are often minimal — just a loop with subtle variation.",
+     "Introduce elements slowly every 8 bars: first drums, then bass, then chords.",
+     "Keep the song short (2–3 mins) or loop endlessly for study playlists.",
+     "Variation is light: add a hi-hat fill here, mute the bass there."
+    ],
+    "patterns": [
+     {
+      "name": "Minimal loop layout",
+      "type": "structure",
+      "value": "Intro: drums only (8) → + bass (8) → + chords (8) → + melody (8) → variations (32) → fade out (8)"
+     }
+    ]
+   },
+   {
+    "name": "Vocals / Hums",
+    "icon": "🎤",
+    "tips": [
+     "Lo-fi vocals are warm and slightly muffled — run them through a low-pass filter around 6 kHz.",
+     "Sparse hummed or \"mm\"-style melodies work best; leave plenty of space.",
+     "Pitch-shifting the vocal down a semitone gives a dreamy, cassette-tape feel.",
+     "A short reverb tail (0.8–1.2 s) softens the vocal into the texture."
+    ],
+    "patterns": [
+     {
+      "name": "Soft hum melody",
+      "type": "notes",
+      "value": "E4 – G4 – A4 – G4 – E4 – D4 – C4 – – –"
+     },
+     {
+      "name": "Jazz scat phrase",
+      "type": "notes",
+      "value": "G4 – E4 G4 – A4 G4 – E4 – – D4 – E4 – –"
+     },
+     {
+      "name": "Breathy high line",
+      "type": "notes",
+      "value": "C5 – – – B4 – – – A4 – G4 – E4 – – –"
+     },
+     {
+      "name": "Low cosy hum",
+      "type": "notes",
+      "value": "A3 – C4 – E4 – C4 – A3 – G3 – E3 – – –"
+     },
+     {
+      "name": "Muted background phrase",
+      "type": "notes",
+      "value": "G4 – – – F4 – – – E4 – D4 – C4 – – –"
+     }
+    ]
+   }
+  ],
+  "arrangement": {
+   "sections": [
+    {
+     "name": "Intro",
+     "bars": 8
+    },
+    {
+     "name": "+ Bass",
+     "bars": 8
+    },
+    {
+     "name": "+ Chords",
+     "bars": 8
+    },
+    {
+     "name": "+ Melody",
+     "bars": 8
+    },
+    {
+     "name": "Full Loop",
+     "bars": 32
+    },
+    {
+     "name": "Variation",
+     "bars": 16
+    },
+    {
+     "name": "Fade Out",
+     "bars": 8
+    }
+   ],
+   "tracks": [
+    {
+     "name": "Drums",
+     "icon": "🥁",
+     "color": "#f97316",
+     "sections": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "name": "Bass",
+     "icon": "🎸",
+     "color": "#a855f7",
+     "sections": [
+      0,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "name": "Chords",
+     "icon": "🎹",
+     "color": "#06b6d4",
+     "sections": [
+      0,
+      0,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "name": "Melody",
+     "icon": "🎵",
+     "color": "#ec4899",
+     "sections": [
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Texture/FX",
+     "icon": "🌫️",
+     "color": "#6b7280",
+     "sections": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1
+     ]
+    },
+    {
+     "name": "Vocals",
+     "icon": "🎤",
+     "color": "#fb923c",
+     "sections": [
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      0
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "id": "drum-and-bass",
+  "name": "Drum & Bass",
+  "description": "Fast-paced electronic music built around breakbeats and heavy sub-bass. Originating from UK rave culture, it spans liquid, neurofunk, jungle, and more.",
+  "bpm": "160–180",
+  "key": "Minor keys, often chromatic",
+  "color": "from-orange-600 to-yellow-500",
+  "emoji": "⚡",
+  "parts": [
+   {
+    "name": "Breakbeat",
+    "icon": "🥁",
+    "tips": [
+     "Start from a classic break (Amen, Think Break, Apache) and chop it up.",
+     "Use time-stretching to pitch and time-match to your project BPM.",
+     "Layer additional claps, kicks and snares for punch.",
+     "Use a compressor on the break bus with a fast attack to glue the layers."
+    ],
+    "patterns": [
+     {
+      "name": "Basic Amen pattern",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       0,
+       1,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0
+      ]
+     },
+     {
+      "name": "Two-step DnB",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "name": "Snare placement",
+      "type": "steps",
+      "steps": [
+       0,
+       0,
+       0,
+       0,
+       1,
+       0,
+       0,
+       0,
+       0,
+       0,
+       0,
+       1,
+       1,
+       0,
+       0,
+       0
+      ]
+     },
+     {
+      "name": "Rolling amen variation",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       0,
+       1,
+       0,
+       1,
+       0,
+       0
+      ]
+     }
+    ]
+   },
+   {
+    "name": "Sub Bass",
+    "icon": "💣",
+    "tips": [
+     "Deep, heavy sub — use a sine wave or round-edged waveform.",
+     "Reese bass (detuned saws with heavy modulation) for neurofunk flavor.",
+     "Alternate between held notes and faster modulated bass for variation.",
+     "High-pass above 30 Hz to avoid subsonic rumble."
+    ],
+    "patterns": [
+     {
+      "name": "Sustained sub notes",
+      "type": "notes",
+      "value": "C1 (4 beats) – G1 (2 beats) – F1 (2 beats) – repeat"
+     },
+     {
+      "name": "Rolling sub",
+      "type": "notes",
+      "value": "C1 C1 – C1 – C1 C1 – G0 – – G0 – – – –"
+     },
+     {
+      "name": "Wobble sub",
+      "type": "notes",
+      "value": "C1 C1 C1 G0 C1 C1 F1 F1 C1 C1 C1 G0 Bb0 Bb0 – –"
+     }
+    ]
+   },
+   {
+    "name": "Mid Bass / Reese",
+    "icon": "🎸",
+    "tips": [
+     "A distorted, growling mid-range bass is a DnB staple.",
+     "Use multiple detuned oscillators with heavy filter modulation.",
+     "Automate the filter cutoff to create movement and tension.",
+     "Layer with a sub bass (separate channel) for full spectrum coverage."
+    ],
+    "patterns": [
+     {
+      "name": "Reese movement",
+      "type": "notes",
+      "value": "C2 (filter opens slowly over 4 bars) → peak at bar 4 → close"
+     },
+     {
+      "name": "Stab & sustain",
+      "type": "steps",
+      "steps": [
+       1,
+       0,
+       1,
+       0,
+       0,
+       0,
+       1,
+       0,
+       1,
+       1,
+       0,
+       0,
+       0,
+       0,
+       1,
+       0
+      ]
+     },
+     {
+      "name": "Neuro snarl pattern",
+      "type": "notes",
+      "value": "C2 – C2 C2 – G1 – C2 – F1 – – C2 – – –"
+     }
+    ]
+   },
+   {
+    "name": "Pads & Atmosphere",
+    "icon": "🌊",
+    "tips": [
+     "Dark, evolving pads in the background for depth.",
+     "For liquid DnB: warm, lush pads and melodic strings.",
+     "For neurofunk: cold, metallic textures and sci-fi atmospheres.",
+     "Use long reverb and modulation to make pads feel huge."
+    ],
+    "patterns": [
+     {
+      "name": "Liquid DnB progression",
+      "type": "chords",
+      "value": "Cm – Ab – Eb – Bb –"
+     },
+     {
+      "name": "Neurofunk tension",
+      "type": "chords",
+      "value": "Cm – Bdim – Bb – Ab – (chromatic tension)"
+     },
+     {
+      "name": "Jungle warmth",
+      "type": "chords",
+      "value": "Am7 – Dm7 – Em7 – Am7 –"
+     }
+    ]
+   },
+   {
+    "name": "Lead / Melody",
+    "icon": "🎹",
+    "tips": [
+     "Liquid DnB: Rhodes, piano, and lush synth leads.",
+     "Neurofunk: glitchy, distorted synth leads with heavy processing.",
+     "Keep melodies relatively simple — the rhythm does the heavy lifting.",
+     "Use a 1/4 or dotted 1/8 delay to create call-and-response phrases."
+    ],
+    "patterns": [
+     {
+      "name": "Liquid melody",
+      "type": "notes",
+      "value": "C5 Eb5 G5 Bb5 – – G5 – Eb5 – C5 – – – – –"
+     },
+     {
+      "name": "Neurofunk lead",
+      "type": "notes",
+      "value": "C4 B3 Bb3 A3 – Ab3 G3 – F#3 – – – C4 – – –"
+     },
+     {
+      "name": "Rhodes liquid riff",
+      "type": "notes",
+      "value": "C5 Eb5 G5 – F5 – Eb5 – C5 – – – Bb4 – – –"
+     },
+     {
+      "name": "High neurofunk synth",
+      "type": "notes",
+      "value": "C5 Eb5 G5 Bb5 – – Ab5 – G5 Eb5 C5 – Bb4 – – –"
+     },
+     {
+      "name": "Low atmospheric line",
+      "type": "notes",
+      "value": "C3 – Eb3 – G3 – F3 – Eb3 – D3 – C3 – – –"
+     },
+     {
+      "name": "Breakbeat hop melody",
+      "type": "notes",
+      "value": "G4 – Eb4 – C4 – G4 – F4 – Eb4 – D4 C4 – –"
+     },
+     {
+      "name": "Liquid high phrases",
+      "type": "notes",
+      "value": "G5 – Eb5 – C5 – Bb4 – G4 – F4 – Eb4 – – –"
+     }
+    ]
+   },
+   {
+    "name": "Structure",
+    "icon": "🗺️",
+    "tips": [
+     "Intro (16 bars of atmosphere) → Build → Drop → Breakdown → Drop 2 → Outro.",
+     "The 'drop' is the full break + bass hitting simultaneously.",
+     "Halftime sections (8 bars) where the break plays at half-speed for contrast.",
+     "Use silence or a single high note before drops for maximum impact."
+    ],
+    "patterns": [
+     {
+      "name": "DnB layout",
+      "type": "structure",
+      "value": "Intro (16) → Drop 1 (32) → Breakdown (16) → Drop 2 (32) → Outro (16)"
+     }
+    ]
+   },
+   {
+    "name": "Vocals / Ragga",
+    "icon": "🎤",
+    "tips": [
+     "DnB vocals range from liquid soul to ragga MC toasting — keep them high-energy.",
+     "Liquid DnB uses smooth melodic female vocals pitched around C5–G5.",
+     "Jungle/ragga tracks use short sharp vocal chops or MC phrases in a call-response pattern.",
+     "Reverse the tail of the vocal for a classic jungle effect."
+    ],
+    "patterns": [
+     {
+      "name": "Liquid vocal phrase",
+      "type": "notes",
+      "value": "C5 Eb5 – G5 – F5 Eb5 – C5 – – – Bb4 – – –"
+     },
+     {
+      "name": "Jungle MC chant",
+      "type": "notes",
+      "value": "G4 – F4 – Eb4 – D4 – C4 – – – Eb4 – G4 –"
+     },
+     {
+      "name": "High liquid run",
+      "type": "notes",
+      "value": "G5 – Eb5 C5 – Bb4 G4 – Eb4 – – – C4 – – –"
+     },
+     {
+      "name": "Ragga stab phrase",
+      "type": "notes",
+      "value": "C4 C4 – Eb4 – G4 C4 – – – C4 – Eb4 – – –"
+     },
+     {
+      "name": "Atmospheric breath",
+      "type": "notes",
+      "value": "C5 – – – G4 – – – Eb5 – – – C5 – – –"
+     }
+    ]
+   }
+  ],
+  "arrangement": {
+   "sections": [
+    {
+     "name": "Intro",
+     "bars": 16
+    },
+    {
+     "name": "Drop 1",
+     "bars": 32
+    },
+    {
+     "name": "Breakdown",
+     "bars": 16
+    },
+    {
+     "name": "Drop 2",
+     "bars": 32
+    },
+    {
+     "name": "Outro",
+     "bars": 16
+    }
+   ],
+   "tracks": [
+    {
+     "name": "Breakbeat",
+     "icon": "🥁",
+     "color": "#f97316",
+     "sections": [
+      0,
+      1,
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Sub Bass",
+     "icon": "💣",
+     "color": "#ef4444",
+     "sections": [
+      0,
+      1,
+      1,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Mid Bass",
+     "icon": "🎸",
+     "color": "#a855f7",
+     "sections": [
+      0,
+      1,
+      0,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Pads/Atmos",
+     "icon": "🌊",
+     "color": "#3b82f6",
+     "sections": [
+      1,
+      0,
+      1,
+      0,
+      1
+     ]
+    },
+    {
+     "name": "Lead/Melody",
+     "icon": "🎹",
+     "color": "#06b6d4",
+     "sections": [
+      0,
+      1,
+      1,
+      1,
+      0
+     ]
+    },
+    {
+     "name": "Vocals",
+     "icon": "🎤",
+     "color": "#818cf8",
+     "sections": [
+      0,
+      1,
+      0,
       1,
       0
      ]

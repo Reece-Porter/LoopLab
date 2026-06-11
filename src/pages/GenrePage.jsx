@@ -4,6 +4,7 @@ import genres from '../data/genres.json'
 import { parseBpm } from '../audio/theory'
 import PartPanel from '../components/PartPanel'
 import ArrangementView from '../components/ArrangementView'
+import CustomArrangement from '../components/CustomArrangement'
 
 export default function GenrePage() {
   const { id } = useParams()
@@ -113,6 +114,12 @@ export default function GenrePage() {
         <div className="mt-12">
           <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Full Arrangement</p>
           <ArrangementView arrangement={genre.arrangement} accentClass={genre.color} bpm={bpm} genreId={genre.id} parts={genre.parts} />
+        </div>
+
+        {/* Custom arrangement builder */}
+        <div className="mt-12">
+          <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Build Your Own Arrangement</p>
+          <CustomArrangement parts={genre.parts} genreId={genre.id} accentClass={genre.color} bpm={bpm} />
         </div>
       </div>
     </div>
