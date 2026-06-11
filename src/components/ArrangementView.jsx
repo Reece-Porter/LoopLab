@@ -39,30 +39,33 @@ function buildClip(voice, pat) {
 function ClipPreview({ clip, color, bars }) {
   const ref = useRef(null)
   useEffect(() => {
-    const canvas = ref.current
-    if (!canvas) return
-    const cols = Math.max(16, bars * 16)
-    const H = 48
-    canvas.width = cols
-    canvas.height = H
-    const c = canvas.getContext('2d')
-    c.clearRect(0, 0, cols, H)
-    c.fillStyle = color
-    for (let b = 0; b < bars; b++) {
-      for (let i = 0; i < 16; i++) {
-        const lvl = clip[i]
-        if (lvl <= 0) continue
-        const x = b * 16 + i
-        const h = Math.max(3, lvl * (H - 4))
-        c.fillRect(x + 0.12, H - h - 2, 0.76, h)
+    try {
+      const canvas = ref.current
+      if (!canvas) return
+      const cols = Math.max(16, bars * 16)
+      const H = 48
+      canvas.width = cols
+      canvas.height = H
+      const c = canvas.getContext('2d')
+      if (!c) return
+      c.clearRect(0, 0, cols, H)
+      c.fillStyle = color
+      for (let b = 0; b < bars; b++) {
+        for (let i = 0; i < 16; i++) {
+          const lvl = clip[i]
+          if (lvl <= 0) continue
+          const x = b * 16 + i
+          const h = Math.max(3, lvl * (H - 4))
+          c.fillRect(x + 0.12, H - h - 2, 0.76, h)
+        }
+        // faint bar divider
+        if (b > 0) {
+          c.fillStyle = 'rgba(255,255,255,0.10)'
+          c.fillRect(b * 16, 0, 0.4, H)
+          c.fillStyle = color
+        }
       }
-      // faint bar divider
-      if (b > 0) {
-        c.fillStyle = 'rgba(255,255,255,0.10)'
-        c.fillRect(b * 16, 0, 0.4, H)
-        c.fillStyle = color
-      }
-    }
+    } catch { /* canvas unavailable — preview is decorative, skip silently */ }
   }, [clip, color, bars])
   return (
     <canvas
@@ -133,9 +136,12 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   }, [playing, getPosition])
 
   const currentBar = frac != null ? Math.floor(frac * totalBars) : -1
-  const liveSection = currentBar >= 0
-    ? sectionStartBars.findLastIndex(b => b <= currentBar)
-    : -1
+  let liveSection = -1
+  if (currentBar >= 0) {
+    for (let i = 0; i < sectionStartBars.length; i++) {
+      if (sectionStartBars[i] <= currentBar) liveSection = i
+    }
+  }
 
   // Auto-scroll to keep the playhead in view.
   useEffect(() => {

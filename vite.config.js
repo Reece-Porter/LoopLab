@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   base: '/LoopLab/',
+  build: { target: 'es2019' },
   plugins: [
     react(),
     tailwindcss(),
