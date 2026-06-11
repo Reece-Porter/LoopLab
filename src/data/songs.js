@@ -405,24 +405,25 @@ export const GENRE_SONGS = {
       title: 'The Bells',
       artist: 'Jeff Mills',
       year: 1996,
-      bpm: 140,
-      key: 'F minor',
+      bpm: 137,
+      key: 'A minor',
       // 7 sections: Intro(16), Build 1(8), Drop 1(16), Break(16), Build 2(8), Drop 2(16), Outro(16)
       tracks: [
         { name: 'Kick',       instrument: 'Relentless Detroit kick',        sections: [1,1,1,1,1,1,1] },
         { name: 'Hi-Hats',    instrument: 'Machine 8th hats',               sections: [1,1,1,1,1,1,1] },
         { name: 'Percussion', instrument: 'Ride-driven percussion',         sections: [1,1,1,0,1,1,1] },
-        { name: 'Sub Bass',   instrument: 'Pumping F sub',                  sections: [0,1,1,0,1,1,0] },
-        { name: 'Hypno Stab', instrument: 'THE bell-stab riff',             sections: [0,1,1,1,1,1,0] },
+        { name: 'Sub Bass',   instrument: 'Pumping A sub',                  sections: [0,1,1,0,1,1,0] },
+        { name: 'Hypno Stab', instrument: 'THE ringing bell riff (F–G#–A)', sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',      instrument: '(none — pure machine)',          sections: [0,0,0,0,0,0,0] },
       ],
-      // The galloping ringing bell-riff: double-hit F's with G# and C accents,
-      // played on an actual FM bell so it rings like the record.
+      // The real riff: a constant stream of high bells cycling just three
+      // notes — A, G#, F — in a 5-note "circus seesaw" loop that rotates
+      // against the 16-step bar (Mills' odd-length sequence trick).
       groove: {
-        bass:     { steps: on(0,2,4,6,8,10,12,14), notes: ['F1','F1','F1','F1','F1','F1','D#1','D#1'] },
+        bass:     { steps: on(0,2,4,6,8,10,12,14), notes: ['A1','A1','A1','A1','A1','A1','G1','G1'] },
         supersaw: {
-          steps: on(0,1,3,4,6,8,9,11,12,14),
-          notes: ['F4','F4','G#4','F4','C5','F4','F4','G#4','F4','D#4'],
+          steps: on(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15),
+          notes: ['A4','G#4','F4','G#4','A4'],
           bell: true,
         },
       },
