@@ -161,3 +161,78 @@ function makeDistortion(amount) {
   }
   return curve
 }
+
+// Detuned super-saw stab — the classic hoover/trance lead used in Eurodance.
+export function supersaw(context, time, out, freq, gain = 0.3, dur = 0.25) {
+  const detunes = [-12, -5, 0, 5, 12]
+  const g = envGain(context, time, gain, 0.004, dur, out)
+  const lp = context.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.frequency.setValueAtTime(6000, time)
+  lp.frequency.exponentialRampToValueAtTime(1500, time + dur)
+  lp.connect(g)
+  detunes.forEach(d => {
+    const osc = context.createOscillator()
+    osc.type = 'sawtooth'
+    osc.frequency.value = freq
+    osc.detune.value = d
+    osc.connect(lp)
+    osc.start(time)
+    osc.stop(time + dur + 0.05)
+  })
+}
+
+// Growling Reese bass — two detuned saws through a moving lowpass. DnB staple.
+export function reese(context, time, out, freq, gain = 0.4, dur = 0.5) {
+  const g = envGain(context, time, gain, 0.01, dur, out)
+  const lp = context.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.frequency.value = 600
+  lp.Q.value = 6
+  lp.connect(g)
+  ;[-14, 0, 11].forEach(d => {
+    const osc = context.createOscillator()
+    osc.type = 'sawtooth'
+    osc.frequency.value = freq
+    osc.detune.value = d
+    osc.connect(lp)
+    osc.start(time)
+    osc.stop(time + dur + 0.05)
+  })
+}
+
+// Soft electric-piano-ish keys for Lo-Fi / Deep House chords.
+export function softKeys(context, time, out, freqs, gain = 0.22, dur = 0.7) {
+  freqs.forEach(freq => {
+    const osc = context.createOscillator()
+    osc.type = 'sine'
+    osc.frequency.value = freq
+    const osc2 = context.createOscillator()
+    osc2.type = 'triangle'
+    osc2.frequency.value = freq * 2
+    const lp = context.createBiquadFilter()
+    lp.type = 'lowpass'
+    lp.frequency.value = 1800
+    const g = envGain(context, time, gain / freqs.length, 0.02, dur, out)
+    osc.connect(lp)
+    osc2.connect(g) // subtle harmonic
+    lp.connect(g)
+    osc.start(time); osc.stop(time + dur + 0.05)
+    osc2.start(time); osc2.stop(time + dur * 0.4)
+  })
+}
+
+// Quiet vinyl crackle layer for Lo-Fi atmosphere.
+export function vinyl(context, time, out, gain = 0.04, dur = 0.5) {
+  const noise = context.createBufferSource()
+  noise.buffer = getNoise(context)
+  const hp = context.createBiquadFilter()
+  hp.type = 'highpass'
+  hp.frequency.value = 3000
+  const g = context.createGain()
+  g.gain.value = gain
+  g.connect(out)
+  noise.connect(hp).connect(g)
+  noise.start(time)
+  noise.stop(time + dur)
+}

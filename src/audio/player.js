@@ -4,6 +4,7 @@
 import { getContext } from './synth'
 import * as S from './synth'
 import { noteToFreq, chordToFreqs } from './theory'
+import { grooveFor, resolveNote, resolveChord } from './grooves'
 
 // Decide which synth voice a part uses, from its name.
 export function voiceFor(partName) {
@@ -127,6 +128,121 @@ export function playPattern(pattern, partName, bpm, { withClick = true, onStep }
   scheduler()
 
   return {
+    stop() {
+      stopped = true
+      if (timer) clearTimeout(timer)
+      try { out.disconnect() } catch { /* already gone */ }
+      if (onStep) onStep(-1)
+    },
+  }
+}
+
+// Play a full arrangement, genre-accurately. Walks every bar of the song,
+// only sounding tracks that are active in the current section (and visible),
+// using the genre's own groove table. Reports the global 16th-step index so
+// the UI can move a playhead. Returns a transport with stop().
+export function playArrangement(genreId, arrangement, tracks, { onStep } = {}) {
+  const ctx = getContext()
+  const groove = grooveFor(genreId)
+  const bpm = groove.bpm
+  const swing = groove.swing || 0
+
+  const out = ctx.createGain()
+  out.gain.value = 0.8
+  out.connect(ctx.destination)
+
+  // Map bar index → section index.
+  const sections = arrangement.sections
+  const barSection = []
+  sections.forEach((s, si) => { for (let b = 0; b < s.bars; b++) barSection.push(si) })
+  const totalBars = barSection.length
+  const totalSteps = totalBars * 16
+  const stepDur = 60 / bpm / 4
+
+  // Prepare the playable tracks (each carries its voice + per-section on/off).
+  const lineup = tracks.map(t => ({
+    voice: voiceFor(t.name),
+    sections: t.sections,
+    hits: 0, // running hit counter for note cycling
+  }))
+
+  let currentStep = 0
+  let nextStepTime = ctx.currentTime + 0.15
+  let timer = null
+  let stopped = false
+
+  function fire(track, pat, stepInBar, time) {
+    const v = track.voice
+    const swung = stepInBar % 2 === 1 ? swing * stepDur : 0
+    const t = time + swung
+    const hit = track.hits
+
+    if (v === 'kick') return S.kick(ctx, t, out, 1)
+    if (v === 'snare') return (genreId === 'deep-house' ? S.clap : S.snare)(ctx, t, out, 0.6)
+    if (v === 'hat') return S.hat(ctx, t, out, 0.3, !!pat.open && stepInBar % 4 === 2)
+    if (v === 'break') {
+      const isSnare = pat.snares && pat.snares.includes(stepInBar)
+      return isSnare ? S.snare(ctx, t, out, 0.55) : S.kick(ctx, t, out, 0.9)
+    }
+    if (v === 'reese') {
+      const f = resolveNote(pat, hit); if (f) S.reese(ctx, t, out, f, 0.4, stepDur * 3); return
+    }
+    if (v === 'eight08') {
+      const f = resolveNote(pat, hit); if (f) S.eight08(ctx, t, out, f, 0.9, pat.long ? stepDur * 6 : 0.5); return
+    }
+    if (v === 'bass') {
+      const f = resolveNote(pat, hit); if (f) S.bass(ctx, t, out, f, 0.5, pat.long ? stepDur * 4 : stepDur * 1.5); return
+    }
+    if (v === 'supersaw') {
+      const f = resolveNote(pat, hit); if (f) S.supersaw(ctx, t, out, f, 0.28, stepDur * 1.8); return
+    }
+    if (v === 'pluck') {
+      const f = resolveNote(pat, hit); if (f) S.pluck(ctx, t, out, f, 0.3, stepDur * 2); return
+    }
+    if (v === 'chord') {
+      const freqs = resolveChord(pat, hit)
+      if (!freqs) return
+      if (pat.keys) S.softKeys(ctx, t, out, freqs, 0.22, stepDur * 6)
+      else S.chordStab(ctx, t, out, freqs, pat.pad ? 0.18 : 0.26, pat.pad ? stepDur * 12 : stepDur * 4, true)
+    }
+  }
+
+  function scheduler() {
+    if (stopped) return
+    while (nextStepTime < ctx.currentTime + 0.12) {
+      const g = currentStep % totalSteps
+      const bar = Math.floor(g / 16)
+      const stepInBar = g % 16
+      const sectionIdx = barSection[bar]
+
+      // Lo-Fi vinyl crackle bed.
+      if (genreId === 'lo-fi-hip-hop' && stepInBar % 8 === 0) {
+        S.vinyl(ctx, nextStepTime, out, 0.03, stepDur * 8)
+      }
+
+      lineup.forEach(track => {
+        if (!track.sections[sectionIdx]) return
+        const pat = groove.voices[track.voice]
+        if (!pat || !pat.steps[stepInBar]) return
+        fire(track, pat, stepInBar, nextStepTime)
+        track.hits++
+      })
+
+      if (onStep) {
+        const ms = (nextStepTime - ctx.currentTime) * 1000
+        const s = g
+        setTimeout(() => { if (!stopped) onStep(s) }, Math.max(0, ms))
+      }
+
+      nextStepTime += stepDur
+      currentStep++
+    }
+    timer = setTimeout(scheduler, 25)
+  }
+  scheduler()
+
+  return {
+    totalSteps,
     stop() {
       stopped = true
       if (timer) clearTimeout(timer)
