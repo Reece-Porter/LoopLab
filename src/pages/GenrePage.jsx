@@ -17,17 +17,26 @@ export default function GenrePage() {
 
   const songs = (genre && GENRE_SONGS[genre.id]) || []
 
-  // Merge a reference song's track sections into the genre's arrangement.
+  // Merge a reference song's track sections + instrument labels into the
+  // genre's arrangement.
   const activeArrangement = useMemo(() => {
     if (!genre || !selectedSong) return genre?.arrangement
     return {
       ...genre.arrangement,
       tracks: genre.arrangement.tracks.map(t => {
         const override = selectedSong.tracks.find(s => s.name === t.name)
-        return override ? { ...t, sections: override.sections } : t
+        return override ? { ...t, sections: override.sections, instrument: override.instrument } : t
       }),
     }
   }, [genre, selectedSong])
+
+  // Selecting a song snaps the tempo to that song's real BPM; deselecting
+  // returns to the genre's typical tempo.
+  const chooseSong = song => {
+    const next = song && selectedSong?.title !== song.title ? song : null
+    setSelectedSong(next)
+    setBpm(next?.bpm || parseBpm(genre.bpm))
+  }
 
   if (!genre) {
     return (
@@ -132,7 +141,7 @@ export default function GenrePage() {
           {songs.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4 mt-3">
               <button
-                onClick={() => setSelectedSong(null)}
+                onClick={() => chooseSong(null)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   !selectedSong
                     ? `bg-gradient-to-r ${genre.color} text-white shadow-lg`
@@ -144,14 +153,14 @@ export default function GenrePage() {
               {songs.map(song => (
                 <button
                   key={song.title}
-                  onClick={() => setSelectedSong(selectedSong?.title === song.title ? null : song)}
+                  onClick={() => chooseSong(song)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     selectedSong?.title === song.title
                       ? `bg-gradient-to-r ${genre.color} text-white shadow-lg`
                       : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  {song.artist} — {song.title} <span className="opacity-60">({song.year})</span>
+                  {song.artist} — {song.title} <span className="opacity-60">({song.year} · {song.bpm} BPM · {song.key})</span>
                 </button>
               ))}
             </div>

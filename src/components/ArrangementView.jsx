@@ -252,6 +252,11 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
                       {track.icon} {track.name}
                     </span>
                   </button>
+                  {track.instrument && (
+                    <span className="text-[10px] leading-tight text-amber-300/80 truncate" title={track.instrument}>
+                      {track.instrument}
+                    </span>
+                  )}
                   {options.length > 0 && (
                     <select
                       value={sel}
