@@ -1,10 +1,23 @@
-export default function PartPanel({ part, accentClass }) {
+import { useState, useEffect } from 'react'
+import { usePlayer } from '../audio/usePlayer'
+import { parseBpm } from '../audio/theory'
+import PlayButton from './PlayButton'
+
+export default function PartPanel({ part, accentClass, bpm }) {
+  const [selected, setSelected] = useState(0)
+
+  // Reset selection when switching parts.
+  useEffect(() => { setSelected(0) }, [part.name])
+
+  const pattern = part.patterns[selected] || part.patterns[0]
+  const numericBpm = parseBpm(bpm)
+
   return (
-    <div className="space-y-6">
-      {/* Tips */}
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-        <h3 className="text-sm font-semibold text-white mb-4 flex items-center gap-2">
-          <span>{part.icon}</span> {part.name} — Tips
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Tips column */}
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6 lg:col-span-1">
+        <h3 className="text-base font-semibold text-white mb-4 flex items-center gap-2">
+          <span className="text-xl">{part.icon}</span> {part.name}
         </h3>
         <ul className="space-y-3">
           {part.tips.map((tip, i) => (
@@ -16,102 +29,171 @@ export default function PartPanel({ part, accentClass }) {
         </ul>
       </div>
 
-      {/* Patterns */}
-      <div>
-        <h3 className="text-xs text-gray-500 uppercase tracking-widest mb-3">Example Patterns</h3>
-        <div className="space-y-4">
-          {part.patterns.map((pattern, i) => (
-            <PatternCard key={i} pattern={pattern} accentClass={accentClass} />
-          ))}
+      {/* Pattern column */}
+      <div className="lg:col-span-2 space-y-4">
+        {/* Pattern selector */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="flex-1">
+            <label className="text-xs text-gray-500 uppercase tracking-widest block mb-1.5">
+              Example pattern ({part.patterns.length} options)
+            </label>
+            <select
+              value={selected}
+              onChange={e => setSelected(Number(e.target.value))}
+              className="w-full bg-gray-900 border border-white/15 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500 cursor-pointer"
+            >
+              {part.patterns.map((p, i) => (
+                <option key={i} value={i}>{p.name}  ·  {typeLabel(p.type)}</option>
+              ))}
+            </select>
+          </div>
         </div>
+
+        {/* Pattern display */}
+        <PatternDisplay
+          pattern={pattern}
+          accentClass={accentClass}
+          partName={part.name}
+          bpm={numericBpm}
+          patternIndex={selected}
+        />
       </div>
     </div>
   )
 }
 
-function PatternCard({ pattern, accentClass }) {
+function typeLabel(type) {
+  return { steps: 'Step sequence', notes: 'Melody', chords: 'Chords', structure: 'Arrangement' }[type] || type
+}
+
+function PatternDisplay({ pattern, accentClass, partName, bpm, patternIndex }) {
+  const id = `${partName}-${patternIndex}`
+  const { playing, step, toggle } = usePlayer(id)
+
+  const playable = pattern.type !== 'structure'
+
+  const onPlay = () => toggle('pattern', { pattern, partName, bpm, withClick: true })
+
   return (
-    <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-      <p className="text-sm font-semibold text-white mb-3">{pattern.name}</p>
-      {pattern.type === 'steps' && <StepGrid steps={pattern.steps} accentClass={accentClass} />}
-      {pattern.type === 'notes' && <NotePattern value={pattern.value} />}
-      {pattern.type === 'chords' && <ChordPattern value={pattern.value} />}
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-base font-semibold text-white">{pattern.name}</p>
+          <p className="text-xs text-gray-500">{typeLabel(pattern.type)} · {bpm} BPM</p>
+        </div>
+        {playable && (
+          <PlayButton playing={playing} onClick={onPlay} accentClass={accentClass} />
+        )}
+      </div>
+
+      {pattern.type === 'steps' && <StepGrid steps={pattern.steps} accentClass={accentClass} activeStep={step} />}
+      {pattern.type === 'notes' && <NoteGrid value={pattern.value} accentClass={accentClass} activeStep={step} />}
+      {pattern.type === 'chords' && <ChordGrid value={pattern.value} accentClass={accentClass} activeStep={step} />}
       {pattern.type === 'structure' && <StructurePattern value={pattern.value} />}
     </div>
   )
 }
 
-function StepGrid({ steps, accentClass }) {
+// ---- Step grid: 4 beats × 4 sixteenths, beat-accurate ----
+function StepGrid({ steps, accentClass, activeStep }) {
+  const beats = []
+  for (let b = 0; b < Math.ceil(steps.length / 4); b++) {
+    beats.push(steps.slice(b * 4, b * 4 + 4))
+  }
   return (
     <div>
-      <div className="flex gap-1 mb-1">
-        {steps.map((s, i) => (
-          <div
-            key={i}
-            className={`flex-1 rounded h-8 transition-colors ${
-              s === 2
-                ? `bg-gradient-to-b ${accentClass} opacity-60`
-                : s === 1
-                ? `bg-gradient-to-b ${accentClass}`
-                : 'bg-white/10'
-            } ${(i + 1) % 4 === 0 && i !== steps.length - 1 ? 'mr-1' : ''}`}
-          />
-        ))}
-      </div>
-      <div className="flex gap-1">
-        {steps.map((_, i) => (
-          <div key={i} className={`flex-1 text-center text-xs ${(i % 4 === 0) ? 'text-gray-500' : 'text-transparent'} ${(i + 1) % 4 === 0 && i !== steps.length - 1 ? 'mr-1' : ''}`}>
-            {i % 4 === 0 ? i / 4 + 1 : '.'}
+      <div className="flex gap-3">
+        {beats.map((beat, bi) => (
+          <div key={bi} className="flex-1">
+            <div className="text-xs text-gray-500 mb-1.5 font-mono">Beat {bi + 1}</div>
+            <div className="flex gap-1.5">
+              {beat.map((s, si) => {
+                const stepNum = bi * 4 + si
+                const isActive = activeStep === stepNum
+                return (
+                  <div
+                    key={si}
+                    className={`flex-1 rounded-md h-16 flex items-end justify-center pb-1 transition-all duration-75 ${
+                      s === 2
+                        ? `bg-gradient-to-b ${accentClass} opacity-70`
+                        : s === 1
+                        ? `bg-gradient-to-b ${accentClass}`
+                        : 'bg-white/5 border border-white/5'
+                    } ${isActive ? 'ring-2 ring-white scale-105' : ''}`}
+                  >
+                    <span className={`text-[10px] font-mono ${s ? 'text-white/70' : 'text-gray-600'}`}>
+                      {si === 0 ? bi + 1 : si === 2 ? '&' : '·'}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         ))}
       </div>
       {steps.some(s => s === 2) && (
-        <p className="text-xs text-gray-600 mt-2">Lighter shade = open hi-hat</p>
+        <p className="text-xs text-gray-600 mt-3">Lighter shade = open hi-hat</p>
       )}
     </div>
   )
 }
 
-function NotePattern({ value }) {
-  const notes = value.split(/\s+–\s+|\s+→\s+/).flatMap(chunk => chunk.split(/\s+/))
-  const raw = value
+// ---- Note grid ----
+function NoteGrid({ value, accentClass, activeStep }) {
+  const tokens = value.split(/\s+/)
+  // Map display index → playable step index (excludes arrows).
+  let stepCounter = -1
+  const mapped = tokens.map(tok => {
+    if (tok === '→') return { tok, step: null, arrow: true }
+    stepCounter++
+    return { tok, step: stepCounter, rest: tok === '–' }
+  })
   return (
     <div>
-      <div className="flex flex-wrap gap-1 mb-2">
-        {raw.split(' ').map((token, i) => {
-          const isDash = token === '–' || token === '→'
-          const isArrow = token === '→'
+      <div className="flex flex-wrap gap-1.5">
+        {mapped.map((m, i) => {
+          if (m.arrow) return <span key={i} className="px-1 py-2 text-purple-400 font-mono text-sm self-center">→</span>
+          const isActive = activeStep === m.step
           return (
             <span
               key={i}
-              className={`px-2 py-1 rounded text-xs font-mono ${
-                isDash
-                  ? isArrow ? 'text-purple-400' : 'text-gray-700'
-                  : 'bg-white/10 text-gray-200'
-              }`}
+              className={`px-3 py-2.5 rounded-md text-sm font-mono min-w-[42px] text-center transition-all duration-75 ${
+                m.rest
+                  ? 'text-gray-700 bg-white/[0.03]'
+                  : `bg-gradient-to-b ${accentClass} text-white`
+              } ${isActive ? 'ring-2 ring-white scale-110' : ''}`}
             >
-              {token}
+              {m.tok}
             </span>
           )
         })}
       </div>
-      <p className="text-xs text-gray-600">Each token = 1 step (– = rest, → = slide/glide)</p>
+      <p className="text-xs text-gray-600 mt-3">Each cell = one 8th-note step (– = rest, → = slide)</p>
     </div>
   )
 }
 
-function ChordPattern({ value }) {
-  const chords = value.split(/\s+–\s+/)
+// ---- Chord grid ----
+function ChordGrid({ value, accentClass, activeStep }) {
+  const chords = value.replace(/\(.*?\)/g, '').split(/\s+–\s+/).map(c => c.trim()).filter(Boolean)
   return (
     <div>
-      <div className="flex flex-wrap gap-2 mb-2">
-        {chords.map((chord, i) => (
-          <span key={i} className="px-3 py-1.5 rounded-lg bg-white/10 text-sm font-semibold text-gray-200 font-mono">
-            {chord.trim()}
-          </span>
-        ))}
+      <div className="flex flex-wrap gap-2">
+        {chords.map((chord, i) => {
+          const isActive = activeStep === i
+          return (
+            <span
+              key={i}
+              className={`px-5 py-3 rounded-lg text-base font-semibold font-mono transition-all duration-75 ${
+                isActive ? `bg-gradient-to-b ${accentClass} text-white ring-2 ring-white scale-105` : 'bg-white/10 text-gray-200'
+              }`}
+            >
+              {chord}
+            </span>
+          )
+        })}
       </div>
-      <p className="text-xs text-gray-600">Play each chord for 1–2 bars, loop the sequence</p>
+      <p className="text-xs text-gray-600 mt-3">Each chord plays for one beat · loops</p>
     </div>
   )
 }
@@ -119,10 +201,10 @@ function ChordPattern({ value }) {
 function StructurePattern({ value }) {
   const sections = value.split(/\s*→\s*/)
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 items-center">
       {sections.map((section, i) => (
         <div key={i} className="flex items-center gap-2">
-          <span className="px-3 py-1.5 rounded-lg bg-white/10 text-xs text-gray-300">{section.trim()}</span>
+          <span className="px-3 py-2 rounded-lg bg-white/10 text-sm text-gray-300">{section.trim()}</span>
           {i < sections.length - 1 && (
             <svg className="w-3 h-3 text-gray-700 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
