@@ -27,6 +27,32 @@ export default function HomePage() {
           </p>
         </header>
 
+        {/* Quick links to the reference areas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+          <button
+            onClick={() => navigate('/tips')}
+            className="text-left rounded-2xl border border-white/10 bg-gradient-to-br from-amber-500/10 to-orange-600/10 hover:border-amber-400/40 transition p-5 flex items-center gap-4 group"
+          >
+            <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-2xl shrink-0">⌨️</span>
+            <span className="flex-1">
+              <span className="block font-bold text-white group-hover:text-amber-300 transition-colors">FL Studio Tips & Shortcuts</span>
+              <span className="block text-xs text-gray-400 mt-0.5">Keyboard shortcuts and workflow tricks</span>
+            </span>
+            <span className="text-gray-600 group-hover:text-amber-400 group-hover:translate-x-1 transition-all">→</span>
+          </button>
+          <button
+            onClick={() => navigate('/tools')}
+            className="text-left rounded-2xl border border-white/10 bg-gradient-to-br from-emerald-500/10 to-teal-600/10 hover:border-emerald-400/40 transition p-5 flex items-center gap-4 group"
+          >
+            <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl shrink-0">🧰</span>
+            <span className="flex-1">
+              <span className="block font-bold text-white group-hover:text-emerald-300 transition-colors">Production Tools & Resources</span>
+              <span className="block text-xs text-gray-400 mt-0.5">Free samples, vocals, plugins and where to find tracks</span>
+            </span>
+            <span className="text-gray-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all">→</span>
+          </button>
+        </div>
+
         <div className="relative mb-8">
           <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />

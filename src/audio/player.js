@@ -11,12 +11,21 @@ export function voiceFor(partName) {
   const n = partName.toLowerCase()
   if (n.includes('808')) return 'eight08'
   if (n.includes('kick')) return 'kick'
-  if (n.includes('snare') || n.includes('clap')) return 'snare'
+  if (n.includes('clap')) return 'clap'
+  if (n.includes('snare') || n.includes('rim')) return 'snare'
+  if (n.includes('perc') || n.includes('ride') || n.includes('tom')) return 'perc'
   if (n.includes('hat') || n.includes('hi-hat')) return 'hat'
   if (n.includes('break')) return 'break'
+  if (n.includes('donk') || n.includes('bounce')) return 'donk'
+  if (n.includes('piano')) return 'piano'
+  if (n.includes('organ')) return 'piano'
+  if (n.includes('reese')) return 'reese'
   if (n.includes('sub') || n.includes('bass')) return 'bass'
-  if (n.includes('chord') || n.includes('pad')) return 'chord'
+  if (n.includes('rumble')) return 'kick'
+  if (n.includes('chord') || n.includes('pad') || n.includes('key')) return 'chord'
   if (n.includes('vocal') || n.includes('vox') || n.includes('voice')) return 'vox'
+  if (n.includes('hoover') || n.includes('stab') || n.includes('rave') ||
+      n.includes('acid')) return 'supersaw'
   if (n.includes('lead') || n.includes('melody') || n.includes('synth') ||
       n.includes('sample')) return 'pluck'
   return 'pluck'
@@ -146,10 +155,10 @@ export function playPattern(pattern, partName, bpm, { withClick = true, onStep }
 // a live map { trackName: clip16 } and mutedRef.current a live { name: true }
 // map — both are read fresh every step so the user can swap example patterns
 // and mute/unmute tracks while the song keeps playing.
-export function playArrangement(genreId, arrangement, tracks, { onStep, startStep = 0, clipsRef, mutedRef } = {}) {
+export function playArrangement(genreId, arrangement, tracks, { onStep, startStep = 0, clipsRef, mutedRef, bpm: bpmOverride } = {}) {
   const ctx = getContext()
   const groove = grooveFor(genreId)
-  const bpm = groove.bpm
+  const bpm = bpmOverride || groove.bpm
   const swing = groove.swing || 0
 
   const out = ctx.createGain()
@@ -177,6 +186,8 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
 
     if (evt.drum) {
       if (voice === 'kick') return S.kick(ctx, t, out, 1)
+      if (voice === 'clap') return S.clap(ctx, t, out, 0.6)
+      if (voice === 'perc') return S.hat(ctx, t, out, 0.32, true)
       if (voice === 'snare') return (genreId === 'deep-house' ? S.clap : S.snare)(ctx, t, out, 0.6)
       if (voice === 'hat') return S.hat(ctx, t, out, 0.3, !!evt.open)
       if (voice === 'break') {
@@ -186,15 +197,18 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
       return S.kick(ctx, t, out, 1)
     }
     if (evt.freqs) {
+      if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24, evt.pad ? stepDur * 8 : stepDur * 3)
       if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.22, stepDur * 6)
       return S.chordStab(ctx, t, out, evt.freqs, evt.pad ? 0.18 : 0.26, evt.pad ? stepDur * 12 : stepDur * 4, true)
     }
     if (evt.freq != null) {
       const f = evt.freq
       if (voice === 'reese') return S.reese(ctx, t, out, f, 0.4, stepDur * 3)
+      if (voice === 'donk') return S.donk(ctx, t, out, f, 0.5, stepDur * 1.4)
       if (voice === 'eight08') return S.eight08(ctx, t, out, f, 0.9, evt.long ? stepDur * 6 : 0.5)
       if (voice === 'bass') return S.bass(ctx, t, out, f, 0.5, evt.long ? stepDur * 4 : stepDur * 1.5)
       if (voice === 'supersaw') return S.supersaw(ctx, t, out, f, 0.28, stepDur * 1.8)
+      if (voice === 'piano') return S.piano(ctx, t, out, [f], 0.22, stepDur * 3)
       if (voice === 'vox') return S.vox(ctx, t, out, f, 0.28, stepDur * 3)
       return S.pluck(ctx, t, out, f, 0.3, stepDur * 2)
     }

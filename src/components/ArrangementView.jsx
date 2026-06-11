@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { usePlayer } from '../audio/usePlayer'
 import { voiceFor } from '../audio/player'
-import { grooveFor } from '../audio/grooves'
 import { buildTrackClip } from '../audio/arrangementClip'
 import PlayButton from './PlayButton'
 
@@ -71,7 +70,6 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
 
   const totalBars = arrangement.sections.reduce((sum, s) => sum + s.bars, 0)
 
-  const groove = useMemo(() => grooveFor(genreId), [genreId])
   const timelineWidth = Math.max(584, totalBars * PX_PER_BAR)
 
   // Static lineup the player walks (name + voice + per-section on/off).
@@ -120,7 +118,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   }, [hidden])
 
   const play = (fromBar = startBar) =>
-    start('arrangement', { genreId, arrangement, tracks: lineup, startStep: fromBar * 16, clipsRef, mutedRef })
+    start('arrangement', { genreId, arrangement, tracks: lineup, startStep: fromBar * 16, clipsRef, mutedRef, bpm })
 
   const onPlay = () => (playing ? stop() : play())
 
@@ -175,7 +173,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
           <div>
             <span className="text-base font-semibold text-white">Arrangement</span>
             <span className="text-xs text-gray-600 ml-2">
-              {totalBars} bars · plays at {groove.bpm} BPM
+              {totalBars} bars · plays at {bpm} BPM
               {currentBar >= 0
                 ? <span className="text-purple-300 ml-2">▸ bar {currentBar + 1}</span>
                 : <span className="text-cyan-300/80 ml-2">start: bar {startBar + 1}</span>}

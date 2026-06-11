@@ -95,6 +95,137 @@ export const GENRE_GROOVES = {
       vox:     { steps: on(4, 12), notes: ['E4', 'G4'] },
     },
   },
+
+  // ---- Hard Groove: tribal, percussive 4/4 techno (Ben Sims / Jeff Mills) ----
+  'hard-groove': {
+    bpm: 135,
+    swing: 0,
+    voices: {
+      kick:    { steps: on(0, 4, 8, 12) },
+      clap:    { steps: on(4, 12) },
+      hat:     { steps: on(2, 6, 10, 14), open: true },
+      perc:    { steps: on(3, 7, 9, 11, 13, 15) },
+      bass:    { steps: on(2, 6, 10, 14), notes: ['A1', 'A1', 'A1', 'C2'] },
+      supersaw:{ steps: on(0, 8), notes: ['A3', 'C4'] },
+      vox:     { steps: on(0, 8), notes: ['A4', 'G4'] },
+    },
+  },
+
+  // ---- Hard House: pounding UK hard house with donk + hoover stabs ----
+  'hard-house': {
+    bpm: 150,
+    swing: 0,
+    voices: {
+      kick:    { steps: on(0, 4, 8, 12) },
+      clap:    { steps: on(4, 12) },
+      hat:     { steps: on(2, 6, 10, 14), open: true },
+      bass:    { steps: on(2, 6, 10, 14), notes: ['C2', 'C2', 'C2', 'D#2'] },
+      donk:    { steps: on(2, 6, 10, 14), notes: ['C3', 'C3', 'C3', 'D#3'] },
+      supersaw:{ steps: on(0, 8), notes: ['C4', 'G3'] },
+      vox:     { steps: on(0, 8), notes: ['C5', 'G4'] },
+    },
+  },
+
+  // ---- Standard / Piano House: classic uplifting house with stabbed piano ----
+  house: {
+    bpm: 125,
+    swing: 0.08,
+    voices: {
+      kick:    { steps: on(0, 4, 8, 12) },
+      clap:    { steps: on(4, 12) },
+      hat:     { steps: on(2, 6, 10, 14), open: true },
+      bass:    { steps: on(2, 6, 10, 14), notes: ['F1', 'A#1', 'C2', 'A#1'] },
+      piano:   { steps: on(2, 6, 7, 10, 14), chords: ['Fm7', 'A#maj7', 'Cm7', 'Gm7', 'A#maj7'] },
+      vox:     { steps: on(0, 8), notes: ['F4', 'A#4'] },
+    },
+  },
+
+  // ---- Speed Garage / UKG: shuffled 2-step with organ/reese sub ----
+  'speed-garage': {
+    bpm: 135,
+    swing: 0.3,
+    voices: {
+      kick:    { steps: on(0, 10) },
+      snare:   { steps: on(4, 12) },
+      hat:     { steps: on(2, 5, 6, 9, 11, 14), open: true },
+      reese:   { steps: on(0, 3, 6, 8, 11, 14), notes: ['G1', 'G1', 'A#1', 'C2', 'C2', 'D2'] },
+      bass:    { steps: on(0, 6, 10), notes: ['G1', 'A#1', 'C2'], long: true },
+      piano:   { steps: on(2, 8, 11), chords: ['Gm7', 'Cm7', 'D7'] },
+      vox:     { steps: on(0, 8), notes: ['G4', 'A#4'] },
+    },
+  },
+
+  // ---- Bouncy Techno (240km/h / Adrian Mills): rave stabs + bouncy donk ----
+  'bouncy-techno': {
+    bpm: 165,
+    swing: 0,
+    voices: {
+      kick:    { steps: on(0, 4, 8, 12) },
+      clap:    { steps: on(4, 12) },
+      hat:     { steps: on(2, 6, 10, 14), open: true },
+      donk:    { steps: on(2, 3, 6, 7, 10, 11, 14, 15), notes: ['A2', 'A3', 'A2', 'A3', 'C3', 'C4', 'G2', 'G3'] },
+      supersaw:{ steps: on(0, 8), notes: ['A4', 'C5'] },
+      vox:     { steps: on(0, 8), notes: ['A4', 'E5'] },
+    },
+  },
+
+  // ---- Tech House: rolling, minimal, percussion-led ----
+  'tech-house': {
+    bpm: 126,
+    swing: 0.1,
+    voices: {
+      kick:    { steps: on(0, 4, 8, 12) },
+      clap:    { steps: on(4, 12) },
+      hat:     { steps: on(2, 6, 10, 14), open: true },
+      perc:    { steps: on(3, 7, 11, 15) },
+      bass:    { steps: on(2, 5, 6, 10, 13, 14), notes: ['C2', 'C2', 'D#2', 'G2', 'G2', 'C2'] },
+      supersaw:{ steps: on(0, 8), notes: ['C4', 'G3'] },
+      vox:     { steps: on(2, 10), notes: ['C5', 'G4'] },
+    },
+  },
+
+  // ---- Techno: driving, hypnotic, dark stab ----
+  techno: {
+    bpm: 132,
+    swing: 0,
+    voices: {
+      kick:    { steps: on(0, 4, 8, 12) },
+      hat:     { steps: on(2, 6, 10, 14), open: true },
+      perc:    { steps: on(3, 7, 11, 15) },
+      bass:    { steps: on(2, 6, 10, 14), notes: ['A1', 'A1', 'A1', 'A1'] },
+      supersaw:{ steps: on(0, 3, 8, 11), notes: ['A3', 'A3', 'C4', 'C4'] },
+      vox:     { steps: on(0, 8), notes: ['A4', 'A4'] },
+    },
+  },
+
+  // ---- Hard Techno: faster, distorted kick + rave hoover ----
+  'hard-techno': {
+    bpm: 150,
+    swing: 0,
+    voices: {
+      kick:    { steps: on(0, 4, 8, 12) },
+      clap:    { steps: on(4, 12) },
+      hat:     { steps: on(2, 6, 10, 14) },
+      perc:    { steps: on(3, 7, 11, 15) },
+      bass:    { steps: on(2, 6, 10, 14), notes: ['E2', 'E2', 'E2', 'E2'] },
+      supersaw:{ steps: on(0, 4, 8, 12), notes: ['E4', 'E4', 'G4', 'E4'] },
+      vox:     { steps: on(0, 8), notes: ['E4', 'E4'] },
+    },
+  },
+
+  // ---- Schranz: relentless distorted industrial loop techno ----
+  schranz: {
+    bpm: 155,
+    swing: 0,
+    voices: {
+      kick:    { steps: on(0, 4, 8, 12) },
+      clap:    { steps: on(4, 12) },
+      perc:    { steps: on(2, 3, 6, 7, 10, 11, 14, 15) },
+      hat:     { steps: on(0, 2, 4, 6, 8, 10, 12, 14) },
+      bass:    { steps: on(0, 4, 8, 12), notes: ['C2', 'C2', 'C2', 'C2'] },
+      supersaw:{ steps: on(0, 8), notes: ['C4', 'D#4'] },
+    },
+  },
 }
 
 // Pick the genre groove, defaulting to eurodance-ish if unknown.

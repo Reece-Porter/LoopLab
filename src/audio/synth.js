@@ -237,6 +237,67 @@ export function vinyl(context, time, out, gain = 0.04, dur = 0.5) {
   noise.stop(time + dur)
 }
 
+// Bright stabbed piano chord — the backbone of piano house / classic house.
+// Two slightly detuned saws per note through a bright lowpass with a fast,
+// percussive decay so it "stabs" rather than sustains.
+export function piano(context, time, out, freqs, gain = 0.26, dur = 0.5) {
+  freqs.forEach(freq => {
+    ;[-4, 4].forEach(d => {
+      const osc = context.createOscillator()
+      osc.type = 'sawtooth'
+      osc.frequency.value = freq
+      osc.detune.value = d
+      const lp = context.createBiquadFilter()
+      lp.type = 'lowpass'
+      lp.frequency.setValueAtTime(4500, time)
+      lp.frequency.exponentialRampToValueAtTime(1400, time + dur)
+      const g = envGain(context, time, gain / freqs.length, 0.003, dur, out)
+      osc.connect(lp).connect(g)
+      osc.start(time)
+      osc.stop(time + dur + 0.05)
+    })
+  })
+}
+
+// "Donk" — the bouncy bonk hit used in hard house / bouncy techno / donk.
+// A fast downward pitch blip through a resonant bandpass for that wooden bonk.
+export function donk(context, time, out, freq, gain = 0.5, dur = 0.18) {
+  const osc = context.createOscillator()
+  osc.type = 'square'
+  osc.frequency.setValueAtTime(freq * 3, time)
+  osc.frequency.exponentialRampToValueAtTime(freq, time + 0.04)
+  const bp = context.createBiquadFilter()
+  bp.type = 'bandpass'
+  bp.frequency.value = freq * 2
+  bp.Q.value = 6
+  const g = envGain(context, time, gain, 0.001, dur, out)
+  osc.connect(bp).connect(g)
+  osc.start(time)
+  osc.stop(time + dur + 0.05)
+}
+
+// Hard, distorted rave-style hoover/stab for hard techno / schranz.
+export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
+  const g = envGain(context, time, gain, 0.004, dur, out)
+  const shaper = context.createWaveShaper()
+  shaper.curve = makeDistortion(20)
+  const lp = context.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.frequency.setValueAtTime(5000, time)
+  lp.frequency.exponentialRampToValueAtTime(900, time + dur)
+  shaper.connect(lp).connect(g)
+  ;[-7, -3, 0, 4, 7].forEach(d => {
+    const osc = context.createOscillator()
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(freq * 1.04, time)
+    osc.frequency.exponentialRampToValueAtTime(freq, time + 0.08)
+    osc.detune.value = d
+    osc.connect(shaper)
+    osc.start(time)
+    osc.stop(time + dur + 0.05)
+  })
+}
+
 // Formant-filtered sawtooth with vibrato — approximate sung "aah/ooh" vowel.
 // The two bandpass filters mimic the first two vocal formants.
 export function vox(context, time, out, freq, gain = 0.28, dur = 0.45) {

@@ -6,9 +6,8 @@
 import { noteToFreq, chordToFreqs } from './theory'
 import { grooveFor } from './grooves'
 
-const DRUM_LEVEL = { kick: 1, snare: 0.82, hat: 0.4, break: 0.9 }
+const DRUM_LEVEL = { kick: 1, snare: 0.82, clap: 0.72, perc: 0.5, hat: 0.4, break: 0.9 }
 const isDrum = v => Object.prototype.hasOwnProperty.call(DRUM_LEVEL, v)
-const isChord = v => v === 'chord'
 
 function freqLevel(f) {
   return f ? 0.25 + 0.75 * Math.min(1, Math.max(0, (Math.log2(f) - 5.2) / 5.2)) : 0.6
@@ -25,8 +24,8 @@ export function grooveClip(voice, gp) {
       clip[i] = { drum: true, breakSnare: !!(gp.snares && gp.snares.includes(i)), level: DRUM_LEVEL.break }
     } else if (isDrum(voice)) {
       clip[i] = { drum: true, open: voice === 'hat' && !!gp.open && i % 4 === 2, level: DRUM_LEVEL[voice] }
-    } else if (isChord(voice)) {
-      const sym = gp.chords ? gp.chords[hit % gp.chords.length] : null
+    } else if (gp.chords) {
+      const sym = gp.chords[hit % gp.chords.length]
       const freqs = sym ? chordToFreqs(sym) : null
       clip[i] = { freqs, keys: gp.keys, pad: gp.pad, level: freqs ? freqLevel(freqs[0]) : 0.6 }
       hit++

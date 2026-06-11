@@ -10,7 +10,8 @@ export default function PartPanel({ part, accentClass, bpm }) {
   useEffect(() => { setSelected(0) }, [part.name])
 
   const pattern = part.patterns[selected] || part.patterns[0]
-  const numericBpm = parseBpm(bpm)
+  // bpm may arrive as a live number (from the tempo slider) or a string range.
+  const numericBpm = typeof bpm === 'number' ? bpm : parseBpm(bpm)
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import genres from '../data/genres.json'
+import { parseBpm } from '../audio/theory'
 import PartPanel from '../components/PartPanel'
 import ArrangementView from '../components/ArrangementView'
 
@@ -9,6 +10,7 @@ export default function GenrePage() {
   const navigate = useNavigate()
   const genre = genres.find(g => g.id === id)
   const [activePart, setActivePart] = useState(null)
+  const [bpm, setBpm] = useState(() => (genre ? parseBpm(genre.bpm) : 120))
 
   if (!genre) {
     return (
@@ -42,10 +44,34 @@ export default function GenrePage() {
           <div className="min-w-0">
             <h1 className="text-xl font-black tracking-tight text-white truncate">{genre.name}</h1>
             <div className="flex flex-wrap gap-2">
-              <span className="text-xs text-gray-400">🎚 {genre.bpm} BPM</span>
+              <span className="text-xs text-gray-400">🎚 typical {genre.bpm} BPM</span>
               <span className="text-xs text-gray-500">·</span>
               <span className="text-xs text-gray-400">🎵 {genre.key}</span>
             </div>
+          </div>
+
+          {/* Live BPM control — drives both the example patterns and the arrangement */}
+          <div className="ml-auto shrink-0 flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-2">
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-widest text-gray-500">Tempo</div>
+              <div className="text-lg font-black font-mono text-white leading-none">{bpm}<span className="text-[10px] text-gray-500 ml-1">BPM</span></div>
+            </div>
+            <input
+              type="range"
+              min={60}
+              max={250}
+              value={bpm}
+              onChange={e => setBpm(Number(e.target.value))}
+              className="w-32 sm:w-44 accent-purple-500 cursor-pointer"
+              aria-label="Tempo in BPM"
+            />
+            <button
+              onClick={() => setBpm(parseBpm(genre.bpm))}
+              className="text-[11px] text-gray-500 hover:text-gray-300 transition-colors"
+              title="Reset to the genre's typical tempo"
+            >
+              reset
+            </button>
           </div>
         </div>
       </div>
@@ -75,7 +101,7 @@ export default function GenrePage() {
 
         {/* Part detail panel */}
         {activePart ? (
-          <PartPanel part={activePart} accentClass={genre.color} bpm={genre.bpm} />
+          <PartPanel part={activePart} accentClass={genre.color} bpm={bpm} />
         ) : (
           <div className="text-center py-16 text-gray-700 border border-white/5 rounded-2xl">
             <span className="text-4xl block mb-3">👆</span>
@@ -86,7 +112,7 @@ export default function GenrePage() {
         {/* Arrangement View */}
         <div className="mt-12">
           <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Full Arrangement</p>
-          <ArrangementView arrangement={genre.arrangement} accentClass={genre.color} bpm={parseInt(/\d+/.exec(genre.bpm)[0], 10)} genreId={genre.id} parts={genre.parts} />
+          <ArrangementView arrangement={genre.arrangement} accentClass={genre.color} bpm={bpm} genreId={genre.id} parts={genre.parts} />
         </div>
       </div>
     </div>

@@ -39,7 +39,7 @@ export function usePlayer(id) {
     const onStep = s => setStep(s)
     if (kind === 'arrangement') {
       activeTransport = playArrangement(args.genreId, args.arrangement, args.tracks, {
-        onStep, startStep: args.startStep, clipsRef: args.clipsRef, mutedRef: args.mutedRef,
+        onStep, startStep: args.startStep, clipsRef: args.clipsRef, mutedRef: args.mutedRef, bpm: args.bpm,
       })
     } else if (kind === 'groove') {
       activeTransport = playGroove(args.voices, args.bpm, { onStep })
