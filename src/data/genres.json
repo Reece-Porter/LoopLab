@@ -16,6 +16,18 @@
           "Layer a sub-bass sine click underneath the kick for body.",
           "Keep the kick around 60–80 Hz fundamental with a sharp transient.",
           "Sidechain compression from kick to bass for a pumping effect."
+        ],
+        "patterns": [
+          {
+            "name": "4-on-the-floor",
+            "type": "steps",
+            "steps": [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]
+          },
+          {
+            "name": "4-on-the-floor + offbeat",
+            "type": "steps",
+            "steps": [1,0,0,0,1,0,1,0,1,0,0,0,1,0,0,0]
+          }
         ]
       },
       {
@@ -26,6 +38,23 @@
           "Use a sawtooth or square wave with a fast attack and medium decay.",
           "Keep the bassline simple — root note on beat 1, octave jumps for energy.",
           "Roll off everything below 50 Hz and above 400 Hz to sit cleanly."
+        ],
+        "patterns": [
+          {
+            "name": "Root + octave stab",
+            "type": "notes",
+            "value": "A2 – – A3 – – A2 – – – A2 – A3 – – –"
+          },
+          {
+            "name": "Running 8th-note bass",
+            "type": "notes",
+            "value": "A2 A2 C3 C3 E3 E3 A2 A2 G2 G2 F2 F2 E2 E2 – –"
+          },
+          {
+            "name": "Common chord roots",
+            "type": "chords",
+            "value": "Am – F – C – G – (repeat)"
+          }
         ]
       },
       {
@@ -36,6 +65,18 @@
           "Add a snare roll leading into the chorus or drop.",
           "Use reverb with a short tail (0.4–0.8 s) for a stadium feel.",
           "Pitch the snare up slightly for brightness in higher-energy sections."
+        ],
+        "patterns": [
+          {
+            "name": "Backbeat (beats 2 & 4)",
+            "type": "steps",
+            "steps": [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]
+          },
+          {
+            "name": "Backbeat + ghost",
+            "type": "steps",
+            "steps": [0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0]
+          }
         ]
       },
       {
@@ -46,6 +87,18 @@
           "Open hi-hat on the upbeat of beat 4 before the kick.",
           "Automate the hi-hat volume for subtle groove variations.",
           "Keep velocity slightly random to avoid a mechanical feel."
+        ],
+        "patterns": [
+          {
+            "name": "Straight 8th notes",
+            "type": "steps",
+            "steps": [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]
+          },
+          {
+            "name": "16th notes with open hat",
+            "type": "steps",
+            "steps": [1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1]
+          }
         ]
       },
       {
@@ -56,6 +109,18 @@
           "Use a portamento/glide setting for smooth note-to-note movement.",
           "Add a chorus and a stereo enhancer to widen the sound.",
           "Drive through a light distortion or saturation for edge."
+        ],
+        "patterns": [
+          {
+            "name": "Classic Euro hook (A minor)",
+            "type": "notes",
+            "value": "A4 A4 C5 B4 A4 – G4 – E4 – – – A4 – – –"
+          },
+          {
+            "name": "Descending run",
+            "type": "notes",
+            "value": "A5 G5 F5 E5 D5 C5 B4 A4 – – – – A4 – – –"
+          }
         ]
       },
       {
@@ -66,6 +131,23 @@
           "Use a slow attack (200–400 ms) so chords bloom behind the lead.",
           "Pan slightly left and right to create width and space.",
           "High-pass everything below 200 Hz on the pad to keep the low end clean."
+        ],
+        "patterns": [
+          {
+            "name": "Classic Eurodance progression",
+            "type": "chords",
+            "value": "Am – F – C – G –"
+          },
+          {
+            "name": "Minor energy loop",
+            "type": "chords",
+            "value": "Am – G – F – E –"
+          },
+          {
+            "name": "Uplifting variation",
+            "type": "chords",
+            "value": "Dm – Bb – F – C –"
+          }
         ]
       },
       {
@@ -76,6 +158,18 @@
           "Add tight delay (1/8 note) and moderate reverb for gloss.",
           "Use pitch correction (subtle) and doubling for a polished sound.",
           "Keep the hook in the chorus and strip it back in verses."
+        ],
+        "patterns": [
+          {
+            "name": "Call & response phrasing",
+            "type": "notes",
+            "value": "Phrase (2 bars) → Answer (2 bars) → Phrase → Answer"
+          },
+          {
+            "name": "Chant/stab style",
+            "type": "notes",
+            "value": "Short hit on beat 1 of each bar, longer phrase on bar 3"
+          }
         ]
       },
       {
@@ -86,6 +180,13 @@
           "Drop all elements except kick for 2 bars before the main chorus for impact.",
           "Use a riser synth or snare roll in the last 4 bars before each chorus.",
           "Outro fades or ends with a reverse crash and silence."
+        ],
+        "patterns": [
+          {
+            "name": "Full song layout",
+            "type": "structure",
+            "value": "Intro (8) → Verse (16) → Pre-chorus (8) → Chorus (16) → Verse (16) → Chorus (16) → Bridge (8) → Chorus (16) → Outro (8)"
+          }
         ]
       }
     ]
@@ -107,6 +208,23 @@
           "Long sustain with a slow release — let it ring under the melody.",
           "Sidechain the 808 to the kick for tightness, but keep a pumping feel.",
           "Distort or saturate lightly to cut through on small speakers."
+        ],
+        "patterns": [
+          {
+            "name": "Slow melodic 808",
+            "type": "notes",
+            "value": "C2 (long) – – – G1 (long) – – – F1 – – – G1 – – –"
+          },
+          {
+            "name": "Sliding 808 run",
+            "type": "notes",
+            "value": "C2 → B1 → A1 → G1 (glide between each, held 2 beats each)"
+          },
+          {
+            "name": "Punchy 808 stabs",
+            "type": "notes",
+            "value": "C2 C2 – – F1 – C2 – G1 G1 – – F1 – – –"
+          }
         ]
       },
       {
@@ -117,6 +235,18 @@
           "Layer a click sample with a deep punchy thud.",
           "Keep kick transients sharp — use a limiter/clipper on the kick bus.",
           "Avoid clashing with the 808 frequency-wise; high-pass one or the other."
+        ],
+        "patterns": [
+          {
+            "name": "Half-time kick",
+            "type": "steps",
+            "steps": [1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0]
+          },
+          {
+            "name": "Syncopated trap kick",
+            "type": "steps",
+            "steps": [1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0]
+          }
         ]
       },
       {
@@ -127,6 +257,23 @@
           "Vary velocity heavily for a human, bouncing feel.",
           "Automate roll speed — slow in verses, rapid rolls building to the drop.",
           "Use a closed hat with a very short decay and high pitch."
+        ],
+        "patterns": [
+          {
+            "name": "Triplet roll",
+            "type": "steps",
+            "steps": [1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1]
+          },
+          {
+            "name": "Classic trap hats",
+            "type": "steps",
+            "steps": [1,0,1,1,0,1,1,0,1,0,1,1,0,1,1,0]
+          },
+          {
+            "name": "Rapid 32nd roll (last 2 beats)",
+            "type": "steps",
+            "steps": [1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1]
+          }
         ]
       },
       {
@@ -137,6 +284,18 @@
           "Clap layers add texture; use 3–4 layered clap samples.",
           "Long reverb tail (1–2 s) for that atmospheric, cave-like sound.",
           "Pitch the snare to match the key subtly."
+        ],
+        "patterns": [
+          {
+            "name": "Half-time snare (beat 3 only)",
+            "type": "steps",
+            "steps": [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
+          },
+          {
+            "name": "Snare + clap layer",
+            "type": "steps",
+            "steps": [0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0]
+          }
         ]
       },
       {
@@ -147,6 +306,23 @@
           "Keep melodic phrases short (2–4 bars) and looping.",
           "Use pentatonic or chromatic notes for tension.",
           "Add subtle pitch vibrato to a melodic lead for authenticity."
+        ],
+        "patterns": [
+          {
+            "name": "Minor pentatonic loop",
+            "type": "notes",
+            "value": "C4 Eb4 F4 G4 Bb4 G4 F4 Eb4 – – – – C4 – – –"
+          },
+          {
+            "name": "Chromatic descent",
+            "type": "notes",
+            "value": "G4 – F#4 – F4 – E4 – Eb4 – D4 – C4 – – –"
+          },
+          {
+            "name": "Dark chord progression",
+            "type": "chords",
+            "value": "Cm – Ab – Eb – Bb – (minor feel)"
+          }
         ]
       },
       {
@@ -157,6 +333,13 @@
           "Reversed cymbal or pad before a drop for anticipation.",
           "Sub-bass rumble in quiet sections for tension.",
           "Vinyl crackle or cassette noise on a very low volume for texture."
+        ],
+        "patterns": [
+          {
+            "name": "Build sequence",
+            "type": "structure",
+            "value": "Bar 1–6: silence → Bar 7: riser starts → Bar 8: riser peak + reverse cymbal → Bar 9: DROP"
+          }
         ]
       },
       {
@@ -167,6 +350,13 @@
           "Keep hooks minimal so they hit harder in contrast to the verse.",
           "Mute the 808 and kick for 1 bar for a 'breathing' moment.",
           "End drops with silence or a reversed crash for drama."
+        ],
+        "patterns": [
+          {
+            "name": "Trap song layout",
+            "type": "structure",
+            "value": "Intro (8) → Verse (16) → Hook (8) → Verse (16) → Hook (8) → Bridge (8) → Hook (16) → Outro (4)"
+          }
         ]
       }
     ]
@@ -188,6 +378,18 @@
           "Avoid sharp transients — aim for a thud, not a crack.",
           "Keep the kick consistent but automate velocity for groove.",
           "Compress gently with a slow attack so the transient breathes."
+        ],
+        "patterns": [
+          {
+            "name": "4-on-the-floor",
+            "type": "steps",
+            "steps": [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]
+          },
+          {
+            "name": "4-on-the-floor + soft extra",
+            "type": "steps",
+            "steps": [1,0,0,0,1,0,0,0,1,0,0,1,1,0,0,0]
+          }
         ]
       },
       {
@@ -198,6 +400,23 @@
           "Use a round, warm synth bass or sampled upright bass.",
           "Sidechain lightly so the bass ducks slightly under the kick.",
           "Add subtle filter modulation to give the bassline life."
+        ],
+        "patterns": [
+          {
+            "name": "Walking bassline",
+            "type": "notes",
+            "value": "A1 – C2 – E2 – G2 – A1 – G2 – F2 E2 D2 –"
+          },
+          {
+            "name": "Root-fifth groove",
+            "type": "notes",
+            "value": "A1 – – E2 – – A1 – – E2 – A1 – – E2 –"
+          },
+          {
+            "name": "Deep house chord roots",
+            "type": "chords",
+            "value": "Am7 – Dm7 – Gmaj7 – Cmaj7 –"
+          }
         ]
       },
       {
@@ -208,6 +427,23 @@
           "Stab chords on the off-beat (every upbeat) for rhythmic movement.",
           "Use a warm electric piano, Rhodes, or soft synth pad.",
           "Spread chords wide in the stereo field."
+        ],
+        "patterns": [
+          {
+            "name": "Soulful deep house",
+            "type": "chords",
+            "value": "Am9 – Dm9 – Fmaj9 – Em7 –"
+          },
+          {
+            "name": "Late-night groove",
+            "type": "chords",
+            "value": "Dm7 – Bbmaj7 – Gm7 – Am7 –"
+          },
+          {
+            "name": "Off-beat stab pattern",
+            "type": "steps",
+            "steps": [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]
+          }
         ]
       },
       {
@@ -218,6 +454,18 @@
           "Open hi-hat on the upbeat of beat 4 is classic deep house.",
           "Keep hats low in the mix — they support groove, not dominate.",
           "Add gentle reverb to blend hats into the mix."
+        ],
+        "patterns": [
+          {
+            "name": "Swung 16ths",
+            "type": "steps",
+            "steps": [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+          },
+          {
+            "name": "Open hat on upbeat",
+            "type": "steps",
+            "steps": [1,0,1,0,1,0,1,0,1,0,1,0,1,0,2,0]
+          }
         ]
       },
       {
@@ -228,16 +476,18 @@
           "Use soulful ad-libs and whispers as texture.",
           "Delay throws on select words add a hypnotic feel.",
           "Keep vocals low-key in the mix; they float over rather than dominate."
-        ]
-      },
-      {
-        "name": "FX & Atmosphere",
-        "icon": "🌫️",
-        "tips": [
-          "Subtle atmospheric pads and ambient textures underneath everything.",
-          "Use long reverb tails (2–4 s) on pads to create spaciousness.",
-          "Add an occasional shaker or tambourine for organic feel.",
-          "Filter sweeps slowly throughout the track for movement."
+        ],
+        "patterns": [
+          {
+            "name": "Vocal chop rhythm",
+            "type": "steps",
+            "steps": [1,0,0,1,0,0,1,0,1,0,0,0,1,0,0,0]
+          },
+          {
+            "name": "Phrase placement",
+            "type": "structure",
+            "value": "Bar 1: main phrase → Bar 2: silence → Bar 3: echo/response → Bar 4: ad-lib"
+          }
         ]
       },
       {
@@ -248,6 +498,13 @@
           "Elements gradually introduced every 8–16 bars.",
           "Breakdown: strip to just kick and bass, then rebuild.",
           "Deep house is about the journey — avoid abrupt transitions."
+        ],
+        "patterns": [
+          {
+            "name": "DJ-friendly layout",
+            "type": "structure",
+            "value": "Intro (32) → Build (16) → Drop (32) → Breakdown (16) → Build (8) → Drop (32) → Outro (32)"
+          }
         ]
       }
     ]
@@ -269,6 +526,23 @@
           "Use time-stretching to pitch and time-match to your project BPM.",
           "Layer additional claps, kicks and snares for punch.",
           "Use a compressor on the break bus with a fast attack to glue the layers."
+        ],
+        "patterns": [
+          {
+            "name": "Basic Amen pattern",
+            "type": "steps",
+            "steps": [1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0]
+          },
+          {
+            "name": "Two-step DnB",
+            "type": "steps",
+            "steps": [1,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0]
+          },
+          {
+            "name": "Snare placement",
+            "type": "steps",
+            "steps": [0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0]
+          }
         ]
       },
       {
@@ -279,6 +553,18 @@
           "Reese bass (detuned saws with heavy modulation) for neurofunk flavor.",
           "Alternate between held notes and faster modulated bass for variation.",
           "High-pass above 30 Hz to avoid subsonic rumble."
+        ],
+        "patterns": [
+          {
+            "name": "Sustained sub notes",
+            "type": "notes",
+            "value": "C1 (4 beats) – G1 (2 beats) – F1 (2 beats) – repeat"
+          },
+          {
+            "name": "Rolling sub",
+            "type": "notes",
+            "value": "C1 C1 – C1 – C1 C1 – G0 – – G0 – – – –"
+          }
         ]
       },
       {
@@ -289,6 +575,18 @@
           "Use multiple detuned oscillators with heavy filter modulation.",
           "Automate the filter cutoff to create movement and tension.",
           "Layer with a sub bass (separate channel) for full spectrum coverage."
+        ],
+        "patterns": [
+          {
+            "name": "Reese movement",
+            "type": "notes",
+            "value": "C2 (filter opens slowly over 4 bars) → peak at bar 4 → close"
+          },
+          {
+            "name": "Stab & sustain",
+            "type": "steps",
+            "steps": [1,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0]
+          }
         ]
       },
       {
@@ -299,6 +597,18 @@
           "For liquid DnB: warm, lush pads and melodic strings.",
           "For neurofunk: cold, metallic textures and sci-fi atmospheres.",
           "Use long reverb and modulation to make pads feel huge."
+        ],
+        "patterns": [
+          {
+            "name": "Liquid DnB progression",
+            "type": "chords",
+            "value": "Cm – Ab – Eb – Bb –"
+          },
+          {
+            "name": "Neurofunk tension",
+            "type": "chords",
+            "value": "Cm – Bdim – Bb – Ab – (chromatic tension)"
+          }
         ]
       },
       {
@@ -309,6 +619,18 @@
           "Neurofunk: glitchy, distorted synth leads with heavy processing.",
           "Keep melodies relatively simple — the rhythm does the heavy lifting.",
           "Use a 1/4 or dotted 1/8 delay to create call-and-response phrases."
+        ],
+        "patterns": [
+          {
+            "name": "Liquid melody",
+            "type": "notes",
+            "value": "C5 Eb5 G5 Bb5 – – G5 – Eb5 – C5 – – – – –"
+          },
+          {
+            "name": "Neurofunk lead",
+            "type": "notes",
+            "value": "C4 B3 Bb3 A3 – Ab3 G3 – F#3 – – – C4 – – –"
+          }
         ]
       },
       {
@@ -319,6 +641,13 @@
           "The 'drop' is the full break + bass hitting simultaneously.",
           "Halftime sections (8 bars) where the break plays at half-speed for contrast.",
           "Use silence or a single high note before drops for maximum impact."
+        ],
+        "patterns": [
+          {
+            "name": "DnB layout",
+            "type": "structure",
+            "value": "Intro (16) → Drop 1 (32) → Breakdown (16) → Drop 2 (32) → Outro (16)"
+          }
         ]
       }
     ]
@@ -340,6 +669,23 @@
           "Kick on beat 1, light snare on beat 2 and 4 with ghost notes.",
           "Humanise the hi-hats — vary velocity and add micro-timing offsets.",
           "Apply vinyl crackle or tape saturation on the drum bus."
+        ],
+        "patterns": [
+          {
+            "name": "Classic lo-fi kick",
+            "type": "steps",
+            "steps": [1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0]
+          },
+          {
+            "name": "Snare / clap (beats 2 & 4)",
+            "type": "steps",
+            "steps": [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]
+          },
+          {
+            "name": "Swung hi-hat",
+            "type": "steps",
+            "steps": [1,0,1,1,0,1,1,0,1,0,1,1,0,1,0,0]
+          }
         ]
       },
       {
@@ -350,6 +696,23 @@
           "Or program Rhodes/Wurlitzer chords with jazz extensions (7, 9, 11).",
           "Apply a low-pass filter to roll off the highs for a warm, muffled sound.",
           "Pitch the sample slightly sharp or flat (+/- 20 cents) for character."
+        ],
+        "patterns": [
+          {
+            "name": "Jazzy lo-fi progression",
+            "type": "chords",
+            "value": "Cmaj7 – Am7 – Dm7 – G7 –"
+          },
+          {
+            "name": "Bossa-influenced loop",
+            "type": "chords",
+            "value": "Fmaj9 – Em7 – Am9 – Dm7 –"
+          },
+          {
+            "name": "Dorian groove",
+            "type": "chords",
+            "value": "Dm7 – Em7b5 – Am7 – Gm7 –"
+          }
         ]
       },
       {
@@ -360,6 +723,18 @@
           "Electric bass sample or a round synth bass with subtle saturation.",
           "Keep the bass laid-back — slightly behind the beat.",
           "Low-pass filter at around 500–800 Hz for a muffled, warm tone."
+        ],
+        "patterns": [
+          {
+            "name": "Root note groove",
+            "type": "notes",
+            "value": "C2 – – C2 – A1 – – D2 – – D2 – G1 – –"
+          },
+          {
+            "name": "Walking bass feel",
+            "type": "notes",
+            "value": "C2 E2 G2 – A1 C2 E2 – D2 F2 A2 – G1 B1 D2 –"
+          }
         ]
       },
       {
@@ -370,6 +745,18 @@
           "Leave space in the melody — lo-fi is about breathing room.",
           "Add slight pitch wobble via automation to simulate tape wow and flutter.",
           "Use a room reverb with pre-delay for a close, intimate sound."
+        ],
+        "patterns": [
+          {
+            "name": "Sparse piano hook",
+            "type": "notes",
+            "value": "E5 – D5 – C5 – – – B4 – A4 – G4 – – –"
+          },
+          {
+            "name": "Pentatonic lick",
+            "type": "notes",
+            "value": "G5 E5 D5 C5 – – E5 – G5 – – – – – – –"
+          }
         ]
       },
       {
@@ -380,6 +767,13 @@
           "Rain, cafe, or city ambience on a separate low-volume track.",
           "Tape saturation plugin on the master bus (RC-20, Vinyl Distortion).",
           "Subtle pitch modulation (LFO on tune) to simulate cassette wobble."
+        ],
+        "patterns": [
+          {
+            "name": "Layer order",
+            "type": "structure",
+            "value": "Track 1: vinyl crackle (always on) → Track 2: rain ambience (from bar 2) → Track 3: tape wobble automation (subtle LFO)"
+          }
         ]
       },
       {
@@ -390,6 +784,13 @@
           "Introduce elements slowly every 8 bars: first drums, then bass, then chords.",
           "Keep the song short (2–3 mins) or loop endlessly for study playlists.",
           "Variation is light: add a hi-hat fill here, mute the bass there."
+        ],
+        "patterns": [
+          {
+            "name": "Minimal loop layout",
+            "type": "structure",
+            "value": "Intro: drums only (8) → + bass (8) → + chords (8) → + melody (8) → variations (32) → fade out (8)"
+          }
         ]
       }
     ]
