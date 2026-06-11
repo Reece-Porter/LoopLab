@@ -33,21 +33,43 @@ function buildClip(voice, pat) {
   return clip
 }
 
-// Tiny piano-roll style preview drawn inside an active block.
-function ClipPreview({ clip, color }) {
+// Piano-roll style preview drawn on a canvas: the 16-step pattern is tiled
+// once per bar across the whole section, so you see every individual note
+// exactly where it sounds — like clips in the FL Studio playlist.
+function ClipPreview({ clip, color, bars }) {
+  const ref = useRef(null)
+  useEffect(() => {
+    const canvas = ref.current
+    if (!canvas) return
+    const cols = Math.max(16, bars * 16)
+    const H = 48
+    canvas.width = cols
+    canvas.height = H
+    const c = canvas.getContext('2d')
+    c.clearRect(0, 0, cols, H)
+    c.fillStyle = color
+    for (let b = 0; b < bars; b++) {
+      for (let i = 0; i < 16; i++) {
+        const lvl = clip[i]
+        if (lvl <= 0) continue
+        const x = b * 16 + i
+        const h = Math.max(3, lvl * (H - 4))
+        c.fillRect(x + 0.12, H - h - 2, 0.76, h)
+      }
+      // faint bar divider
+      if (b > 0) {
+        c.fillStyle = 'rgba(255,255,255,0.10)'
+        c.fillRect(b * 16, 0, 0.4, H)
+        c.fillStyle = color
+      }
+    }
+  }, [clip, color, bars])
   return (
-    <div className="absolute inset-0 flex items-end gap-px px-px py-0.5">
-      {clip.map((lvl, i) => (
-        <div key={i} className="flex-1 flex items-end" style={{ height: '100%' }}>
-          {lvl > 0 && (
-            <div
-              className="w-full rounded-[1px]"
-              style={{ height: `${Math.round(lvl * 100)}%`, backgroundColor: color, opacity: 0.9 }}
-            />
-          )}
-        </div>
-      ))}
-    </div>
+    <canvas
+      ref={ref}
+      className="absolute inset-0 w-full h-full"
+      style={{ imageRendering: 'pixelated', opacity: 0.92 }}
+    />
   )
 }
 
@@ -194,7 +216,9 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
                 {/* Pattern blocks with note previews */}
                 <div className="flex py-2 px-1 gap-1 items-center bg-black/20" style={{ width: timelineWidth }}>
                   {arrangement.sections.map((section, i) => {
-                    const active = track.sections[i] && !isHidden
+                    const on = !!track.sections[i]
+                    const active = on && !isHidden
+                    const hasNotes = clip.some(v => v > 0)
                     return (
                       <div
                         key={i}
@@ -202,11 +226,13 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
                         style={{
                           flex: section.bars,
                           backgroundColor: active ? track.color + '22' : 'transparent',
-                          borderColor: track.sections[i] ? track.color + '55' : 'rgba(255,255,255,0.04)',
-                          opacity: track.sections[i] ? 1 : 0.25,
+                          borderColor: on ? track.color + '55' : 'rgba(255,255,255,0.04)',
+                          opacity: on ? 1 : 0.25,
                         }}
                       >
-                        {active && clip.some(v => v > 0) && <ClipPreview clip={clip} color={track.color} />}
+                        {active && hasNotes && (
+                          <ClipPreview clip={clip} color={track.color} bars={section.bars} />
+                        )}
                       </div>
                     )
                   })}
