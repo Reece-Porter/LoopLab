@@ -141,7 +141,7 @@ export function playPattern(pattern, partName, bpm, { withClick = true, onStep }
 // only sounding tracks that are active in the current section (and visible),
 // using the genre's own groove table. Reports the global 16th-step index so
 // the UI can move a playhead. Returns a transport with stop().
-export function playArrangement(genreId, arrangement, tracks, { onStep } = {}) {
+export function playArrangement(genreId, arrangement, tracks, { onStep, startStep = 0 } = {}) {
   const ctx = getContext()
   const groove = grooveFor(genreId)
   const bpm = groove.bpm
@@ -166,8 +166,10 @@ export function playArrangement(genreId, arrangement, tracks, { onStep } = {}) {
     hits: 0, // running hit counter for note cycling
   }))
 
-  let currentStep = 0
-  let nextStepTime = ctx.currentTime + 0.15
+  let currentStep = ((startStep % totalSteps) + totalSteps) % totalSteps
+  const startStepIndex = currentStep
+  const startAudioTime = ctx.currentTime + 0.08
+  let nextStepTime = startAudioTime
   let timer = null
   let stopped = false
 
@@ -243,6 +245,13 @@ export function playArrangement(genreId, arrangement, tracks, { onStep } = {}) {
 
   return {
     totalSteps,
+    // Audio-clock-accurate fractional position (0..1) for a smooth playhead.
+    position() {
+      const elapsed = ctx.currentTime - startAudioTime
+      if (elapsed < 0) return (startStepIndex / totalSteps)
+      const abs = (startStepIndex + elapsed / stepDur) % totalSteps
+      return abs / totalSteps
+    },
     stop() {
       stopped = true
       if (timer) clearTimeout(timer)

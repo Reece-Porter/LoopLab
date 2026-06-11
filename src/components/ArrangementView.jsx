@@ -53,17 +53,25 @@ function ClipPreview({ clip, color }) {
 
 export default function ArrangementView({ arrangement, accentClass, bpm, genreId }) {
   const [hidden, setHidden] = useState({})
-  const { playing, step, toggle } = usePlayer('arrangement')
+  const { playing, toggle, start, stop, getPosition } = usePlayer('arrangement')
   const scrollRef = useRef(null)
+  const seekRef = useRef(null)
+  const [frac, setFrac] = useState(null) // smooth playhead 0..1
+  const [startBar, setStartBar] = useState(0) // where playback begins
 
   const toggleTrack = name => setHidden(h => ({ ...h, [name]: !h[name] }))
 
   const totalBars = arrangement.sections.reduce((sum, s) => sum + s.bars, 0)
-  const totalSteps = totalBars * 16
   const visibleTracks = arrangement.tracks.filter(t => !hidden[t.name])
 
   const groove = useMemo(() => grooveFor(genreId), [genreId])
   const timelineWidth = Math.max(584, totalBars * PX_PER_BAR)
+
+  // Bar at the start of each section, for highlighting the live section.
+  const sectionStartBars = useMemo(() => {
+    let acc = 0
+    return arrangement.sections.map(s => { const b = acc; acc += s.bars; return b })
+  }, [arrangement.sections])
 
   // Precompute a clip preview per track.
   const clips = useMemo(() => {
@@ -75,12 +83,37 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
     return map
   }, [arrangement.tracks, groove])
 
-  const onPlay = () =>
-    toggle('arrangement', { genreId, arrangement, tracks: visibleTracks })
+  const play = (fromBar = startBar) =>
+    start('arrangement', { genreId, arrangement, tracks: visibleTracks, startStep: fromBar * 16 })
 
-  // Playhead position as a fraction of the timeline.
-  const frac = playing && step >= 0 ? step / totalSteps : null
-  const currentBar = step >= 0 ? Math.floor(step / 16) : -1
+  const onPlay = () => (playing ? stop() : play())
+
+  // Seek: click anywhere on the timeline to set / jump to a start point.
+  const onSeek = e => {
+    const rect = seekRef.current.getBoundingClientRect()
+    const f = Math.min(0.999, Math.max(0, (e.clientX - rect.left) / rect.width))
+    const bar = Math.floor(f * totalBars)
+    setStartBar(bar)
+    if (playing) play(bar)
+  }
+
+  // Drive a smooth, audio-clock-accurate playhead via requestAnimationFrame.
+  useEffect(() => {
+    if (!playing) { setFrac(null); return }
+    let raf
+    const tick = () => {
+      const p = getPosition()
+      if (p != null) setFrac(p)
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [playing, getPosition])
+
+  const currentBar = frac != null ? Math.floor(frac * totalBars) : -1
+  const liveSection = currentBar >= 0
+    ? sectionStartBars.findLastIndex(b => b <= currentBar)
+    : -1
 
   // Auto-scroll to keep the playhead in view.
   useEffect(() => {
@@ -104,7 +137,9 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
             <span className="text-base font-semibold text-white">Arrangement</span>
             <span className="text-xs text-gray-600 ml-2">
               {totalBars} bars · plays at {groove.bpm} BPM
-              {currentBar >= 0 && <span className="text-purple-300 ml-2">▸ bar {currentBar + 1}</span>}
+              {currentBar >= 0
+                ? <span className="text-purple-300 ml-2">▸ bar {currentBar + 1}</span>
+                : <span className="text-cyan-300/80 ml-2">start: bar {startBar + 1}</span>}
             </span>
           </div>
         </div>
@@ -123,16 +158,19 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
               Track
             </div>
             <div className="flex" style={{ width: timelineWidth }}>
-              {arrangement.sections.map((section, i) => (
-                <div
-                  key={i}
-                  className="border-r border-white/10 px-2 py-2.5 text-center overflow-hidden"
-                  style={{ flex: section.bars }}
-                >
-                  <div className="text-xs font-semibold text-gray-300 truncate">{section.name}</div>
-                  <div className="text-[10px] text-gray-600">{section.bars} bars</div>
-                </div>
-              ))}
+              {arrangement.sections.map((section, i) => {
+                const live = i === liveSection
+                return (
+                  <div
+                    key={i}
+                    className={`border-r border-white/10 px-2 py-2.5 text-center overflow-hidden transition-colors ${live ? 'bg-white/10' : ''}`}
+                    style={{ flex: section.bars }}
+                  >
+                    <div className={`text-xs font-semibold truncate ${live ? 'text-white' : 'text-gray-300'}`}>{section.name}</div>
+                    <div className="text-[10px] text-gray-600">{section.bars} bars</div>
+                  </div>
+                )
+              })}
             </div>
           </div>
 
@@ -192,22 +230,39 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
             </div>
           </div>
 
-          {/* Playhead overlay */}
-          {frac != null && (
-            <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: LABEL_W, width: timelineWidth }}>
+          {/* Click-to-seek layer (sits over the timeline, not the labels) */}
+          <div
+            ref={seekRef}
+            onClick={onSeek}
+            className="absolute top-0 bottom-0 cursor-pointer"
+            style={{ left: LABEL_W, width: timelineWidth }}
+            title="Click to set where playback starts"
+          />
+
+          {/* Start marker + playhead overlay (non-interactive) */}
+          <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: LABEL_W, width: timelineWidth }}>
+            {/* Start point marker */}
+            <div
+              className="absolute top-0 bottom-0 w-px border-l border-dashed border-cyan-400/70"
+              style={{ left: `${(startBar / totalBars) * 100}%` }}
+            >
+              <div className="absolute -top-0.5 -left-[5px] w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)]" />
+            </div>
+            {/* Playhead */}
+            {frac != null && (
               <div
                 className="absolute top-0 bottom-0 w-0.5 bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]"
                 style={{ left: `${frac * 100}%` }}
               >
                 <div className="absolute -top-0.5 -left-[3px] w-2 h-2 rotate-45 bg-white" />
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
       <div className="px-5 py-3 border-t border-white/5 flex gap-4 flex-wrap items-center">
-        <span className="text-xs text-gray-600">Click a track name to mute/unmute · scroll sideways to follow the whole song · the bars inside each block show its rhythm &amp; pitch</span>
+        <span className="text-xs text-gray-600">Click a track name to mute/unmute · click the timeline to set where playback starts (cyan marker) · the bars inside each block show its rhythm &amp; pitch</span>
         <button onClick={() => setHidden({})} className="text-xs text-gray-500 hover:text-gray-300 transition-colors ml-auto">Show all</button>
       </div>
     </div>

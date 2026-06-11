@@ -34,15 +34,11 @@ export function usePlayer(id) {
     }
   }, [])
 
-  const toggle = useCallback((kind, args) => {
-    if (activeId === idRef.current) {
-      stopActive()
-      return
-    }
+  const start = useCallback((kind, args) => {
     stopActive()
     const onStep = s => setStep(s)
     if (kind === 'arrangement') {
-      activeTransport = playArrangement(args.genreId, args.arrangement, args.tracks, { onStep })
+      activeTransport = playArrangement(args.genreId, args.arrangement, args.tracks, { onStep, startStep: args.startStep })
     } else if (kind === 'groove') {
       activeTransport = playGroove(args.voices, args.bpm, { onStep })
     } else {
@@ -53,5 +49,23 @@ export function usePlayer(id) {
     listeners.forEach(l => l(idRef.current))
   }, [])
 
-  return { playing, step, toggle }
+  const stop = useCallback(() => {
+    if (activeId === idRef.current) stopActive()
+  }, [])
+
+  // Audio-clock position (0..1) for the active transport, or null.
+  const getPosition = useCallback(() => {
+    if (activeId !== idRef.current || !activeTransport?.position) return null
+    return activeTransport.position()
+  }, [])
+
+  const toggle = useCallback((kind, args) => {
+    if (activeId === idRef.current) {
+      stopActive()
+      return
+    }
+    start(kind, args)
+  }, [start])
+
+  return { playing, step, toggle, start, stop, getPosition }
 }
