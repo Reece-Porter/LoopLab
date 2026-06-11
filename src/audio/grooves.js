@@ -32,7 +32,7 @@ export const GENRE_GROOVES = {
       // Classic Eurodance supersaw hook: A-C-E motif over Am-F-C-G
       supersaw:{ steps: on(0,2,4,6,8,10,12,14), notes: ['A4','C5','E5','C5','G4','A#4','C5','G4'] },
       pluck:   { steps: on(0,3,6,8,11,14),       notes: ['A4','E5','C5','A4','G4','E5'] },
-      chord:   { steps: on(0,4,8,12), chords: ['Am','F','C','G'] },
+      chord:   { steps: on(0,4,8,12), chords: ['Am','F','G','Em'] },
       vox:     { steps: on(0,8),     notes: ['A4','C5'] },
     },
   },
