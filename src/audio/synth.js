@@ -298,6 +298,42 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
   })
 }
 
+// FM bell stab — sine carrier with a fast-decaying inharmonic modulator.
+// The ringing metallic "ding" of Jeff Mills' The Bells.
+export function bell(context, time, out, freq, gain = 0.3, dur = 0.35) {
+  const carrier = context.createOscillator()
+  carrier.type = 'sine'
+  carrier.frequency.value = freq * 2
+  // Inharmonic modulator gives the metallic clang; its depth decays fast so
+  // the hit starts bright and rings out pure.
+  const mod = context.createOscillator()
+  mod.type = 'sine'
+  mod.frequency.value = freq * 2 * 3.53
+  const modDepth = context.createGain()
+  modDepth.gain.setValueAtTime(freq * 4, time)
+  modDepth.gain.exponentialRampToValueAtTime(freq * 0.3, time + dur * 0.6)
+  mod.connect(modDepth).connect(carrier.frequency)
+  const g = context.createGain()
+  g.gain.setValueAtTime(0, time)
+  g.gain.linearRampToValueAtTime(gain, time + 0.003)
+  g.gain.exponentialRampToValueAtTime(0.0001, time + dur)
+  g.connect(out)
+  carrier.connect(g)
+  // Quiet sub-octave body so it doesn't sound thin.
+  const body = context.createOscillator()
+  body.type = 'sine'
+  body.frequency.value = freq
+  const bg = context.createGain()
+  bg.gain.setValueAtTime(0, time)
+  bg.gain.linearRampToValueAtTime(gain * 0.4, time + 0.003)
+  bg.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.7)
+  bg.connect(out)
+  body.connect(bg)
+  carrier.start(time); carrier.stop(time + dur + 0.05)
+  mod.start(time); mod.stop(time + dur + 0.05)
+  body.start(time); body.stop(time + dur + 0.05)
+}
+
 // Lush detuned-saw trance pad — slow attack, airy octave, no muddiness.
 // Used for Eurodance and trance chord beds.
 export function synthPad(context, time, out, freqs, gain = 0.22, dur = 1.0) {

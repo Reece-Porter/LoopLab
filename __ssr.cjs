@@ -50482,10 +50482,15 @@ var GENRE_SONGS = {
         { name: "Hypno Stab", instrument: "THE bell-stab riff", sections: [0, 1, 1, 1, 1, 1, 0] },
         { name: "Vocal", instrument: "(none \u2014 pure machine)", sections: [0, 0, 0, 0, 0, 0, 0] }
       ],
-      // The frantic ringing bell-riff: rapid F–G#–F–C# loop.
+      // The galloping ringing bell-riff: double-hit F's with G# and C accents,
+      // played on an actual FM bell so it rings like the record.
       groove: {
         bass: { steps: on(0, 2, 4, 6, 8, 10, 12, 14), notes: ["F1", "F1", "F1", "F1", "F1", "F1", "D#1", "D#1"] },
-        supersaw: { steps: on(0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14), notes: ["F4", "G#4", "F4", "F4", "G#4", "C#4", "F4", "G#4", "F4", "D#4", "F4", "C#4"] }
+        supersaw: {
+          steps: on(0, 1, 3, 4, 6, 8, 9, 11, 12, 14),
+          notes: ["F4", "F4", "G#4", "F4", "C5", "F4", "F4", "G#4", "F4", "D#4"],
+          bell: true
+        }
       }
     },
     {
@@ -50905,6 +50910,39 @@ function donk(context, time, out, freq, gain = 0.5, dur = 0.18) {
   osc.connect(bp).connect(g);
   osc.start(time);
   osc.stop(time + dur + 0.05);
+}
+function bell(context, time, out, freq, gain = 0.3, dur = 0.35) {
+  const carrier = context.createOscillator();
+  carrier.type = "sine";
+  carrier.frequency.value = freq * 2;
+  const mod = context.createOscillator();
+  mod.type = "sine";
+  mod.frequency.value = freq * 2 * 3.53;
+  const modDepth = context.createGain();
+  modDepth.gain.setValueAtTime(freq * 4, time);
+  modDepth.gain.exponentialRampToValueAtTime(freq * 0.3, time + dur * 0.6);
+  mod.connect(modDepth).connect(carrier.frequency);
+  const g = context.createGain();
+  g.gain.setValueAtTime(0, time);
+  g.gain.linearRampToValueAtTime(gain, time + 3e-3);
+  g.gain.exponentialRampToValueAtTime(1e-4, time + dur);
+  g.connect(out);
+  carrier.connect(g);
+  const body = context.createOscillator();
+  body.type = "sine";
+  body.frequency.value = freq;
+  const bg = context.createGain();
+  bg.gain.setValueAtTime(0, time);
+  bg.gain.linearRampToValueAtTime(gain * 0.4, time + 3e-3);
+  bg.gain.exponentialRampToValueAtTime(1e-4, time + dur * 0.7);
+  bg.connect(out);
+  body.connect(bg);
+  carrier.start(time);
+  carrier.stop(time + dur + 0.05);
+  mod.start(time);
+  mod.stop(time + dur + 0.05);
+  body.start(time);
+  body.stop(time + dur + 0.05);
 }
 function synthPad(context, time, out, freqs, gain = 0.22, dur = 1) {
   const env = context.createGain();
@@ -51428,6 +51466,7 @@ function fireEvent(ctx2, out, voice, evt, t, stepDur, snareAsClap = false) {
   if (voice === "riser") return riser(ctx2, t, out, 0.14, stepDur * 64);
   if (evt.freq != null) {
     const f = evt.freq;
+    if (evt.bell) return bell(ctx2, t, out, f, 0.3, stepDur * 1.6);
     if (voice === "reese") return reese(ctx2, t, out, f, 0.4, stepDur * 3);
     if (voice === "donk") return donk(ctx2, t, out, f, 0.5, stepDur * 1.4);
     if (voice === "eight08") return eight08(ctx2, t, out, f, 0.9, evt.long ? stepDur * 6 : 0.5);
@@ -51943,7 +51982,7 @@ function grooveClip(voice, gp) {
     } else {
       const name = gp.notes ? gp.notes[hit % gp.notes.length] : null;
       const f = name ? noteToFreq(name) : null;
-      clip[i] = { freq: f, long: gp.long, level: freqLevel(f) };
+      clip[i] = { freq: f, long: gp.long, bell: !!gp.bell, level: freqLevel(f) };
       hit++;
     }
   }

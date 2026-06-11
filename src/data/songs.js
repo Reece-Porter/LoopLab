@@ -416,10 +416,15 @@ export const GENRE_SONGS = {
         { name: 'Hypno Stab', instrument: 'THE bell-stab riff',             sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',      instrument: '(none — pure machine)',          sections: [0,0,0,0,0,0,0] },
       ],
-      // The frantic ringing bell-riff: rapid F–G#–F–C# loop.
+      // The galloping ringing bell-riff: double-hit F's with G# and C accents,
+      // played on an actual FM bell so it rings like the record.
       groove: {
         bass:     { steps: on(0,2,4,6,8,10,12,14), notes: ['F1','F1','F1','F1','F1','F1','D#1','D#1'] },
-        supersaw: { steps: on(0,1,2,4,5,6,8,9,10,12,13,14), notes: ['F4','G#4','F4','F4','G#4','C#4','F4','G#4','F4','D#4','F4','C#4'] },
+        supersaw: {
+          steps: on(0,1,3,4,6,8,9,11,12,14),
+          notes: ['F4','F4','G#4','F4','C5','F4','F4','G#4','F4','D#4'],
+          bell: true,
+        },
       },
     },
     {

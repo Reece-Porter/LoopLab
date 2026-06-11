@@ -55,7 +55,7 @@ export function grooveClip(voice, gp) {
     } else {
       const name = gp.notes ? gp.notes[hit % gp.notes.length] : null
       const f = name ? noteToFreq(name) : null
-      clip[i] = { freq: f, long: gp.long, level: freqLevel(f) }
+      clip[i] = { freq: f, long: gp.long, bell: !!gp.bell, level: freqLevel(f) }
       hit++
     }
   }
