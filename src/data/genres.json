@@ -21,12 +21,46 @@
           {
             "name": "4-on-the-floor",
             "type": "steps",
-            "steps": [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]
+            "steps": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
           },
           {
             "name": "4-on-the-floor + offbeat",
             "type": "steps",
-            "steps": [1,0,0,0,1,0,1,0,1,0,0,0,1,0,0,0]
+            "steps": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
           }
         ]
       },
@@ -70,12 +104,46 @@
           {
             "name": "Backbeat (beats 2 & 4)",
             "type": "steps",
-            "steps": [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]
+            "steps": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
           },
           {
             "name": "Backbeat + ghost",
             "type": "steps",
-            "steps": [0,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0]
+            "steps": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0
+            ]
           }
         ]
       },
@@ -92,12 +160,46 @@
           {
             "name": "Straight 8th notes",
             "type": "steps",
-            "steps": [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]
+            "steps": [
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              0
+            ]
           },
           {
             "name": "16th notes with open hat",
             "type": "steps",
-            "steps": [1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1]
+            "steps": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              2,
+              1
+            ]
           }
         ]
       },
@@ -189,7 +291,177 @@
           }
         ]
       }
-    ]
+    ],
+    "arrangement": {
+      "sections": [
+        {
+          "name": "Intro",
+          "bars": 8
+        },
+        {
+          "name": "Verse 1",
+          "bars": 16
+        },
+        {
+          "name": "Pre-Ch",
+          "bars": 8
+        },
+        {
+          "name": "Chorus 1",
+          "bars": 16
+        },
+        {
+          "name": "Verse 2",
+          "bars": 16
+        },
+        {
+          "name": "Chorus 2",
+          "bars": 16
+        },
+        {
+          "name": "Bridge",
+          "bars": 8
+        },
+        {
+          "name": "Chorus 3",
+          "bars": 16
+        },
+        {
+          "name": "Outro",
+          "bars": 8
+        }
+      ],
+      "tracks": [
+        {
+          "name": "Kick",
+          "icon": "🥁",
+          "color": "#f97316",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Bass",
+          "icon": "🎸",
+          "color": "#a855f7",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Snare/Clap",
+          "icon": "👏",
+          "color": "#ef4444",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Hi-Hats",
+          "icon": "🔔",
+          "color": "#eab308",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Lead Synth",
+          "icon": "🎹",
+          "color": "#06b6d4",
+          "sections": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Pad/Chord",
+          "icon": "🌊",
+          "color": "#3b82f6",
+          "sections": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "Vocal Hook",
+          "icon": "🎤",
+          "color": "#ec4899",
+          "sections": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            1,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "FX/Riser",
+          "icon": "🌫️",
+          "color": "#6b7280",
+          "sections": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            1,
+            0,
+            1,
+            0
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "trap",
@@ -240,12 +512,46 @@
           {
             "name": "Half-time kick",
             "type": "steps",
-            "steps": [1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0]
+            "steps": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
           },
           {
             "name": "Syncopated trap kick",
             "type": "steps",
-            "steps": [1,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0]
+            "steps": [
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ]
           }
         ]
       },
@@ -262,17 +568,68 @@
           {
             "name": "Triplet roll",
             "type": "steps",
-            "steps": [1,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1]
+            "steps": [
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1
+            ]
           },
           {
             "name": "Classic trap hats",
             "type": "steps",
-            "steps": [1,0,1,1,0,1,1,0,1,0,1,1,0,1,1,0]
+            "steps": [
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              1,
+              0
+            ]
           },
           {
             "name": "Rapid 32nd roll (last 2 beats)",
             "type": "steps",
-            "steps": [1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1]
+            "steps": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
           }
         ]
       },
@@ -289,12 +646,46 @@
           {
             "name": "Half-time snare (beat 3 only)",
             "type": "steps",
-            "steps": [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
+            "steps": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
           },
           {
             "name": "Snare + clap layer",
             "type": "steps",
-            "steps": [0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0]
+            "steps": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0
+            ]
           }
         ]
       },
@@ -359,7 +750,135 @@
           }
         ]
       }
-    ]
+    ],
+    "arrangement": {
+      "sections": [
+        {
+          "name": "Intro",
+          "bars": 8
+        },
+        {
+          "name": "Verse 1",
+          "bars": 16
+        },
+        {
+          "name": "Hook 1",
+          "bars": 8
+        },
+        {
+          "name": "Verse 2",
+          "bars": 16
+        },
+        {
+          "name": "Hook 2",
+          "bars": 8
+        },
+        {
+          "name": "Bridge",
+          "bars": 8
+        },
+        {
+          "name": "Hook 3",
+          "bars": 16
+        },
+        {
+          "name": "Outro",
+          "bars": 4
+        }
+      ],
+      "tracks": [
+        {
+          "name": "808 Bass",
+          "icon": "💣",
+          "color": "#ef4444",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Kick",
+          "icon": "🥁",
+          "color": "#f97316",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Hi-Hats",
+          "icon": "🔔",
+          "color": "#eab308",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Snare",
+          "icon": "👏",
+          "color": "#a855f7",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Melody",
+          "icon": "🎹",
+          "color": "#06b6d4",
+          "sections": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "FX/Atmos",
+          "icon": "🌫️",
+          "color": "#6b7280",
+          "sections": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "deep-house",
@@ -383,12 +902,46 @@
           {
             "name": "4-on-the-floor",
             "type": "steps",
-            "steps": [1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]
+            "steps": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
           },
           {
             "name": "4-on-the-floor + soft extra",
             "type": "steps",
-            "steps": [1,0,0,0,1,0,0,0,1,0,0,1,1,0,0,0]
+            "steps": [
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              1,
+              0,
+              0,
+              0
+            ]
           }
         ]
       },
@@ -442,7 +995,24 @@
           {
             "name": "Off-beat stab pattern",
             "type": "steps",
-            "steps": [0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0]
+            "steps": [
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0
+            ]
           }
         ]
       },
@@ -459,12 +1029,46 @@
           {
             "name": "Swung 16ths",
             "type": "steps",
-            "steps": [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+            "steps": [
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1
+            ]
           },
           {
             "name": "Open hat on upbeat",
             "type": "steps",
-            "steps": [1,0,1,0,1,0,1,0,1,0,1,0,1,0,2,0]
+            "steps": [
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              1,
+              0,
+              2,
+              0
+            ]
           }
         ]
       },
@@ -481,7 +1085,24 @@
           {
             "name": "Vocal chop rhythm",
             "type": "steps",
-            "steps": [1,0,0,1,0,0,1,0,1,0,0,0,1,0,0,0]
+            "steps": [
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
           },
           {
             "name": "Phrase placement",
@@ -507,7 +1128,125 @@
           }
         ]
       }
-    ]
+    ],
+    "arrangement": {
+      "sections": [
+        {
+          "name": "Intro",
+          "bars": 32
+        },
+        {
+          "name": "Build",
+          "bars": 16
+        },
+        {
+          "name": "Drop 1",
+          "bars": 32
+        },
+        {
+          "name": "Breakdown",
+          "bars": 16
+        },
+        {
+          "name": "Build 2",
+          "bars": 8
+        },
+        {
+          "name": "Drop 2",
+          "bars": 32
+        },
+        {
+          "name": "Outro",
+          "bars": 32
+        }
+      ],
+      "tracks": [
+        {
+          "name": "Kick",
+          "icon": "🥁",
+          "color": "#f97316",
+          "sections": [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "Bass",
+          "icon": "🎸",
+          "color": "#a855f7",
+          "sections": [
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "Chords",
+          "icon": "🎹",
+          "color": "#06b6d4",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Hi-Hats",
+          "icon": "🔔",
+          "color": "#eab308",
+          "sections": [
+            0,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "Vocal",
+          "icon": "🎤",
+          "color": "#ec4899",
+          "sections": [
+            0,
+            0,
+            1,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "FX/Atmos",
+          "icon": "🌫️",
+          "color": "#6b7280",
+          "sections": [
+            1,
+            1,
+            0,
+            1,
+            1,
+            0,
+            1
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "drum-and-bass",
@@ -531,17 +1270,68 @@
           {
             "name": "Basic Amen pattern",
             "type": "steps",
-            "steps": [1,0,0,1,0,1,0,0,1,0,1,0,0,1,0,0]
+            "steps": [
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0
+            ]
           },
           {
             "name": "Two-step DnB",
             "type": "steps",
-            "steps": [1,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0]
+            "steps": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
           },
           {
             "name": "Snare placement",
             "type": "steps",
-            "steps": [0,0,0,0,1,0,0,0,0,0,0,1,1,0,0,0]
+            "steps": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              1,
+              0,
+              0,
+              0
+            ]
           }
         ]
       },
@@ -585,7 +1375,24 @@
           {
             "name": "Stab & sustain",
             "type": "steps",
-            "steps": [1,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0]
+            "steps": [
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              1,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0
+            ]
           }
         ]
       },
@@ -650,7 +1457,93 @@
           }
         ]
       }
-    ]
+    ],
+    "arrangement": {
+      "sections": [
+        {
+          "name": "Intro",
+          "bars": 16
+        },
+        {
+          "name": "Drop 1",
+          "bars": 32
+        },
+        {
+          "name": "Breakdown",
+          "bars": 16
+        },
+        {
+          "name": "Drop 2",
+          "bars": 32
+        },
+        {
+          "name": "Outro",
+          "bars": 16
+        }
+      ],
+      "tracks": [
+        {
+          "name": "Breakbeat",
+          "icon": "🥁",
+          "color": "#f97316",
+          "sections": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Sub Bass",
+          "icon": "💣",
+          "color": "#ef4444",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Mid Bass",
+          "icon": "🎸",
+          "color": "#a855f7",
+          "sections": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Pads/Atmos",
+          "icon": "🌊",
+          "color": "#3b82f6",
+          "sections": [
+            1,
+            0,
+            1,
+            0,
+            1
+          ]
+        },
+        {
+          "name": "Lead/Melody",
+          "icon": "🎹",
+          "color": "#06b6d4",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            0
+          ]
+        }
+      ]
+    }
   },
   {
     "id": "lo-fi-hip-hop",
@@ -674,17 +1567,68 @@
           {
             "name": "Classic lo-fi kick",
             "type": "steps",
-            "steps": [1,0,0,0,0,0,1,0,1,0,0,0,0,0,0,0]
+            "steps": [
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
           },
           {
             "name": "Snare / clap (beats 2 & 4)",
             "type": "steps",
-            "steps": [0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0]
+            "steps": [
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              1,
+              0,
+              0,
+              0
+            ]
           },
           {
             "name": "Swung hi-hat",
             "type": "steps",
-            "steps": [1,0,1,1,0,1,1,0,1,0,1,1,0,1,0,0]
+            "steps": [
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0,
+              1,
+              1,
+              0,
+              1,
+              0,
+              0
+            ]
           }
         ]
       },
@@ -793,6 +1737,110 @@
           }
         ]
       }
-    ]
+    ],
+    "arrangement": {
+      "sections": [
+        {
+          "name": "Intro",
+          "bars": 8
+        },
+        {
+          "name": "+ Bass",
+          "bars": 8
+        },
+        {
+          "name": "+ Chords",
+          "bars": 8
+        },
+        {
+          "name": "+ Melody",
+          "bars": 8
+        },
+        {
+          "name": "Full Loop",
+          "bars": 32
+        },
+        {
+          "name": "Variation",
+          "bars": 16
+        },
+        {
+          "name": "Fade Out",
+          "bars": 8
+        }
+      ],
+      "tracks": [
+        {
+          "name": "Drums",
+          "icon": "🥁",
+          "color": "#f97316",
+          "sections": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "Bass",
+          "icon": "🎸",
+          "color": "#a855f7",
+          "sections": [
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "Chords",
+          "icon": "🎹",
+          "color": "#06b6d4",
+          "sections": [
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "name": "Melody",
+          "icon": "🎵",
+          "color": "#ec4899",
+          "sections": [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            0
+          ]
+        },
+        {
+          "name": "Texture/FX",
+          "icon": "🌫️",
+          "color": "#6b7280",
+          "sections": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    }
   }
 ]

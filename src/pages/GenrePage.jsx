@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import genres from '../data/genres.json'
 import PartPanel from '../components/PartPanel'
+import ArrangementView from '../components/ArrangementView'
 
 export default function GenrePage() {
   const { id } = useParams()
@@ -81,6 +82,12 @@ export default function GenrePage() {
             Pick an element above to see tips and patterns
           </div>
         )}
+
+        {/* Arrangement View */}
+        <div className="mt-10">
+          <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Full Arrangement</p>
+          <ArrangementView arrangement={genre.arrangement} accentClass={genre.color} />
+        </div>
       </div>
     </div>
   )
