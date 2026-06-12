@@ -298,40 +298,57 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
   })
 }
 
-// FM bell stab — sine carrier with a fast-decaying inharmonic modulator.
-// The ringing metallic "ding" of Jeff Mills' The Bells.
+// THE Bells stab — Jeff Mills' "bells" are not a soft mellow bell but a
+// PUNCHY, bright, detuned chord stab: the note plus a minor third above (two
+// oscillators a minor third apart, as in the original patch), a metallic high
+// partial for the "ring", and a sub-octave for weight. Fast attack, percussive
+// decay so each 16th cuts and drives.
 export function bell(context, time, out, freq, gain = 0.3, dur = 0.35) {
-  const carrier = context.createOscillator()
-  carrier.type = 'sine'
-  carrier.frequency.value = freq * 2
-  // Inharmonic modulator gives the metallic clang; its depth decays fast so
-  // the hit starts bright and rings out pure.
-  const mod = context.createOscillator()
-  mod.type = 'sine'
-  mod.frequency.value = freq * 2 * 3.53
-  const modDepth = context.createGain()
-  modDepth.gain.setValueAtTime(freq * 4, time)
-  modDepth.gain.exponentialRampToValueAtTime(freq * 0.3, time + dur * 0.6)
-  mod.connect(modDepth).connect(carrier.frequency)
   const g = context.createGain()
   g.gain.setValueAtTime(0, time)
   g.gain.linearRampToValueAtTime(gain, time + 0.003)
   g.gain.exponentialRampToValueAtTime(0.0001, time + dur)
   g.connect(out)
-  carrier.connect(g)
-  // Quiet sub-octave body so it doesn't sound thin.
-  const body = context.createOscillator()
-  body.type = 'sine'
-  body.frequency.value = freq
-  const bg = context.createGain()
-  bg.gain.setValueAtTime(0, time)
-  bg.gain.linearRampToValueAtTime(gain * 0.4, time + 0.003)
-  bg.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.7)
-  bg.connect(out)
-  body.connect(bg)
-  carrier.start(time); carrier.stop(time + dur + 0.05)
-  mod.start(time); mod.stop(time + dur + 0.05)
-  body.start(time); body.stop(time + dur + 0.05)
+  const lp = context.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.frequency.setValueAtTime(7200, time)
+  lp.frequency.exponentialRampToValueAtTime(2200, time + dur)
+  lp.Q.value = 2
+  lp.connect(g)
+  // Root + minor third (×2^(3/12)), each lightly detuned → punchy chord stab.
+  const third = freq * 1.18921
+  ;[[freq, -7], [freq, 7], [third, -6], [third, 6]].forEach(([f, d]) => {
+    const osc = context.createOscillator()
+    osc.type = 'sawtooth'
+    osc.frequency.value = f
+    osc.detune.value = d
+    osc.connect(lp)
+    osc.start(time)
+    osc.stop(time + dur + 0.05)
+  })
+  // Metallic high partial gives the "bell" ring without softening the attack.
+  const ring = context.createOscillator()
+  ring.type = 'square'
+  ring.frequency.value = freq * 3.01
+  const rg = context.createGain()
+  rg.gain.setValueAtTime(gain * 0.16, time)
+  rg.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.5)
+  rg.connect(g)
+  ring.connect(rg)
+  ring.start(time)
+  ring.stop(time + dur + 0.05)
+  // Sub-octave body so the stab has weight under the ring.
+  const sub = context.createOscillator()
+  sub.type = 'sine'
+  sub.frequency.value = freq / 2
+  const sg = context.createGain()
+  sg.gain.setValueAtTime(0, time)
+  sg.gain.linearRampToValueAtTime(gain * 0.5, time + 0.004)
+  sg.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.8)
+  sg.connect(out)
+  sub.connect(sg)
+  sub.start(time)
+  sub.stop(time + dur + 0.05)
 }
 
 // Lush detuned-saw trance pad — slow attack, airy octave, no muddiness.

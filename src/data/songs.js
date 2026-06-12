@@ -187,7 +187,7 @@ export const GENRE_SONGS = {
       groove: {
         bass:     { steps: on(2,6,10,14), notes: ['B1','B1','D2','F#1'] },
         donk:     { steps: on(2,4,6,8,10,12,14), notes: ['B2','B3','D3','B2','B3','F#3','D3'] },
-        supersaw: { steps: on(0,2,4,6,8,10,12,14), notes: ['B3','D4','F#4','A4','F#4','D4','B3','A3'] },
+        supersaw: { steps: on(0,2,4,6,8,10,12,14), notes: ['B3','D4','F#4','A4','F#4','D4','B3','A3'], hoover: true },
         vox:      { steps: on(0,8), notes: ['B4','F#4'] },
       },
     },
@@ -209,7 +209,7 @@ export const GENRE_SONGS = {
       groove: {
         bass:     { steps: on(0,2,6,8,10,14), notes: ['C2','C2','G1','C2','A#1','C2'] },
         donk:     { steps: on(0,2,4,6,8,10,12,14), notes: ['C3','C4','C3','C4','G2','G3','A#2','A#3'] },
-        supersaw: { steps: on(0,4,8,12), notes: ['C4','D#4','G4','D#4'] },
+        supersaw: { steps: on(0,4,8,12), notes: ['C4','D#4','G4','D#4'], hoover: true },
         vox:      { steps: on(0,4,8,12), notes: ['C5','D#5','G4','A#4'] },
       },
     },
@@ -351,7 +351,7 @@ export const GENRE_SONGS = {
       // Am, 158 BPM. Hoover riff climbs A–C–E–A octave (rave-anthem shape).
       groove: {
         donk:     { steps: on(0,2,4,6,8,10,12,14), notes: ['A2','A3','A2','A3','C3','C4','E3','E4'] },
-        supersaw: { steps: on(0,3,6,9,12), notes: ['A4','C5','E5','C5','A4'] },
+        supersaw: { steps: on(0,3,6,9,12), notes: ['A4','C5','E5','C5','A4'], hoover: true },
         vox:      { steps: on(0,8), notes: ['A4','E5'] },
       },
     },
@@ -474,7 +474,7 @@ export const GENRE_SONGS = {
       // Em, 155 BPM. Rapid acid riff: E–G–B–D (Em7 arpeggio) over distorted kick.
       groove: {
         bass:     { steps: on(0,2,4,6,8,10,12,14), notes: ['E2','E2','E2','B1','E2','E2','D2','B1'] },
-        supersaw: { steps: on(0,2,4,6,8,10,12,14), notes: ['E4','G4','B4','D5','E4','G4','B4','D5'] },
+        supersaw: { steps: on(0,2,4,6,8,10,12,14), notes: ['E4','G4','B4','D5','E4','G4','B4','D5'], hoover: true },
         vox:      { steps: on(0,2,4,8,10,12), notes: ['E5','E5','B4','E5','D5','B4'] },
       },
     },
@@ -495,7 +495,7 @@ export const GENRE_SONGS = {
       ],
       groove: {
         bass:     { steps: on(0,4,8,12), notes: ['E2','E2','E2','E2'] },
-        supersaw: { steps: on(0,3,8,11), notes: ['E4','G4','E4','B3'] },
+        supersaw: { steps: on(0,3,8,11), notes: ['E4','G4','E4','B3'], hoover: true },
         vox:      { steps: on(0,8), notes: ['E4','B3'] },
       },
     },
