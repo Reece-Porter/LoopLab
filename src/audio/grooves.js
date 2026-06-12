@@ -418,22 +418,59 @@ export const GENRE_GROOVES = {
     },
   },
 
-  // ---- Tech House: FISHER / Hot Since 82 — Cm, rolling low groove ----
+  // ---- Tech House: FISHER-style percussion-driven roller — Cm, 126 BPM ----
+  // Built from the tutorial video. Busy, swung tech house: 909 4-on-floor, offbeat
+  // open hats, a relentless conga/perc gallop, rolling offbeat sub bass that walks,
+  // syncopated vocal-chop stabs and an "ah-ah" vocal hook. 4-bar (64-step) cycle.
+  // One-chord Cm groove with a Bb (bVII) lift in bar 4.
   'tech-house': {
-    bpm: 126,
-    swing: 0.08,
+    bpm: 126, swing: 0.1,
     voices: {
-      kick:    { steps: on(0,4,8,12), tone: '909' },
-      clap:    { steps: on(4,12) },
-      hat:     { steps: on(2,6,10,14), open: true, tone: '909' },
-      perc:    { steps: on(3,7,11,15), tone: 'conga' },
-      // Rolling sub bass — off-beat Cm with chromatic walk at phrase end
-      bass:    { steps: on2(2,6,10,14, 18,22,26,29,31),
-                 notes: ['C2','C2','C2','D#2','C2','C2','G1','A#1','B1'], sub: true },
-      // Vocal-chop style chord stabs on the off-beat — the tech house hook
-      supersaw:{ steps: on2(2,6,18,22), chords: ['Cm7','Cm7','A#maj7','Cm7'] },
-      // Melodic keys phrase in Cm (replaces goofy vocal synth)
-      vox:     { steps: on2(2,10,18,26), notes: ['C5','D#5','G4','A#4'] },
+      kick: { steps: on(0,4,8,12), tone: '909' },
+      // Clap on 2&4, ghost roll into bar 4
+      clap: { steps: on4(4,12, 20,28, 36,44, 52,56,60), tone: '909' },
+      hat: { steps: on(2,6,10,14), open: true, tone: '909' },
+      // Relentless conga/perc gallop — the busy tech-house percussion bed
+      perc: {
+        steps: on4(
+          3,7,11,13,15,
+          19,23,27,29,31,
+          35,39,43,45,47,
+          51,55,57,59,61,63
+        ),
+        tone: 'conga',
+      },
+      // Rolling offbeat sub bass — Cm roller with a chromatic walk and bar-4 Bb lift
+      bass: {
+        steps: on4(
+          2,6,10,14,
+          18,22,26,29,31,
+          34,38,42,46,
+          50,54,58,61,63
+        ),
+        notes: [
+          'C2','C2','C2','D#2',
+          'C2','C2','G1','A#1','B1',
+          'C2','C2','C2','G1',
+          'A#1','A#1','D2','A#1','C2',
+        ],
+        sub: true,
+      },
+      // Syncopated vocal-chop stabs — the tech house hook, develops over 4 bars
+      supersaw: {
+        steps: on4(2,6, 18,22, 34,38, 50,54,60),
+        chords: [
+          'Cm7','Cm7',
+          'Cm7','D#maj7',
+          'Cm7','G7',
+          'A#maj7','Cm7','Cm7',
+        ],
+      },
+      // "Ah-ah" vocal hook in Cm
+      vox: {
+        steps: on4(2,10, 18,26, 34,42, 50,58),
+        notes: ['C5','D#5', 'G4','A#4', 'C5','G5', 'A#4','C5'],
+      },
     },
   },
 
