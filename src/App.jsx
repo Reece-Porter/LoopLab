@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage'
 import GenrePage from './pages/GenrePage'
 import TipsPage from './pages/TipsPage'
 import ToolsPage from './pages/ToolsPage'
+import DJDeckPage from './pages/DJDeckPage'
 import { stopAllPlayback } from './audio/usePlayer'
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
       <Route path="/genre/:id" element={<GenrePage />} />
       <Route path="/tips" element={<TipsPage />} />
       <Route path="/tools" element={<ToolsPage />} />
+      <Route path="/dj" element={<DJDeckPage />} />
     </Routes>
   )
 }

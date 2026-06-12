@@ -28,7 +28,7 @@ export default function HomePage() {
         </header>
 
         {/* Quick links to the reference areas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <button
             onClick={() => navigate('/tips')}
             className="text-left rounded-2xl border border-white/10 bg-gradient-to-br from-amber-500/10 to-orange-600/10 hover:border-amber-400/40 transition p-5 flex items-center gap-4 group"
@@ -50,6 +50,17 @@ export default function HomePage() {
               <span className="block text-xs text-gray-400 mt-0.5">Free samples, vocals, plugins and where to find tracks</span>
             </span>
             <span className="text-gray-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all">→</span>
+          </button>
+          <button
+            onClick={() => navigate('/dj')}
+            className="text-left rounded-2xl border border-white/10 bg-gradient-to-br from-purple-500/10 to-pink-600/10 hover:border-purple-400/40 transition p-5 flex items-center gap-4 group"
+          >
+            <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-2xl shrink-0">🎚️</span>
+            <span className="flex-1">
+              <span className="block font-bold text-white group-hover:text-purple-300 transition-colors">DJ Deck</span>
+              <span className="block text-xs text-gray-400 mt-0.5">Load any audio file and mix with 3-band EQ</span>
+            </span>
+            <span className="text-gray-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all">→</span>
           </button>
         </div>
 
