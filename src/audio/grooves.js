@@ -255,21 +255,53 @@ export const GENRE_GROOVES = {
     },
   },
 
-  // ---- Piano House: classic uplifting stabs over a warm groove — Fm ----
+  // ---- Piano House: Kink-style organic rolling house — Fm, 124 BPM ----
+  // Built from the Julien Earle "Piano House Like Kink" tutorial video.
+  // 4-bar (64-step) evolving cycle: swung garage kick, sparse 8th hats, rolling
+  // syncopated funk bass, classic off-beat minor-7th piano stabs, soulful melody.
+  // Progression Fm7–Bbm7–Eb7–Abmaj7 (i–iv–VII–VI) — the minor-jazz house cycle.
   house: {
-    bpm: 125,
-    swing: 0.08,
+    bpm: 124, swing: 0.12,
     voices: {
-      kick:    { steps: on(0,4,8,12), tone: '909' },
-      clap:    { steps: on(4,12) },
-      hat:     { steps: on(2,6,10,14), open: true, tone: '909' },
-      // Bouncing off-beat bass — the house pump
-      bass:    { steps: on(2,6,10,14), notes: ['F1','F1','A#1','C2'] },
-      // THE piano stabs: syncopated off-beat 7th chords cycling over 2 bars
-      piano:   { steps: on2(2,6,10,14, 18,22,26,30),
-                 chords: ['Fm7','Fm7','A#maj7','A#maj7','D#maj7','D#maj7','Cm7','Cm7'] },
-      // Melodic keys response in Fm (replaces goofy vocal synth)
-      vox:     { steps: on2(0,6,12,20, 26), notes: ['F4','A4','C5','G4','F4'] },
+      kick: { steps: on(0,4,8,12), tone: 'garage' },
+      clap: { steps: on4(4,12, 20,28, 36,44, 52,60), tone: 'garage' },
+      // Swung 8th-note hats — open on every "and-of-2" (i%4===2)
+      hat: { steps: on2(0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30), open: true, tone: 'garage' },
+      // Rolling syncopated funk bass tracking Fm7–Bbm7–Eb7–Abmaj7
+      bass: {
+        steps: on4(
+          0,3,6,10,14,
+          16,19,22,26,30,
+          32,35,38,42,46,
+          48,51,54,58,62
+        ),
+        notes: [
+          'F1','F2','F1','C2','Eb2',
+          'Bb1','Bb2','Bb1','F2','Ab1',
+          'Eb2','Eb1','Bb1','G1','Eb2',
+          'Ab1','Ab2','Ab1','Eb2','F1',
+        ],
+      },
+      // THE piano stabs: off-beat 7th-chord hits on every "and", one chord per bar
+      piano: {
+        steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,54,58,62),
+        chords: [
+          'Fm7','Fm7','Fm7','Fm7',
+          'Bbm7','Bbm7','Bbm7','Bbm7',
+          'Eb7','Eb7','Eb7','Eb7',
+          'Abmaj7','Abmaj7','Abmaj7','Abmaj7',
+        ],
+      },
+      // Soulful F-minor melodic hook evolving over 4 bars
+      vox: {
+        steps: on4(0,4,8,14, 16,22,28,30, 32,38,42,46, 48,54,58,62),
+        notes: [
+          'F4','Ab4','C5','Bb4',
+          'F4','Eb5','C5','Ab4',
+          'F4','G4','Ab4','C5',
+          'Eb5','C5','Ab4','F4',
+        ],
+      },
     },
   },
 
