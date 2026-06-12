@@ -11,6 +11,64 @@ function buildEQChain(ctx) {
   return { low, mid, high, vol, input: low }
 }
 
+// ─── Encode an AudioBuffer to a 16-bit PCM WAV blob ──────────────────────────
+function audioBufferToWav(buffer) {
+  const numCh   = buffer.numberOfChannels
+  const sampleRate = buffer.sampleRate
+  const numFrames  = buffer.length
+  const bytesPerSample = 2
+  const blockAlign = numCh * bytesPerSample
+  const dataSize   = numFrames * blockAlign
+  const ab  = new ArrayBuffer(44 + dataSize)
+  const dv  = new DataView(ab)
+
+  const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) dv.setUint8(off + i, s.charCodeAt(i)) }
+
+  writeStr(0, 'RIFF')
+  dv.setUint32(4, 36 + dataSize, true)
+  writeStr(8, 'WAVE')
+  writeStr(12, 'fmt ')
+  dv.setUint32(16, 16, true)            // fmt chunk size
+  dv.setUint16(20, 1, true)             // PCM
+  dv.setUint16(22, numCh, true)
+  dv.setUint32(24, sampleRate, true)
+  dv.setUint32(28, sampleRate * blockAlign, true)
+  dv.setUint16(32, blockAlign, true)
+  dv.setUint16(34, 16, true)            // bits per sample
+  writeStr(36, 'data')
+  dv.setUint32(40, dataSize, true)
+
+  // Interleave channels
+  const channels = []
+  for (let c = 0; c < numCh; c++) channels.push(buffer.getChannelData(c))
+  let offset = 44
+  for (let i = 0; i < numFrames; i++) {
+    for (let c = 0; c < numCh; c++) {
+      let s = Math.max(-1, Math.min(1, channels[c][i]))
+      dv.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true)
+      offset += 2
+    }
+  }
+  return new Blob([ab], { type: 'audio/wav' })
+}
+
+// ─── Render the source buffer through the EQ settings, offline ───────────────
+async function renderWithEQ(buffer, { low, mid, high, vol }) {
+  const off = new OfflineAudioContext(buffer.numberOfChannels, buffer.length, buffer.sampleRate)
+
+  const lo  = off.createBiquadFilter(); lo.type  = 'lowshelf';  lo.frequency.value  = 200;  lo.gain.value  = low
+  const md  = off.createBiquadFilter(); md.type  = 'peaking';   md.frequency.value  = 1000; md.Q.value     = 0.8; md.gain.value = mid
+  const hi  = off.createBiquadFilter(); hi.type  = 'highshelf'; hi.frequency.value  = 4000; hi.gain.value  = high
+  const gn  = off.createGain();         gn.gain.value = vol
+
+  const src = off.createBufferSource()
+  src.buffer = buffer
+  src.connect(lo); lo.connect(md); md.connect(hi); hi.connect(gn); gn.connect(off.destination)
+  src.start(0)
+
+  return off.startRendering()
+}
+
 // ─── Waveform drawer ─────────────────────────────────────────────────────────
 function drawWaveform(canvas, audioBuffer, playhead = 0) {
   if (!canvas || !audioBuffer) return
@@ -124,6 +182,8 @@ export default function DJDeckPage() {
   const [midGain,  setMidGain]    = useState(0)
   const [highGain, setHighGain]   = useState(0)
   const [volume,   setVolume]     = useState(0.8)
+  const [trackName, setTrackName] = useState('mix')
+  const [exporting, setExporting] = useState(false)
 
   const audioCtxRef  = useRef(null)
   const eqRef        = useRef(null)
@@ -210,6 +270,30 @@ export default function DJDeckPage() {
     }
   }
 
+  // ── Download the track rendered through the current EQ settings ───────────
+  async function downloadMix() {
+    if (!bufferRef.current || exporting) return
+    setExporting(true)
+    try {
+      const rendered = await renderWithEQ(bufferRef.current, {
+        low: lowGain, mid: midGain, high: highGain, vol: volume,
+      })
+      const blob = audioBufferToWav(rendered)
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `${trackName || 'mix'}-looplab.wav`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000)
+    } catch (err) {
+      setStatus('error')
+      setErrorMsg(`Could not export audio: ${err.message}`)
+    } finally {
+      setExporting(false)
+    }
+  }
+
   // ── Seek on waveform click ────────────────────────────────────────────────
   function onWaveformClick(e) {
     if (!bufferRef.current) return
@@ -246,6 +330,7 @@ export default function DJDeckPage() {
     setPlaying(false)
     setStatus('loading')
     setErrorMsg('')
+    setTrackName((file.name || 'mix').replace(/\.[^.]+$/, ''))
     const ab = await file.arrayBuffer()
     await decodeAndLoad(ab)
   }
@@ -275,6 +360,8 @@ export default function DJDeckPage() {
       const res = await fetch(raw)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const ab  = await res.arrayBuffer()
+      const base = raw.split('/').pop().split('?')[0].replace(/\.[^.]+$/, '')
+      setTrackName(base || 'mix')
       await decodeAndLoad(ab)
     } catch (err) {
       setStatus('error')
@@ -447,6 +534,22 @@ export default function DJDeckPage() {
               <span className="text-gray-500 text-sm">🔊</span>
               <span className="text-xs font-mono text-gray-400 w-10 text-right">{Math.round(volume * 100)}%</span>
             </div>
+          </div>
+
+          {/* Download */}
+          <div className="border-t border-white/10 pt-5 mt-5">
+            <button
+              onClick={downloadMix}
+              disabled={exporting || status !== 'ready'}
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-sm transition flex items-center justify-center gap-2"
+            >
+              {exporting ? (
+                <><span className="animate-spin">⏳</span> Rendering mix…</>
+              ) : (
+                <>⬇ Download mix (WAV, with EQ applied)</>
+              )}
+            </button>
+            <p className="text-center text-xs text-gray-600 mt-2">Exports the track with your current EQ &amp; volume baked in</p>
           </div>
         </div>
 
