@@ -439,15 +439,16 @@ export const GENRE_SONGS = {
         { name: 'Hypno Stab', instrument: 'THE bell riff — Am triad stabs',  sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',      instrument: '(none — pure machine)',           sections: [0,0,0,0,0,0,0] },
       ],
-      // A minor, 137.5 BPM. The bell tone is a ring-modulated sine bell (see
-      // synth.js bell()). The riff is the clear descending motif A–G#–F voiced
-      // as steady 8th-note bells — recognisable and ringing, not a rushed 16th
-      // wall or a wandering phase pattern.
+      // A minor, 137.5 BPM. Ring-modulated sine bell (see synth.js bell()). The
+      // riff is the real thing: a 5-note cell A–G#–A–F–A on a 16th grid, but
+      // laid on an ODD 7-step rhythm with muted steps, so the accents drift and
+      // it "floats" instead of marching — the constant high A with G#/F moving
+      // underneath. Not an even run; the gaps and syncopation are the riff.
       groove: {
         bass:     { steps: on(0,4,8,12), notes: ['A1','A1','A1','G1'] },
         supersaw: {
-          steps: on(0,2,4,6,8,10,12,14),
-          notes: ['A4','G#4','F4','G#4'],
+          steps: on(0,2,3,5,6,7,9,10,12,13,14),
+          notes: ['A4','G#4','A4','F4','A4'],
           bell: true,
         },
       },
