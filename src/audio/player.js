@@ -24,7 +24,7 @@ export function voiceFor(partName) {
   if (n.includes('sub') || n.includes('bass')) return 'bass'
   if (n.includes('rumble')) return 'kick'
   if (n.includes('fx') || n.includes('riser') || n.includes('atmos') || n.includes('texture')) return 'riser'
-  if (n.includes('bell')) return 'supersaw'
+  if (n.includes('bell')) return 'bell'
   if (n.includes('string') || n.includes('chord') || n.includes('pad') || n.includes('key')) return 'chord'
   if (n.includes('vocal') || n.includes('vox') || n.includes('voice') || n.includes('vocals')) return 'vox'
   if (n.includes('hoover') || n.includes('stab') || n.includes('rave') ||
