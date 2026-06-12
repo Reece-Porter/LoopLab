@@ -49,7 +49,9 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
   const scrollRef       = useRef(null)
   const gridRef         = useRef({})
   const mutedRef        = useRef({})
+  const gainsRef        = useRef({})
   const vocalBuffersRef = useRef({}) // clipId -> AudioBuffer
+  const [volumes, setVolumes] = useState({}) // laneName -> volume
   // paintRef tracks an in-progress left-button drag across bars:
   //   { laneName, idx, mode: 'place'|'erase', painted: Set<bar> }
   const paintRef  = useRef(null)
@@ -166,8 +168,26 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
     return () => window.removeEventListener('mouseup', up)
   }, [])
 
+  // Keep the live gains ref in sync for the audio scheduler.
+  useEffect(() => { gainsRef.current = volumes }, [volumes])
+
+  // Small per-lane volume fader, shared by pattern lanes and the vocal lane.
+  const VolumeFader = ({ name }) => (
+    <div className="flex items-center gap-1" title={`Volume: ${Math.round((volumes[name] ?? 1) * 100)}%`}>
+      <span className="text-[9px] text-gray-600">🔊</span>
+      <input
+        type="range"
+        min={0} max={1.5} step={0.05}
+        value={volumes[name] ?? 1}
+        onChange={e => setVolumes(v => ({ ...v, [name]: Number(e.target.value) }))}
+        className="w-full h-1 accent-purple-500 cursor-pointer"
+        aria-label={`${name} volume`}
+      />
+    </div>
+  )
+
   // ---- playback ----
-  const play = () => start('custom', { tracks, bars, bpm, gridRef, mutedRef, snareAsClap: genreId === 'deep-house' })
+  const play = () => start('custom', { tracks, bars, bpm, gridRef, mutedRef, gainsRef, snareAsClap: genreId === 'deep-house' })
   const onPlay = () => (playing ? stop() : play())
 
   // Smooth rAF playhead
@@ -282,6 +302,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                   style={{ width: LABEL_W }}
                 >
                   <span className="text-xs text-gray-200 font-semibold truncate">{lane.icon} {lane.name}</span>
+                  <VolumeFader name={lane.name} />
                   <div className="flex flex-wrap gap-1">
                     {lane.patterns.map((pat, idx) => {
                       const isArmed = isArmedLane && armed.idx === idx
@@ -363,6 +384,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                 style={{ width: LABEL_W }}
               >
                 <span className="text-xs text-gray-200 font-semibold truncate">🎤 Your Vocals</span>
+                <VolumeFader name={VOCAL_LANE} />
                 <div className="flex flex-wrap gap-1">
                   {savedVocalClips.map(clip => {
                     const isArmed = armedVocal === clip.id

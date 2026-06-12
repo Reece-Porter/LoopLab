@@ -187,12 +187,13 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
     return S.kick(ctx, t, out, 1, tone)
   }
   if (evt.freqs) {
-    if (evt.organ) return S.organ(ctx, t, out, evt.freqs, 0.3, stepDur * 2.5)
-    if (evt.rhodes) return S.rhodes(ctx, t, out, evt.freqs, 0.24, stepDur * 7)
-    if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24, evt.pad ? stepDur * 8 : stepDur * 3)
-    if (evt.pad) return S.synthPad(ctx, t, out, evt.freqs, 0.20, stepDur * 12)
-    if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.22, stepDur * 6)
-    return S.chordStab(ctx, t, out, evt.freqs, 0.26, stepDur * 4, true)
+    const vg = evt.gain != null ? evt.gain : 1 // per-pattern gain trim
+    if (evt.organ) return S.organ(ctx, t, out, evt.freqs, 0.3 * vg, stepDur * 2.5)
+    if (evt.rhodes) return S.rhodes(ctx, t, out, evt.freqs, 0.24 * vg, stepDur * 7)
+    if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24 * vg, evt.pad ? stepDur * 8 : stepDur * 3)
+    if (evt.pad) return S.synthPad(ctx, t, out, evt.freqs, 0.20 * vg, stepDur * 12)
+    if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.22 * vg, stepDur * 6)
+    return S.chordStab(ctx, t, out, evt.freqs, 0.26 * vg, stepDur * 4, true)
   }
   if (voice === 'riser') return S.riser(ctx, t, out, 0.14, stepDur * 64)
   if (evt.freq != null) {
@@ -220,7 +221,7 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
 // a live map { trackName: clip16 } and mutedRef.current a live { name: true }
 // map — both are read fresh every step so the user can swap example patterns
 // and mute/unmute tracks while the song keeps playing.
-export function playArrangement(genreId, arrangement, tracks, { onStep, startStep = 0, clipsRef, mutedRef, bpm: bpmOverride } = {}) {
+export function playArrangement(genreId, arrangement, tracks, { onStep, startStep = 0, clipsRef, mutedRef, gainsRef, bpm: bpmOverride } = {}) {
   const ctx = getContext()
   const groove = grooveFor(genreId)
   const bpm = bpmOverride || groove.bpm
@@ -229,6 +230,17 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
   const out = ctx.createGain()
   out.gain.value = 0.8
   out.connect(ctx.destination)
+
+  // Per-track gain bus so each part has its own live volume fader.
+  const trackOuts = {}
+  function outFor(name) {
+    let n = trackOuts[name]
+    if (!n) { n = ctx.createGain(); n.connect(out); trackOuts[name] = n }
+    const gains = gainsRef ? gainsRef.current : null
+    const v = gains && gains[name] != null ? gains[name] : 1
+    if (n.gain.value !== v) n.gain.value = v
+    return n
+  }
 
   // Map bar index → section index.
   const sections = arrangement.sections
@@ -247,9 +259,9 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
 
   // Play a single pre-normalised clip event for a voice at a given time,
   // applying this genre's swing on the off-steps.
-  function fire(voice, evt, stepInBar, time) {
+  function fire(voice, evt, stepInBar, time, dest) {
     const t = time + (stepInBar % 2 === 1 ? swing * stepDur : 0)
-    fireEvent(ctx, out, voice, evt, t, stepDur, genreId === 'deep-house')
+    fireEvent(ctx, dest || out, voice, evt, t, stepDur, genreId === 'deep-house')
   }
 
   function scheduler() {
@@ -276,7 +288,7 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
         // phase-locked to the song grid.
         const evt = clip && clip[g % clip.length]
         if (!evt) return
-        fire(track.voice, evt, stepInBar, nextStepTime)
+        fire(track.voice, evt, stepInBar, nextStepTime, outFor(track.name))
       })
 
       if (onStep) {
@@ -314,11 +326,22 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
 // track for the whole song), this plays a *different* clip per bar per track,
 // so the user can paint distinct example patterns into each bar. gridRef is a
 // live ref: gridRef.current = { trackName: [clip16 | null, ... per bar] }.
-export function playCustom(tracks, bars, bpm, { onStep, gridRef, mutedRef, snareAsClap = false, startStep = 0 } = {}) {
+export function playCustom(tracks, bars, bpm, { onStep, gridRef, mutedRef, gainsRef, snareAsClap = false, startStep = 0 } = {}) {
   const ctx = getContext()
   const out = ctx.createGain()
   out.gain.value = 0.8
   out.connect(ctx.destination)
+
+  // Per-track gain bus so each lane has its own live volume fader.
+  const trackOuts = {}
+  function outFor(name) {
+    let n = trackOuts[name]
+    if (!n) { n = ctx.createGain(); n.connect(out); trackOuts[name] = n }
+    const gains = gainsRef ? gainsRef.current : null
+    const v = gains && gains[name] != null ? gains[name] : 1
+    if (n.gain.value !== v) n.gain.value = v
+    return n
+  }
 
   const totalSteps = Math.max(16, bars * 16)
   const stepDur = 60 / bpm / 4
@@ -345,7 +368,7 @@ export function playCustom(tracks, bars, bpm, { onStep, gridRef, mutedRef, snare
         const clip = lane && lane[bar]
         const evt = clip && clip[stepInBar]
         if (!evt) return
-        fireEvent(ctx, out, track.voice, evt, nextStepTime, stepDur, snareAsClap)
+        fireEvent(ctx, outFor(track.name), track.voice, evt, nextStepTime, stepDur, snareAsClap)
       })
 
       if (onStep) {

@@ -67,6 +67,8 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   const containerRef = useRef(null)
   const clipsRef = useRef({})  // live: trackName -> clip16
   const mutedRef = useRef({})  // live: trackName -> true
+  const gainsRef = useRef({})  // live: trackName -> volume (0..1.5)
+  const [volumes, setVolumes] = useState({}) // trackName -> volume
 
   const [frac, setFrac] = useState(null) // smooth playhead 0..1
   const [startBar, setStartBar] = useState(0) // where playback begins
@@ -135,9 +137,10 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
     Object.keys(hidden).forEach(k => { if (hidden[k]) m[k] = true })
     mutedRef.current = m
   }, [hidden])
+  useEffect(() => { gainsRef.current = volumes }, [volumes])
 
   const play = (fromBar = startBar) =>
-    start('arrangement', { genreId, arrangement, tracks: lineup, startStep: fromBar * 16, clipsRef, mutedRef, bpm })
+    start('arrangement', { genreId, arrangement, tracks: lineup, startStep: fromBar * 16, clipsRef, mutedRef, gainsRef, bpm })
 
   const onPlay = () => (playing ? stop() : play())
 
@@ -275,6 +278,18 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
                       {track.instrument}
                     </span>
                   )}
+                  {/* Per-track volume fader (live while playing) */}
+                  <div className="flex items-center gap-1" title={`Volume: ${Math.round((volumes[track.name] ?? 1) * 100)}%`}>
+                    <span className="text-[9px] text-gray-600">🔊</span>
+                    <input
+                      type="range"
+                      min={0} max={1.5} step={0.05}
+                      value={volumes[track.name] ?? 1}
+                      onChange={e => setVolumes(v => ({ ...v, [track.name]: Number(e.target.value) }))}
+                      className="w-full h-1 accent-purple-500 cursor-pointer"
+                      aria-label={`${track.name} volume`}
+                    />
+                  </div>
                   {options.length > 0 && labelW > 110 && (
                     <select
                       value={sel}

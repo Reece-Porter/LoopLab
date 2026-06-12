@@ -40,8 +40,9 @@ export const GENRE_GROOVES = {
       supersaw:{ steps: on2(0,3,6,8,11,14, 16,19,22,24,27,30),
                  notes: ['A4','C5','E5','C5','A4','G4', 'F4','A4','C5','E5','D5','C5'] },
       pluck:   { steps: on(0,3,6,8,11,14), notes: ['A4','E5','C5','A4','G4','E5'] },
-      // Synth-string pad: one chord per bar over the full 4-bar progression
-      chord:   { steps: on4(0,16,32,48), chords: ['Am','F','C','G'], pad: true },
+      // Synth-string pad: one chord per bar over the full 4-bar progression.
+      // gain trims it well under the lead — it's a bed, not a hook.
+      chord:   { steps: on4(0,16,32,48), chords: ['Am','F','C','G'], pad: true, gain: 0.45 },
       vox:     { steps: on2(0,6,16,22), notes: ['A4','C5','E5','D5'] },
       riser:   { steps: on(0), notes: ['A4'] },
     },
