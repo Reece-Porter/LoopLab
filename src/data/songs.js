@@ -479,12 +479,14 @@ export const GENRE_SONGS = {
         // the dub-delay tail can drop in and out across the arrangement.
         clap: { steps: on(4,12) },
         perc: { steps: on(6,7,14,15) },
-        // 9-hit bell riff over 2 bars — alternating 4+3 step gaps so the phrase
-        // never aligns with the bar grid, creating the floating polyrhythmic feel.
-        // Notes: A–G#–A–F cell (harmonic minor tension/release) from the original.
+        // THE riff — a relentless, rolling one-bar phrase that hammers every
+        // bar (that insistence IS the hook — it never stops, never varies).
+        // Straight driving 8ths with a late 16th double-hit skip into the
+        // downbeat. Pitch cell from A harmonic minor: the C5 lift, the G#
+        // leading-tone tension and the F4 dip all resolving back to A.
         supersaw: {
-          steps: on2(0,4,7,11,14,18,21,25,28),
-          notes: ['A4','G#4','A4','F4','A4','G#4','A4','F4','A4'],
+          steps: on(0,2,4,6,8,10,13,14),
+          notes: ['A4','C5','A4','G#4','A4','F4','G#4','A4'],
           bell: true,
         },
         // String-machine swell — one long Am pad every 2 bars (the breakdown).
