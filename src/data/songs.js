@@ -439,6 +439,32 @@ export const GENRE_SONGS = {
         { name: 'Bell Riff',  instrument: 'System 100m ring-mod bell (THE riff)', sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',      instrument: '(none — pure machine)',            sections: [0,0,0,0,0,0,0] },
       ],
+      // Full custom arrangement modelled on the actual record (7:39 @ 136):
+      // drums-only intro → sub bass in → bells enter → full groove →
+      // string-machine breakdown (kick drops) → re-entry build → peak →
+      // bells ride out → drums-only outro. Used wholesale by GenrePage.
+      arrangement: {
+        sections: [
+          { name: 'Intro (Drums)', bars: 16 },
+          { name: 'Bass In',       bars: 8 },
+          { name: 'Bells In',      bars: 16 },
+          { name: 'Full Groove',   bars: 16 },
+          { name: 'String Break',  bars: 16 },
+          { name: 'Re-Entry',      bars: 8 },
+          { name: 'Peak',          bars: 24 },
+          { name: 'Bells Out',     bars: 16 },
+          { name: 'Outro (Drums)', bars: 16 },
+        ],
+        tracks: [
+          { name: 'Kick',        icon: '🥁', color: '#f97316', instrument: 'Hammering TR-909 kick (4/4)',          sections: [1,1,1,1,0,1,1,1,1] },
+          { name: 'Hi-Hats',     icon: '🔔', color: '#eab308', instrument: '909 open hats, offbeat 8ths',          sections: [1,1,1,1,0,1,1,1,1] },
+          { name: 'Claps',       icon: '👏', color: '#ef4444', instrument: '909 claps on 2 & 4',                   sections: [0,1,1,1,0,0,1,1,0] },
+          { name: 'Delay Perc',  icon: '🪘', color: '#84cc16', instrument: 'Clap delay echoes (dub send)',         sections: [0,0,1,1,0,1,1,1,0] },
+          { name: 'Sub Bass',    icon: '🎸', color: '#a855f7', instrument: 'Pounding A1 sub pulse',                sections: [0,1,1,1,0,1,1,1,0] },
+          { name: 'Bell Riff',   icon: '⚡', color: '#06b6d4', instrument: 'System 100m ring-mod bell (THE riff)', sections: [0,0,1,1,1,1,1,1,0] },
+          { name: 'String Stab', icon: '🎻', color: '#ec4899', instrument: 'String-machine Am swells',             sections: [0,0,0,0,1,1,1,0,0] },
+        ],
+      },
       // Confirmed 136 BPM, A minor. Ring-modulated sine bell (Roland System 100m
       // style — see synth.js bell()). The 5-note cell A–G#–A–F–A comes from the
       // Attack Magazine Synth Secrets analysis; G# is correct (harmonic minor
@@ -446,10 +472,13 @@ export const GENRE_SONGS = {
       // The riff runs over a 2-bar phrase (32 steps). A 9-hit cycle placed so it
       // doesn't divide evenly into the 4/4 grid is what makes it "float" — the
       // downbeats keep drifting forward each time round, exactly as in the record.
-      // Bell sustain is set long (~10 × stepDur) so notes bleed into each other.
       groove: {
-        // Pounding 4/4 sub kick bass — the relentless engine of the track.
+        // Pounding 4/4 sub on the kick — the relentless engine of the track.
         bass: { steps: on(0,4,8,12), notes: ['A1','A1','A1','A1'], long: true },
+        // Claps on 2 & 4, with their delay echoes as a separate perc lane so
+        // the dub-delay tail can drop in and out across the arrangement.
+        clap: { steps: on(4,12) },
+        perc: { steps: on(6,7,14,15) },
         // 9-hit bell riff over 2 bars — alternating 4+3 step gaps so the phrase
         // never aligns with the bar grid, creating the floating polyrhythmic feel.
         // Notes: A–G#–A–F cell (harmonic minor tension/release) from the original.
@@ -458,6 +487,8 @@ export const GENRE_SONGS = {
           notes: ['A4','G#4','A4','F4','A4','G#4','A4','F4','A4'],
           bell: true,
         },
+        // String-machine swell — one long Am pad every 2 bars (the breakdown).
+        chord: { steps: on2(0), chords: ['Am'], pad: true },
       },
     },
     {

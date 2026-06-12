@@ -20,9 +20,11 @@ export default function GenrePage() {
   const songs = (genre && GENRE_SONGS[genre.id]) || []
 
   // Merge a reference song's track sections + instrument labels into the
-  // genre's arrangement.
+  // genre's arrangement. Songs that define a full custom `arrangement`
+  // (their own sections AND tracks) use it wholesale instead.
   const activeArrangement = useMemo(() => {
     if (!genre || !selectedSong) return genre?.arrangement
+    if (selectedSong.arrangement) return selectedSong.arrangement
     return {
       ...genre.arrangement,
       tracks: genre.arrangement.tracks.map(t => {

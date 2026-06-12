@@ -23,7 +23,8 @@ export function voiceFor(partName) {
   if (n.includes('sub') || n.includes('bass')) return 'bass'
   if (n.includes('rumble')) return 'kick'
   if (n.includes('fx') || n.includes('riser') || n.includes('atmos')) return 'riser'
-  if (n.includes('chord') || n.includes('pad') || n.includes('key')) return 'chord'
+  if (n.includes('bell')) return 'supersaw' // bell riffs ride the stab voice (bell flag set in groove)
+  if (n.includes('string') || n.includes('chord') || n.includes('pad') || n.includes('key')) return 'chord'
   if (n.includes('vocal') || n.includes('vox') || n.includes('voice')) return 'vox'
   if (n.includes('hoover') || n.includes('stab') || n.includes('rave') ||
       n.includes('acid')) return 'supersaw'
