@@ -484,7 +484,7 @@ export default function DJDeckPage() {
           <div className="flex items-center gap-2 ml-2">
             <span className="text-3xl">🎚️</span>
             <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              DJ Deck
+              Player &amp; Downloader
             </h1>
           </div>
           <div className="ml-auto flex items-center gap-2">
