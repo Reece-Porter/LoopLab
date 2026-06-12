@@ -1,0 +1,14 @@
+{
+  "name": "looplab-audio-service",
+  "version": "1.0.0",
+  "description": "yt-dlp proxy that streams SoundCloud/YouTube audio to the LoopLab DJ Deck",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}

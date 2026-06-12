@@ -185,6 +185,9 @@ export default function DJDeckPage() {
   const [trackName, setTrackName] = useState('mix')
   const [exporting, setExporting] = useState(false)
   const [scUrl, setScUrl]         = useState('') // SoundCloud track URL (embed mode)
+  const [backendUrl, setBackendUrl] = useState(() => localStorage.getItem('looplab-backend') || '')
+  const [showBackend, setShowBackend] = useState(false)
+  const [streamUrl, setStreamUrl] = useState('') // SC/YT url loaded via backend
 
   const audioCtxRef  = useRef(null)
   const eqRef        = useRef(null)
@@ -329,6 +332,7 @@ export default function DJDeckPage() {
   async function loadFile(file) {
     stopSource()
     setScUrl('')
+    setStreamUrl('')
     setPlaying(false)
     setStatus('loading')
     setErrorMsg('')
@@ -344,11 +348,38 @@ export default function DJDeckPage() {
 
     stopSource()
     setPlaying(false)
-    setStatus('loading')
     setErrorMsg('')
 
-    // SoundCloud → embed the official widget player (browsers can't fetch its
-    // audio for Web Audio EQ, but the widget plays anything public).
+    const isStreaming = /soundcloud\.com|snd\.sc|youtube\.com|youtu\.be/.test(raw)
+    const backend = backendUrl.replace(/\/$/, '')
+
+    // SoundCloud / YouTube with a backend configured → fetch real audio through
+    // it so EQ + download work. Without a backend, fall back to the SC embed.
+    if (isStreaming && backend) {
+      setScUrl('')
+      setStatus('loading')
+      try {
+        const res = await fetch(`${backend}/api/fetch?url=${encodeURIComponent(raw)}`)
+        if (!res.ok) {
+          const msg = await res.json().catch(() => ({}))
+          throw new Error(msg.error || `HTTP ${res.status}`)
+        }
+        const ab = await res.arrayBuffer()
+        setTrackName('track')
+        setStreamUrl(raw)
+        await decodeAndLoad(ab)
+      } catch (err) {
+        setStatus('error')
+        setErrorMsg(
+          `Backend fetch failed: ${err.message}. ` +
+          `If the backend is on Render's free tier it may be waking up — wait ~40s and try again. ` +
+          `Also check the backend URL in ⚙ Backend settings.`
+        )
+      }
+      return
+    }
+
+    // SoundCloud, no backend → embed the official widget player (playback only).
     if (/soundcloud\.com|snd\.sc/.test(raw)) {
       bufferRef.current = null
       setScUrl(raw)
@@ -356,16 +387,15 @@ export default function DJDeckPage() {
       return
     }
 
-    // Loading a real audio URL clears any SoundCloud embed
     setScUrl('')
+    setStatus('loading')
 
-    // YouTube note
+    // YouTube, no backend → can't be done client-side.
     if (/youtube\.com|youtu\.be/.test(raw)) {
       setStatus('error')
       setErrorMsg(
-        'YouTube links cannot be fetched directly from a browser — YouTube blocks cross-origin audio access. ' +
-        'To use this deck with YouTube audio: download the MP3 using a tool like yt-dlp or an online converter, ' +
-        'then drag the file onto this page or use "Load File" above.'
+        'YouTube links need the backend service to download. Click ⚙ Backend, deploy the LoopLab audio ' +
+        'service (see server/README.md), and paste its URL. Or download the MP3 with yt-dlp and drop the file here.'
       )
       return
     }
@@ -414,7 +444,47 @@ export default function DJDeckPage() {
               DJ Deck
             </h1>
           </div>
+          <button
+            onClick={() => setShowBackend(s => !s)}
+            className={`ml-auto text-xs px-3 py-1.5 rounded-lg border transition ${backendUrl ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-white/10 text-gray-400 hover:text-white'}`}
+          >
+            ⚙ Backend {backendUrl ? '✓' : ''}
+          </button>
         </div>
+
+        {/* Backend settings */}
+        {showBackend && (
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 mb-6">
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">Downloader Backend</h2>
+            <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+              Paste the URL of your deployed LoopLab audio service to enable SoundCloud / YouTube download + EQ.
+              See <code className="text-purple-300">server/README.md</code> for one-click Render deploy steps.
+            </p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={backendUrl}
+                onChange={e => setBackendUrl(e.target.value)}
+                placeholder="https://looplab-audio.onrender.com"
+                className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 transition"
+              />
+              <button
+                onClick={() => { localStorage.setItem('looplab-backend', backendUrl.trim()); setShowBackend(false) }}
+                className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-sm font-semibold transition"
+              >
+                Save
+              </button>
+            </div>
+            {backendUrl && (
+              <button
+                onClick={() => { setBackendUrl(''); localStorage.removeItem('looplab-backend') }}
+                className="text-xs text-gray-500 hover:text-red-400 mt-2 transition"
+              >
+                Clear backend
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Load area */}
         <div className="rounded-2xl border border-white/10 bg-white/5 p-5 mb-6">
@@ -593,15 +663,30 @@ export default function DJDeckPage() {
               )}
             </button>
             <p className="text-center text-xs text-gray-600 mt-2">Exports the track with your current EQ &amp; volume baked in</p>
+
+            {streamUrl && backendUrl && (
+              <a
+                href={`${backendUrl.replace(/\/$/, '')}/api/fetch?url=${encodeURIComponent(streamUrl)}`}
+                className="mt-3 w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 font-semibold text-sm transition flex items-center justify-center gap-2 text-gray-200"
+              >
+                ⬇ Download original MP3 (no EQ)
+              </a>
+            )}
           </div>
         </div>
 
         {/* Info */}
         <div className="mt-6 rounded-xl bg-amber-900/10 border border-amber-500/10 p-4 text-xs text-amber-300/60 leading-relaxed">
-          <strong className="text-amber-300/80">Note:</strong> YouTube and SoundCloud do not allow browsers to fetch their audio directly due to cross-origin restrictions.
-          To load a YouTube track: copy the URL into <a href="https://github.com/yt-dlp/yt-dlp" target="_blank" rel="noreferrer" className="underline hover:text-amber-200">yt-dlp</a> or
-          an online converter to get an MP3, then drag it onto this page.
-          Direct links to MP3/WAV files hosted elsewhere (e.g. your own server, S3, or Dropbox direct-download links) load instantly.
+          <strong className="text-amber-300/80">SoundCloud / YouTube downloads:</strong> deploy the small
+          backend service in <code className="text-amber-200/80">server/</code> (one-click Render steps are in
+          <code className="text-amber-200/80"> server/README.md</code>), then paste its URL into
+          <strong> ⚙ Backend</strong> above. After that, SoundCloud/YouTube links load straight into the deck with
+          full EQ, playback and download.
+          <br /><br />
+          Without a backend, the browser can't fetch their audio (cross-origin security) — SoundCloud links fall back
+          to an embedded player, and you can always drop in a file or a direct MP3/WAV URL.
+          <br /><br />
+          <span className="text-amber-300/40">Only download audio you have the right to — your own uploads, Creative Commons, or tracks where the artist enabled downloads.</span>
         </div>
 
       </div>

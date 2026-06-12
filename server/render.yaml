@@ -1,0 +1,13 @@
+# Render blueprint — deploys the LoopLab audio service.
+# In Render: New + → Blueprint → point at this repo. It picks this file up.
+services:
+  - type: web
+    name: looplab-audio
+    runtime: docker
+    rootDir: server
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ALLOWED_ORIGIN
+        sync: false   # set this to your GitHub Pages origin after first deploy
