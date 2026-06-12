@@ -23,9 +23,11 @@ export function voiceFor(partName) {
   if (n.includes('reese') || (n.includes('mid') && n.includes('bass'))) return 'reese'
   if (n.includes('sub') || n.includes('bass')) return 'bass'
   if (n.includes('rumble')) return 'kick'
-  if (n.includes('fx') || n.includes('riser') || n.includes('atmos') || n.includes('texture')) return 'riser'
   if (n.includes('bell')) return 'bell'
+  // Pad/chord/string/key takes precedence over atmos/fx so a "Pads/Atmos" track
+  // plays the held pad chords rather than a riser (which the groove may not define).
   if (n.includes('string') || n.includes('chord') || n.includes('pad') || n.includes('key')) return 'chord'
+  if (n.includes('fx') || n.includes('riser') || n.includes('atmos') || n.includes('texture')) return 'riser'
   if (n.includes('vocal') || n.includes('vox') || n.includes('voice') || n.includes('vocals')) return 'vox'
   if (n.includes('hoover') || n.includes('stab') || n.includes('rave') ||
       n.includes('acid')) return 'supersaw'
