@@ -44,11 +44,12 @@ export function usePlayer(id) {
     const onStep = s => setStep(s)
     if (kind === 'arrangement') {
       activeTransport = playArrangement(args.genreId, args.arrangement, args.tracks, {
-        onStep, startStep: args.startStep, clipsRef: args.clipsRef, mutedRef: args.mutedRef, bpm: args.bpm,
+        onStep, startStep: args.startStep, clipsRef: args.clipsRef, mutedRef: args.mutedRef,
+        gainsRef: args.gainsRef, bpm: args.bpm,
       })
     } else if (kind === 'custom') {
       activeTransport = playCustom(args.tracks, args.bars, args.bpm, {
-        onStep, gridRef: args.gridRef, mutedRef: args.mutedRef,
+        onStep, gridRef: args.gridRef, mutedRef: args.mutedRef, gainsRef: args.gainsRef,
         snareAsClap: args.snareAsClap, startStep: args.startStep,
       })
     } else if (kind === 'groove') {
