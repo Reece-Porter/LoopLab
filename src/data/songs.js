@@ -421,12 +421,13 @@ export const GENRE_SONGS = {
         { name: 'Hypno Stab', instrument: 'THE ringing bell riff (A–G#–F)', sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',      instrument: '(none — pure machine)',          sections: [0,0,0,0,0,0,0] },
       ],
-      // Am, 137 BPM. 5-note loop cycling against 16-step bar (Mills' odd-length trick).
-      // Notes: A4–G#4–F4–G#4–A4 constant 16ths through FM bell synth.
+      // Am, 137 BPM. 5-note loop cycling against the bar (Mills' odd-length
+      // trick). Notes A4–G#4–F4–G#4–A4 played as spaced 8th-note stabs — the
+      // riff "dings" with air between hits, not a rushed 16th stream.
       groove: {
-        bass:     { steps: on(0,2,4,6,8,10,12,14), notes: ['A1','A1','A1','A1','A1','A1','G1','G1'] },
+        bass:     { steps: on(0,4,8,12), notes: ['A1','A1','A1','G1'] },
         supersaw: {
-          steps: on(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15),
+          steps: on(0,2,4,6,8,10,12,14),
           notes: ['A4','G#4','F4','G#4','A4'],
           bell: true,
         },
