@@ -37,8 +37,8 @@ export const GENRE_GROOVES = {
       // Supersaw lead — arpeggiated Am hook, call and answer over 2 bars
       supersaw:{ steps: on2(0,3,6,8,11,14, 16,19,22,24,27,30),
                  notes: ['A4','C5','E5','C5','A4','G4', 'F4','A4','C5','E5','D5','C5'] },
-      // Wide pad holding one chord per bar — gain keeps it under the lead
-      chord:   { steps: on2(0,8,16,24), chords: ['Am','F','C','G'], pad: true, gain: 0.4 },
+      // Pumping supersaw chord stab every beat — the Eurodance signature
+      chord:   { steps: on2(0,4,8,12,16,20,24,28), chords: ['Am','Am','F','F','C','C','G','G'], rave: true, gain: 0.55 },
       // Melodic keys line doubling the hook (replaces goofy vocal synth)
       vox:     { steps: on2(0,4,8,12, 16,20,24,28), notes: ['E5','C5','A4','G4','E5','D5','C5','A4'] },
       riser:   { steps: on(0), notes: ['A4'] },

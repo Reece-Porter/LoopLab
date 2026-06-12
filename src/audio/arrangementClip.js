@@ -61,7 +61,7 @@ export function grooveClip(voice, gp) {
     } else if (gp.chords) {
       const sym = gp.chords[hit % gp.chords.length]
       const freqs = sym ? chordToFreqs(sym, gp.pad ? 4 : 3) : null
-      clip[i] = { freqs, keys: !!gp.keys, pad: !!gp.pad, organ: !!gp.organ, rhodes: !!gp.rhodes, gain: gp.gain, level: freqs ? freqLevel(freqs[0]) : 0.6 }
+      clip[i] = { freqs, keys: !!gp.keys, pad: !!gp.pad, rave: !!gp.rave, organ: !!gp.organ, rhodes: !!gp.rhodes, gain: gp.gain, level: freqs ? freqLevel(freqs[0]) : 0.6 }
       hit++
     } else {
       const name = gp.notes ? gp.notes[hit % gp.notes.length] : null

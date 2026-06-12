@@ -194,6 +194,7 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
     if (evt.rhodes) return S.rhodes(ctx, t, out, evt.freqs, 0.24 * vg, stepDur * 7)
     if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24 * vg, evt.pad ? stepDur * 8 : stepDur * 3)
     if (evt.pad) return S.synthPad(ctx, t, out, evt.freqs, 0.20 * vg, stepDur * 12)
+    if (evt.rave) return S.supersawChord(ctx, t, out, evt.freqs, 0.30 * vg, stepDur * 3.8)
     if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.22 * vg, stepDur * 6)
     return S.chordStab(ctx, t, out, evt.freqs, 0.26 * vg, stepDur * 4, true)
   }

@@ -371,6 +371,28 @@ export function supersaw(context, time, out, freq, gain = 0.3, dur = 0.25) {
   })
 }
 
+// Supersaw chord — detuned saws per note, pumping Eurodance/trance pad stab.
+export function supersawChord(context, time, out, freqs, gain = 0.28, dur = 0.8) {
+  const detunes = [-10, -4, 0, 4, 10]
+  freqs.forEach(freq => {
+    const lp = context.createBiquadFilter()
+    lp.type = 'lowpass'
+    lp.frequency.setValueAtTime(5000, time)
+    lp.frequency.exponentialRampToValueAtTime(1800, time + dur * 0.6)
+    const g = envGain(context, time, gain / freqs.length, 0.006, dur, out)
+    lp.connect(g)
+    detunes.forEach(d => {
+      const osc = context.createOscillator()
+      osc.type = 'sawtooth'
+      osc.frequency.value = freq
+      osc.detune.value = d
+      osc.connect(lp)
+      osc.start(time)
+      osc.stop(time + dur + 0.1)
+    })
+  })
+}
+
 // Growling Reese bass — two detuned saws through a moving lowpass. DnB staple.
 export function reese(context, time, out, freq, gain = 0.4, dur = 0.5) {
   const g = envGain(context, time, gain, 0.01, dur, out)
