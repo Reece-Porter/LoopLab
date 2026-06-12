@@ -155,22 +155,47 @@ export const GENRE_GROOVES = {
     },
   },
 
-  // ---- Hard Groove: Ben Sims / tribal techno — Dm, percussion-led ----
+  // ---- Hard Groove: built from the Julien Earle tutorial — Dm, 140 BPM ----
+  // Percussion-led tribal techno. The engine room is a rolling 16th-note perc
+  // gallop that dodges the kick, dense off-beat open hats, and a rolling
+  // Operator bass — all developing over a 4-bar cycle with fills instead of a
+  // single repeating bar. Dark off-beat groove stabs and chopped vocal stabs
+  // sit on top. Heavy shuffle swing gives it the hardgroove bounce.
   'hard-groove': {
-    bpm: 135,
-    swing: 0,
+    bpm: 140,
+    swing: 0.16,
     voices: {
+      // Relentless 4-on-the-floor — the foundation (loops every bar).
       kick:    { steps: on(0,4,8,12), tone: '909' },
-      clap:    { steps: on(4,12) },
-      hat:     { steps: on(2,6,10,14), open: true, tone: '909' },
-      // Rolling conga tribal engine
-      perc:    { steps: on(2,3,5,7,10,11,13,15), tone: 'conga' },
-      // Syncopated bass locked to congas
-      bass:    { steps: on(0,3,6,10,14), notes: ['D2','D2','A1','D2','F2'] },
-      // Dark synth chord stabs — off-beat, letting the percussion breathe
-      supersaw:{ steps: on2(2,10,18,26), chords: ['Dm','Dm','Am','Dm'] },
-      // Sparse keys phrase in Dm (replaces goofy vocal synth)
-      vox:     { steps: on2(1,9,17,25), notes: ['D5','A4','F5','D5'] },
+      // Backbeat clap with a ghost-roll turnaround in bar 4.
+      clap:    { steps: on4(4,12, 20,28, 36,44, 52,60, 62) },
+      // Dense driving hats — off-beat opens with a 16th flutter into the loop.
+      hat:     { steps: on4(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30,
+                           32,34,36,38,40,42,44,46, 48,50,52,54,56,58,60, 61,62,63),
+                 open: true, tone: '909' },
+      // Rolling tribal conga/tom gallop that fills the 16th gaps around the
+      // kick and busies up with a tom fill over the 4-bar cycle.
+      perc:    { steps: on4(2,3,6,7,10,11,14,15,
+                           18,19,22,23,26,27,29,30,31,
+                           34,35,38,39,42,43,46,47,
+                           50,51,54,55,58,59,61,62,63),
+                 tone: 'conga' },
+      // Rolling Operator bass in Dm — off-beat 16th gallop, mostly the root
+      // with passing notes and a walk-up turnaround in bar 4.
+      bass:    { steps: on4(2,3,6,7,10,11,14,15,
+                           18,19,22,23,26,27,30,31,
+                           34,35,38,39,42,43,46,47,
+                           50,51,54,55,58,59,62,63),
+                 notes: ['D2','D2','D2','D2','D2','D2','A1','D2',
+                         'D2','D2','F2','D2','D2','D2','A1','C2',
+                         'D2','D2','D2','D2','D2','D2','A1','D2',
+                         'D2','D2','F2','D2','G2','F2','E2','D2'] },
+      // Dark off-beat synth chord stabs — let the percussion breathe.
+      supersaw:{ steps: on4(2,10, 18,26, 34,42, 50,58),
+                 chords: ['Dm','Dm','Am','Dm','Dm','Dm','Gm','Am'] },
+      // Chopped vocal-stab hook (soft keys) — rhythmic off-beat hits in Dm.
+      vox:     { steps: on4(6,14, 22,30, 38,46, 54,62),
+                 notes: ['A4','D5','A4','F5','A4','D5','A4','D5'] },
     },
   },
 
