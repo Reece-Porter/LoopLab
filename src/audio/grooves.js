@@ -305,22 +305,69 @@ export const GENRE_GROOVES = {
     },
   },
 
-  // ---- Speed Garage: Double 99 / 187 Lockdown — Gm, 4×4 + sub bends ----
+  // ---- Speed Garage: Julien Earle 2005 tutorial — Gm, 138 BPM, heavy swing ----
+  // Built from the tutorial video. Authentic UK speed garage: 4-on-the-floor 909
+  // kick, syncopated shuffle hats, rolling warping Reese bass, one sub thump per bar,
+  // M1 organ stabs one chord per bar, pitched vocal chops. 4-bar (64-step) cycle.
+  // Chord progression Gm–Cm–Eb–D7 (i–iv–VI–V7).
   'speed-garage': {
-    bpm: 138,
-    swing: 0.25,
+    bpm: 138, swing: 0.25,
     voices: {
-      kick:    { steps: on(0,4,8,12), tone: '909' },
-      snare:   { steps: on(4,12), tone: 'garage' },
-      hat:     { steps: on(2,5,7,10,13,15), open: true, tone: '909' },
-      perc:    { steps: on(3,11), tone: 'conga' },
-      // Warping Reese sub — octave drops, the RIP groove
-      reese:   { steps: on2(0,3,8,11, 16,19,24,30), notes: ['G1','G2','G1','A#1','G1','G2','F1','G1'] },
-      bass:    { steps: on2(0,8,16,24), notes: ['G1','G1','F1','G1'], long: true, sub: true },
-      // M1 organ stabs — the garage signature sound
-      piano:   { steps: on2(2,10, 18,27), chords: ['Gm7','Gm7','Cm7','D7'], organ: true },
-      // Melodic keys line in Gm (replaces goofy vocal synth)
-      vox:     { steps: on2(0,6,16,22), notes: ['G4','A#4','D5','C5'] },
+      kick: { steps: on(0,4,8,12), tone: '909' },
+      // Garage snare on 2&4, ghost fills build into bar 4
+      snare: {
+        steps: on4(4,12, 20,28, 36,44, 52,56,60),
+        tone: 'garage',
+      },
+      // Classic speed garage shuffle hat — syncopated 16th-note pattern
+      hat: {
+        steps: on2(2,5,7,10,13,15, 18,21,23,26,29,31),
+        open: true, tone: '909',
+      },
+      perc: { steps: on2(3,11,27,31), tone: 'conga' },
+      // Rolling Reese bass tracking Gm–Cm–Eb–D7 over 4 bars
+      // Notes from video piano roll: C2, F1, Eb1 bass movement in G minor
+      reese: {
+        steps: on4(
+          0,3,6,10,14,
+          16,19,22,26,30,
+          32,35,38,42,46,
+          48,51,54,58,62
+        ),
+        notes: [
+          'G1','G2','G1','D2','F1',
+          'C2','C2','Bb1','G1','Eb2',
+          'Eb2','Eb1','Bb1','G1','D2',
+          'D2','C2','Bb1','A1','G1',
+        ],
+      },
+      // Deep sub thump on the "1" of each bar — root of each chord
+      bass: {
+        steps: on4(0, 16, 32, 48),
+        notes: ['G1','C1','Eb1','D1'],
+        long: true, sub: true,
+      },
+      // M1 organ stabs: off-beat every "and", one chord per bar
+      piano: {
+        steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,54,58,62),
+        chords: [
+          'Gm7','Gm7','Gm7','Gm7',
+          'Cm7','Cm7','Cm7','Cm7',
+          'Ebmaj7','Ebmaj7','Ebmaj7','Ebmaj7',
+          'D7','D7','D7','D7',
+        ],
+        organ: true,
+      },
+      // Pitched vocal chops in G minor — 3 syncopated hits per bar
+      vox: {
+        steps: on4(6,10,14, 22,26,30, 38,42,46, 54,58,62),
+        notes: [
+          'G5','D5','Bb4',
+          'G5','D5','Bb4',
+          'Eb5','Bb4','G4',
+          'D5','G5','D5',
+        ],
+      },
     },
   },
 
