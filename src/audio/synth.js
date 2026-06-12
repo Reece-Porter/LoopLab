@@ -616,57 +616,47 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
   })
 }
 
-// FM bell — clean metallic tone, sharp attack, long natural decay, light delay.
-// Replaces the harsh ring-mod version which sounded too robotic/distorted.
-export function bell(context, time, out, freq, gain = 0.3, dur = 1.6) {
-  // FM synthesis: sine carrier + sine modulator at inharmonic ratio → metallic shimmer
-  const modFreq = freq * 3.5
-  const modIdx  = freq * 1.8
+// Metallic bell tone — triangle fundamental + detuned sine partial for shimmer.
+// Sharp percussive strike, long ring-out, no distortion.
+export function bell(context, time, out, freq, gain = 0.3, dur = 2.0) {
+  const bus = context.createGain()
+  bus.gain.value = 1
 
-  const modOsc  = context.createOscillator()
-  modOsc.type = 'sine'
-  modOsc.frequency.value = modFreq
+  // Triangle fundamental — warm but with clear pitch
+  const tri = context.createOscillator()
+  tri.type = 'triangle'
+  tri.frequency.value = freq
+  const triG = context.createGain()
+  triG.gain.value = 0.65
+  tri.connect(triG).connect(bus)
 
-  const modGain = context.createGain()
-  modGain.gain.setValueAtTime(modIdx, time)
-  modGain.gain.exponentialRampToValueAtTime(modIdx * 0.05, time + dur * 0.5)
-  modOsc.connect(modGain)
+  // Slightly detuned sine an octave up — adds shimmer/metallic ring
+  const upper = context.createOscillator()
+  upper.type = 'sine'
+  upper.frequency.value = freq * 2.01
+  const upG = context.createGain()
+  upG.gain.value = 0.35
+  upper.connect(upG).connect(bus)
 
-  const carrier = context.createOscillator()
-  carrier.type = 'sine'
-  carrier.frequency.value = freq
-  modGain.connect(carrier.frequency)
-
-  // Amp envelope: instant attack, long exponential ring-out
+  // Sharp strike, long exponential decay
   const env = context.createGain()
   env.gain.setValueAtTime(0, time)
-  env.gain.linearRampToValueAtTime(gain, time + 0.003)
+  env.gain.linearRampToValueAtTime(gain, time + 0.002)
   env.gain.exponentialRampToValueAtTime(0.0001, time + dur)
-  carrier.connect(env)
+  bus.connect(env).connect(out)
 
-  // Bright high shelf to keep the bell cutting through the mix
-  const shelf = context.createBiquadFilter()
-  shelf.type = 'highshelf'
-  shelf.frequency.value = 3000
-  shelf.gain.value = 5
-  env.connect(shelf)
-
-  // Short tempo-synced delay — 3/16 at 137 BPM ≈ 0.33s
+  // Dotted-8th delay at 137 BPM (≈ 0.22s) with gentle feedback
   const dly = context.createDelay(1)
-  dly.delayTime.value = 0.33
+  dly.delayTime.value = 0.22
   const fb = context.createGain()
-  fb.gain.value = 0.28
+  fb.gain.value = 0.22
   const wet = context.createGain()
-  wet.gain.value = 0.4
-  shelf.connect(dly)
+  wet.gain.value = 0.35
+  env.connect(dly)
   dly.connect(fb).connect(dly)
-  dly.connect(wet)
+  dly.connect(wet).connect(out)
 
-  shelf.connect(out)
-  wet.connect(out)
-
-  modOsc.start(time); modOsc.stop(time + dur + 0.1)
-  carrier.start(time); carrier.stop(time + dur + 0.1)
+  ;[tri, upper].forEach(o => { o.start(time); o.stop(time + dur + 0.5) })
 }
 
 // Lush detuned-saw trance pad — slow attack, airy octave, no muddiness.
