@@ -305,47 +305,41 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
 // Percussive amp envelope — fast attack, sustain 0 — with the fundamental
 // ringing slightly longer than the metallic partials, like a struck bell.
 export function bell(context, time, out, freq, gain = 0.28, dur = 0.5) {
-  const ratio = 2.76 // inharmonic modulator ratio → bell-like metallic sidebands
+  // Roland System 100m-style ring-mod bell (as in Jeff Mills "The Bells").
+  // Ratio 2.4 gives the characteristic inharmonic metallic clang without
+  // sounding too clangorous — the fundamental stays clearly audible underneath.
+  const ratio = 2.4
 
-  // Metallic ring-modulated layer: carrier × modulator (gain modulated around
-  // zero = ring modulation). Decays faster than the body, as in a real bell.
-  const carrier = context.createOscillator()
-  carrier.type = 'sine'
-  carrier.frequency.value = freq
-  const mod = context.createOscillator()
-  mod.type = 'sine'
-  mod.frequency.value = freq * ratio
-  const ring = context.createGain()
-  ring.gain.value = 0
-  mod.connect(ring.gain)
-  carrier.connect(ring)
+  // Ring-modulated attack transient — sharp hit, fades to the body quickly.
+  const carrier = context.createOscillator(); carrier.type = 'sine'; carrier.frequency.value = freq
+  const mod     = context.createOscillator(); mod.type     = 'sine'; mod.frequency.value     = freq * ratio
+  const ring    = context.createGain();       ring.gain.value = 0
+  mod.connect(ring.gain); carrier.connect(ring)
   const metalEnv = context.createGain()
   metalEnv.gain.setValueAtTime(0, time)
-  metalEnv.gain.linearRampToValueAtTime(gain * 0.8, time + 0.002)
-  metalEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.55)
+  metalEnv.gain.linearRampToValueAtTime(gain * 1.1, time + 0.002)
+  metalEnv.gain.exponentialRampToValueAtTime(gain * 0.15, time + dur * 0.12)
+  metalEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.6)
   ring.connect(metalEnv).connect(out)
 
-  // Clean fundamental sine — carries the perceived pitch, rings the longest.
-  const fund = context.createOscillator()
-  fund.type = 'sine'
-  fund.frequency.value = freq
+  // Pure sine fundamental — long sustain, carries the pitch through the bar.
+  const fund = context.createOscillator(); fund.type = 'sine'; fund.frequency.value = freq
   const fundEnv = context.createGain()
   fundEnv.gain.setValueAtTime(0, time)
-  fundEnv.gain.linearRampToValueAtTime(gain * 0.6, time + 0.003)
+  fundEnv.gain.linearRampToValueAtTime(gain * 0.7, time + 0.004)
+  fundEnv.gain.exponentialRampToValueAtTime(gain * 0.25, time + dur * 0.35)
   fundEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur)
   fund.connect(fundEnv).connect(out)
 
-  // Octave shimmer — quiet and short, adds the bright "ting" of the attack.
-  const oct = context.createOscillator()
-  oct.type = 'sine'
-  oct.frequency.value = freq * 2
-  const octEnv = context.createGain()
-  octEnv.gain.setValueAtTime(0, time)
-  octEnv.gain.linearRampToValueAtTime(gain * 0.22, time + 0.002)
-  octEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.4)
-  oct.connect(octEnv).connect(out)
+  // 5th partial — adds body and the "church bell" quality.
+  const fifth = context.createOscillator(); fifth.type = 'sine'; fifth.frequency.value = freq * 1.5
+  const fifthEnv = context.createGain()
+  fifthEnv.gain.setValueAtTime(0, time)
+  fifthEnv.gain.linearRampToValueAtTime(gain * 0.18, time + 0.003)
+  fifthEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.45)
+  fifth.connect(fifthEnv).connect(out)
 
-  ;[carrier, mod, fund, oct].forEach(o => { o.start(time); o.stop(time + dur + 0.05) })
+  ;[carrier, mod, fund, fifth].forEach(o => { o.start(time); o.stop(time + dur + 0.1) })
 }
 
 // Lush detuned-saw trance pad — slow attack, airy octave, no muddiness.

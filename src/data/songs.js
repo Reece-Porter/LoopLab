@@ -429,26 +429,29 @@ export const GENRE_SONGS = {
       title: 'The Bells',
       artist: 'Jeff Mills',
       year: 1996,
-      bpm: 138,
+      bpm: 136,
       key: 'A minor',
       tracks: [
-        { name: 'Kick',       instrument: 'Distorted TR-909 kick (4/4)',     sections: [1,1,1,1,1,1,1] },
-        { name: 'Hi-Hats',    instrument: '909 open hats, offbeat 8ths',     sections: [0,1,1,1,1,1,1] },
-        { name: 'Percussion', instrument: '909 claps through delay',         sections: [0,0,1,0,1,1,1] },
-        { name: 'Sub Bass',   instrument: 'Pumping A sub',                    sections: [0,1,1,0,1,1,0] },
-        { name: 'Hypno Stab', instrument: 'THE bell riff — Am triad stabs',  sections: [0,1,1,1,1,1,0] },
-        { name: 'Vocal',      instrument: '(none — pure machine)',           sections: [0,0,0,0,0,0,0] },
+        { name: 'Kick',       instrument: 'Hammering TR-909 kick (4/4)',      sections: [1,1,1,1,1,1,1] },
+        { name: 'Hi-Hats',    instrument: '909 open hats, offbeat 8ths',      sections: [0,1,1,1,1,1,1] },
+        { name: 'Percussion', instrument: '909 claps through delay',          sections: [0,0,1,0,1,1,1] },
+        { name: 'Sub Bass',   instrument: 'Pounding A1 sub pulse',            sections: [0,1,1,0,1,1,0] },
+        { name: 'Bell Riff',  instrument: 'System 100m ring-mod bell (THE riff)', sections: [0,1,1,1,1,1,0] },
+        { name: 'Vocal',      instrument: '(none — pure machine)',            sections: [0,0,0,0,0,0,0] },
       ],
-      // A minor, 137.5 BPM. Ring-modulated sine bell (see synth.js bell()). The
-      // riff is the real thing: a 5-note cell A–G#–A–F–A on a 16th grid, but
-      // laid on an ODD 7-step rhythm with muted steps, so the accents drift and
-      // it "floats" instead of marching — the constant high A with G#/F moving
-      // underneath. Not an even run; the gaps and syncopation are the riff.
+      // Confirmed 136 BPM, A minor. Ring-modulated sine bell (Roland System 100m
+      // style — see synth.js bell()). The 5-note cell A–G#–A–F–A comes from the
+      // Attack Magazine Synth Secrets analysis; G# is correct (harmonic minor
+      // leading tone → A gives the riff its tension and release).
+      // The riff runs over a 2-bar phrase (32 steps). A 9-hit cycle placed so it
+      // doesn't divide evenly into the 4/4 grid is what makes it "float" — the
+      // downbeats keep drifting forward each time round, exactly as in the record.
+      // Bell sustain is set long (~10 × stepDur) so notes bleed into each other.
       groove: {
-        bass:     { steps: on(0,4,8,12), notes: ['A1','A1','A1','G1'] },
+        bass: { steps: on(0,4,8,12), notes: ['A1'] },
         supersaw: {
-          steps: on(0,2,3,5,6,7,9,10,12,13,14),
-          notes: ['A4','G#4','A4','F4','A4'],
+          steps: on2(0,4,7,11,14,18,21,25,28),
+          notes: ['A4','G#4','A4','F4','A4','G#4','A4','F4','A4'],
           bell: true,
         },
       },
