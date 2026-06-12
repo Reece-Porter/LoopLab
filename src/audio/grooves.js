@@ -521,21 +521,50 @@ export const GENRE_GROOVES = {
     },
   },
 
-  // ---- Hard Techno: Sara Landry / 999999999 — Em, distorted assault ----
+  // ---- Hard Techno: Julien Earle "Shots" — Em, 150 BPM, distorted assault ----
+  // Built from the tutorial video. Distorted hard 4-on-floor kick, 909 claps/hats/
+  // ride, a relentless distorted offbeat bass riff, and screaming rave-loop hoover
+  // stabs that develop. 4-bar (64-step) cycle. Em with a G/D lift.
   'hard-techno': {
-    bpm: 150,
-    swing: 0,
+    bpm: 150, swing: 0,
     voices: {
-      kick:    { steps: on(0,4,8,12), tone: 'hard' },
-      clap:    { steps: on(4,12) },
-      hat:     { steps: on(2,6,10,14), open: true, tone: '909' },
-      perc:    { steps: on(7,15), tone: '909' },
-      // Relentless off-beat acid bass — squelching TB-303
-      bass:    { steps: on(2,6,10,14), notes: ['E2','E2','E2','B1'], acid: true, accents: [2,10] },
-      // Hoover screech — syncopated hard techno rave noise
-      supersaw:{ steps: on2(0,12,16,28), notes: ['E4','G4','E4','B4'], hoover: true },
-      // Sparse melodic keys phrase in Em (replaces goofy vocal synth)
-      vox:     { steps: on2(2,18), notes: ['E5','B4'] },
+      kick: { steps: on(0,4,8,12), tone: 'hard' },
+      // Clap on 2&4 with a ghost roll into bar 4
+      clap: { steps: on4(4,12, 20,28, 36,44, 52,56,60), tone: '909' },
+      // Offbeat opens with a 16th flutter building into bar 4
+      hat: {
+        steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,53,54,57,58,61,62),
+        open: true, tone: '909',
+      },
+      // Rolling 909 ride/shaker gallop developing over 4 bars
+      perc: { steps: on4(7,15, 23,27,31, 39,47, 51,55,59,63), tone: '909' },
+      // Relentless distorted offbeat acid bass riff in Em, walking and developing
+      bass: {
+        steps: on4(
+          2,6,10,14,
+          18,22,26,30,
+          34,38,42,46,
+          50,54,58,62,
+        ),
+        notes: [
+          'E2','E2','E2','B1',
+          'E2','E2','G2','E2',
+          'E2','E2','E2','D2',
+          'C2','C2','D2','E2',
+        ],
+        acid: true, accents: [2,10, 18,26, 34,42, 50,58],
+      },
+      // Screaming rave-loop hoover stabs — syncopated, developing Em–G–D–Em
+      supersaw: {
+        steps: on4(0,12, 16,28, 32,44, 48,60),
+        notes: ['E4','G4', 'G4','B4', 'D4','A4', 'E4','B4'],
+        hoover: true,
+      },
+      // Sparse melodic keys phrase in Em, developing over 4 bars
+      vox: {
+        steps: on4(2, 18, 34, 50,58),
+        notes: ['E5', 'B4', 'D5', 'G4','E5'],
+      },
     },
   },
 
