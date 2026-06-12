@@ -371,19 +371,50 @@ export const GENRE_GROOVES = {
     },
   },
 
-  // ---- Bouncy Techno: 240km/h / Adrian Mills — Am, relentless donk ----
+  // ---- Hard Bounce: Julien Earle "World Bounce" / donk — Am, 150 BPM ----
+  // Built from the tutorial video. UK hard bounce / donk: hard distorted 4-on-floor
+  // kick, busy offbeat hats, the signature bouncing donk walking up/down the A-minor
+  // scale, euphoric rave-stab riff, pitched vocal hook. 4-bar (64-step) cycle.
+  // Chord progression Am–G–F–G (i–VII–VI–VII).
   'bouncy-techno': {
-    bpm: 165,
-    swing: 0,
+    bpm: 150, swing: 0,
     voices: {
-      kick:    { steps: on(0,4,8,12), tone: '909' },
-      clap:    { steps: on(4,12) },
-      hat:     { steps: on(2,6,10,14), open: true, tone: '909' },
-      donk:    { steps: on(0,2,4,6,8,10,12,14), notes: ['A2','A3','A2','A3','G2','G3','A2','A3'] },
-      // Rave chord stabs every half-bar — punchy and full, not single-note thin
-      supersaw:{ steps: on2(0,8,16,24), chords: ['Am','G','Am','C'] },
-      // Melodic keys over the stabs in Am (replaces goofy vocal synth)
-      vox:     { steps: on2(0,4,8,12,16,20,24,28), notes: ['A4','E5','C5','A4','G4','E5','C5','A4'] },
+      kick: { steps: on(0,4,8,12), tone: 'hard' },
+      // Clap on 2&4 with a ghost roll into bar 4
+      clap: { steps: on4(4,12, 20,28, 36,44, 52,56,60), tone: '909' },
+      hat: { steps: on(2,6,10,14), open: true, tone: '909' },
+      // THE donk — relentless 8th-note bounce, octave-jumping and walking the
+      // A-minor scale through the chord changes over 4 bars
+      donk: {
+        steps: on4(
+          0,2,4,6,8,10,12,14,
+          16,18,20,22,24,26,28,30,
+          32,34,36,38,40,42,44,46,
+          48,50,52,54,56,58,60,62
+        ),
+        notes: [
+          'A2','A3','A2','A3','E3','E2','A2','A3',
+          'G2','G3','G2','G3','D3','D2','G2','G3',
+          'F2','F3','F2','F3','C3','C2','F2','F3',
+          'G2','G3','G2','G3','D3','D2','G2','A3',
+        ],
+      },
+      // Euphoric rave-stab riff — full chord stabs, one chord per bar plus a
+      // mid-bar push, progressing Am–G–F–G
+      supersaw: {
+        steps: on4(0,8, 16,24, 32,40, 48,56),
+        chords: ['Am','Am', 'G','G', 'F','F', 'G','G'],
+      },
+      // Pitched rave-lead vocal hook in A minor, evolving over 4 bars
+      vox: {
+        steps: on4(0,4,8,12, 16,20,24,28, 32,36,40,44, 48,52,56,60),
+        notes: [
+          'A4','E5','C5','A4',
+          'G4','D5','B4','G4',
+          'F4','C5','A4','F4',
+          'G4','D5','E5','A4',
+        ],
+      },
     },
   },
 
