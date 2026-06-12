@@ -165,18 +165,30 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
     return
   }
   if (evt.drum) {
-    if (voice === 'kick') return S.kick(ctx, t, out, 1)
+    const tone = evt.tone
+    if (voice === 'kick') return S.kick(ctx, t, out, 1, tone)
     if (voice === 'clap') return S.clap(ctx, t, out, 0.6)
-    if (voice === 'perc') return S.hat(ctx, t, out, 0.32, true)
-    if (voice === 'snare') return (snareAsClap ? S.clap : S.snare)(ctx, t, out, 0.6)
-    if (voice === 'hat') return S.hat(ctx, t, out, 0.3, !!evt.open)
+    if (voice === 'perc') {
+      if (tone === 'conga') return S.conga(ctx, t, out, 0.45, 200 + (evt.level || 0.5) * 80)
+      return S.hat(ctx, t, out, 0.32, true, tone)
+    }
+    if (voice === 'snare') return (snareAsClap ? S.clap : S.snare)(ctx, t, out, 0.6, tone)
+    if (voice === 'hat') {
+      if (evt.roll) { // trap roll: fast retrigs filling the step
+        for (let r = 0; r < evt.roll; r++) S.hat(ctx, t + (r * stepDur) / evt.roll, out, 0.22, false, tone)
+        return
+      }
+      return S.hat(ctx, t, out, 0.3, !!evt.open, tone)
+    }
     if (voice === 'break') {
       const isSnare = evt.breakSnare || (evt.breakStep != null && evt.breakStep % 8 >= 4)
-      return isSnare ? S.snare(ctx, t, out, 0.55) : S.kick(ctx, t, out, 0.9)
+      return isSnare ? S.snare(ctx, t, out, 0.55, evt.tone || 'dnb') : S.kick(ctx, t, out, 0.9, evt.tone || 'dnb')
     }
-    return S.kick(ctx, t, out, 1)
+    return S.kick(ctx, t, out, 1, tone)
   }
   if (evt.freqs) {
+    if (evt.organ) return S.organ(ctx, t, out, evt.freqs, 0.3, stepDur * 2.5)
+    if (evt.rhodes) return S.rhodes(ctx, t, out, evt.freqs, 0.24, stepDur * 7)
     if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24, evt.pad ? stepDur * 8 : stepDur * 3)
     if (evt.pad) return S.synthPad(ctx, t, out, evt.freqs, 0.20, stepDur * 12)
     if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.22, stepDur * 6)
@@ -187,6 +199,8 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
     const f = evt.freq
     if (evt.bell) return S.bell(ctx, t, out, f, 0.32, stepDur * 4)
     if (evt.hoover) return S.hoover(ctx, t, out, f, 0.26, stepDur * 2.2)
+    if (evt.acid) return S.acid(ctx, t, out, f, 0.38, stepDur * 1.7, evt.accent)
+    if (evt.sub) return S.sub(ctx, t, out, f, 0.55, evt.long ? stepDur * 6 : stepDur * 2)
     if (voice === 'reese') return S.reese(ctx, t, out, f, 0.4, stepDur * 3)
     if (voice === 'donk') return S.donk(ctx, t, out, f, 0.5, stepDur * 1.4)
     if (voice === 'eight08') return S.eight08(ctx, t, out, f, 0.9, evt.long ? stepDur * 6 : 0.5)

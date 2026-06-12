@@ -33,20 +33,180 @@ function envGain(context, time, peak, attack, decay, out) {
   return g
 }
 
-export function kick(context, time, out, gain = 1) {
+// Kick with genre-authentic tone variants:
+//  '909'   — TR-909 club kick: punchy sweep + attack click (house/techno/eurodance)
+//  '808'   — TR-808 boom: low, long sine with drive (trap/hip-hop)
+//  'rumble'— modern techno kick: 909 + saturated low rumble tail
+//  'hard'  — distorted hard-techno/schranz kick: heavily driven, aggressive
+//  'lofi'  — dusty boom-bap thump: round, soft, lowpassed
+//  'dnb'   — tight punchy break kick: short and clicky
+export function kick(context, time, out, gain = 1, tone = '909') {
   const osc = context.createOscillator()
   osc.type = 'sine'
+
+  if (tone === '808') {
+    osc.frequency.setValueAtTime(95, time)
+    osc.frequency.exponentialRampToValueAtTime(48, time + 0.09)
+    const shaper = context.createWaveShaper()
+    shaper.curve = makeDistortion(4)
+    const g = envGain(context, time, gain, 0.002, 0.55, out)
+    osc.connect(shaper).connect(g)
+    osc.start(time); osc.stop(time + 0.65)
+    return
+  }
+
+  if (tone === 'hard') {
+    osc.frequency.setValueAtTime(165, time)
+    osc.frequency.exponentialRampToValueAtTime(46, time + 0.1)
+    const shaper = context.createWaveShaper()
+    shaper.curve = makeDistortion(30)
+    const g = envGain(context, time, gain * 1.1, 0.001, 0.4, out)
+    osc.connect(shaper).connect(g)
+    osc.start(time); osc.stop(time + 0.5)
+    // gritty attack click
+    clickNoise(context, time, out, gain * 0.5, 2500, 0.02)
+    return
+  }
+
+  if (tone === 'rumble') {
+    // main punch
+    osc.frequency.setValueAtTime(150, time)
+    osc.frequency.exponentialRampToValueAtTime(50, time + 0.1)
+    const g = envGain(context, time, gain, 0.001, 0.3, out)
+    osc.connect(g)
+    osc.start(time); osc.stop(time + 0.4)
+    // saturated rumble tail filling the low end between kicks
+    const tail = context.createOscillator()
+    tail.type = 'sine'
+    tail.frequency.setValueAtTime(55, time + 0.02)
+    tail.frequency.exponentialRampToValueAtTime(42, time + 0.3)
+    const shaper = context.createWaveShaper()
+    shaper.curve = makeDistortion(12)
+    const lp = context.createBiquadFilter()
+    lp.type = 'lowpass'; lp.frequency.value = 160
+    const tg = envGain(context, time + 0.02, gain * 0.5, 0.02, 0.34, out)
+    tail.connect(shaper).connect(lp).connect(tg)
+    tail.start(time + 0.02); tail.stop(time + 0.45)
+    clickNoise(context, time, out, gain * 0.35, 3000, 0.012)
+    return
+  }
+
+  if (tone === 'lofi') {
+    osc.frequency.setValueAtTime(105, time)
+    osc.frequency.exponentialRampToValueAtTime(52, time + 0.08)
+    const lp = context.createBiquadFilter()
+    lp.type = 'lowpass'; lp.frequency.value = 700
+    const g = envGain(context, time, gain * 0.9, 0.004, 0.22, out)
+    osc.connect(lp).connect(g)
+    osc.start(time); osc.stop(time + 0.3)
+    return
+  }
+
+  if (tone === 'dnb') {
+    osc.frequency.setValueAtTime(140, time)
+    osc.frequency.exponentialRampToValueAtTime(55, time + 0.05)
+    const g = envGain(context, time, gain, 0.001, 0.14, out)
+    osc.connect(g)
+    osc.start(time); osc.stop(time + 0.2)
+    clickNoise(context, time, out, gain * 0.4, 4000, 0.01)
+    return
+  }
+
+  // default '909' — punchy club kick with attack click
   osc.frequency.setValueAtTime(150, time)
   osc.frequency.exponentialRampToValueAtTime(50, time + 0.12)
   const g = envGain(context, time, gain, 0.001, 0.32, out)
   osc.connect(g)
   osc.start(time)
   osc.stop(time + 0.4)
+  clickNoise(context, time, out, gain * 0.25, 3500, 0.01)
 }
 
-export function snare(context, time, out, gain = 0.7) {
+// Short filtered noise burst — the attack "click" that makes kicks punch.
+function clickNoise(context, time, out, gain, hpFreq, dur) {
   const noise = context.createBufferSource()
   noise.buffer = getNoise(context)
+  const hp = context.createBiquadFilter()
+  hp.type = 'highpass'
+  hp.frequency.value = hpFreq
+  const g = envGain(context, time, gain, 0.0005, dur, out)
+  noise.connect(hp).connect(g)
+  noise.start(time)
+  noise.stop(time + dur + 0.02)
+}
+
+// Snare with genre-authentic tone variants:
+//  '909'  — classic club snare (default)
+//  'trap' — bright sharp crack, short
+//  'lofi' — dusty, soft, lowpassed boom-bap snare
+//  'dnb'  — tight layered break snare, hard crack
+//  'garage' — snappy UKG snare with a pitched ring
+export function snare(context, time, out, gain = 0.7, tone = '909') {
+  const noise = context.createBufferSource()
+  noise.buffer = getNoise(context)
+
+  if (tone === 'trap') {
+    const hp = context.createBiquadFilter()
+    hp.type = 'highpass'; hp.frequency.value = 2200
+    const g = envGain(context, time, gain * 1.05, 0.001, 0.13, out)
+    noise.connect(hp).connect(g)
+    noise.start(time); noise.stop(time + 0.16)
+    const osc = context.createOscillator()
+    osc.type = 'triangle'
+    osc.frequency.setValueAtTime(240, time)
+    osc.frequency.exponentialRampToValueAtTime(160, time + 0.05)
+    const g2 = envGain(context, time, gain * 0.4, 0.001, 0.07, out)
+    osc.connect(g2); osc.start(time); osc.stop(time + 0.1)
+    return
+  }
+
+  if (tone === 'lofi') {
+    const bp = context.createBiquadFilter()
+    bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = 0.8
+    const lp = context.createBiquadFilter()
+    lp.type = 'lowpass'; lp.frequency.value = 3200
+    const g = envGain(context, time, gain * 0.85, 0.002, 0.17, out)
+    noise.connect(bp).connect(lp).connect(g)
+    noise.start(time); noise.stop(time + 0.22)
+    const osc = context.createOscillator()
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(165, time)
+    const g2 = envGain(context, time, gain * 0.45, 0.002, 0.09, out)
+    osc.connect(g2); osc.start(time); osc.stop(time + 0.12)
+    return
+  }
+
+  if (tone === 'dnb') {
+    const hp = context.createBiquadFilter()
+    hp.type = 'highpass'; hp.frequency.value = 1900
+    const g = envGain(context, time, gain * 1.15, 0.001, 0.11, out)
+    noise.connect(hp).connect(g)
+    noise.start(time); noise.stop(time + 0.14)
+    const osc = context.createOscillator()
+    osc.type = 'triangle'
+    osc.frequency.setValueAtTime(220, time)
+    osc.frequency.exponentialRampToValueAtTime(170, time + 0.04)
+    const g2 = envGain(context, time, gain * 0.6, 0.001, 0.06, out)
+    osc.connect(g2); osc.start(time); osc.stop(time + 0.09)
+    return
+  }
+
+  if (tone === 'garage') {
+    const hp = context.createBiquadFilter()
+    hp.type = 'highpass'; hp.frequency.value = 1600
+    const g = envGain(context, time, gain, 0.001, 0.14, out)
+    noise.connect(hp).connect(g)
+    noise.start(time); noise.stop(time + 0.18)
+    const osc = context.createOscillator()
+    osc.type = 'triangle'
+    osc.frequency.setValueAtTime(330, time)
+    osc.frequency.exponentialRampToValueAtTime(190, time + 0.06)
+    const g2 = envGain(context, time, gain * 0.5, 0.001, 0.1, out)
+    osc.connect(g2); osc.start(time); osc.stop(time + 0.13)
+    return
+  }
+
+  // default '909'
   const hp = context.createBiquadFilter()
   hp.type = 'highpass'
   hp.frequency.value = 1500
@@ -54,7 +214,6 @@ export function snare(context, time, out, gain = 0.7) {
   noise.connect(hp).connect(g)
   noise.start(time)
   noise.stop(time + 0.25)
-  // tonal body
   const osc = context.createOscillator()
   osc.type = 'triangle'
   osc.frequency.setValueAtTime(180, time)
@@ -80,17 +239,47 @@ export function clap(context, time, out, gain = 0.6) {
   }
 }
 
-export function hat(context, time, out, gain = 0.4, open = false) {
+// Hi-hat with tone variants: '909' (default), 'trap' (tight ticky), 'lofi' (dusty soft).
+export function hat(context, time, out, gain = 0.4, open = false, tone = '909') {
   const noise = context.createBufferSource()
   noise.buffer = getNoise(context)
   const hp = context.createBiquadFilter()
   hp.type = 'highpass'
-  hp.frequency.value = 7000
-  const decay = open ? 0.3 : 0.05
+  let decay
+  if (tone === 'trap') {
+    hp.frequency.value = 8500
+    decay = open ? 0.22 : 0.03
+  } else if (tone === 'lofi') {
+    hp.frequency.value = 5500
+    decay = open ? 0.22 : 0.05
+    gain *= 0.75
+  } else {
+    hp.frequency.value = 7000
+    decay = open ? 0.3 : 0.05
+  }
   const g = envGain(context, time, gain, 0.001, decay, out)
   noise.connect(hp).connect(g)
   noise.start(time)
   noise.stop(time + decay + 0.05)
+}
+
+// Conga / tom for tribal percussion (hard groove, tech house) — pitched
+// short sine with a quick downward bend and a soft skin-slap transient.
+export function conga(context, time, out, gain = 0.45, freq = 220) {
+  const osc = context.createOscillator()
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(freq * 1.18, time)
+  osc.frequency.exponentialRampToValueAtTime(freq, time + 0.04)
+  const g = envGain(context, time, gain, 0.002, 0.16, out)
+  osc.connect(g)
+  osc.start(time); osc.stop(time + 0.22)
+  const noise = context.createBufferSource()
+  noise.buffer = getNoise(context)
+  const bp = context.createBiquadFilter()
+  bp.type = 'bandpass'; bp.frequency.value = freq * 6; bp.Q.value = 1.2
+  const ng = envGain(context, time, gain * 0.3, 0.001, 0.03, out)
+  noise.connect(bp).connect(ng)
+  noise.start(time); noise.stop(time + 0.06)
 }
 
 export function eight08(context, time, out, freq, gain = 0.9, dur = 0.6) {
@@ -274,6 +463,113 @@ export function donk(context, time, out, freq, gain = 0.5, dur = 0.18) {
   osc.connect(bp).connect(g)
   osc.start(time)
   osc.stop(time + dur + 0.05)
+}
+
+// TB-303 acid bass — saw through a resonant lowpass whose cutoff sweeps down
+// fast. `accent` opens the filter further and bumps the gain, like the 303's
+// accent knob. The squelch IS the cutoff envelope.
+export function acid(context, time, out, freq, gain = 0.38, dur = 0.22, accent = false) {
+  const osc = context.createOscillator()
+  osc.type = 'sawtooth'
+  osc.frequency.value = freq
+  const lp = context.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.Q.value = accent ? 14 : 9
+  const top = accent ? freq * 14 : freq * 8
+  lp.frequency.setValueAtTime(Math.min(8000, top), time)
+  lp.frequency.exponentialRampToValueAtTime(freq * 1.6, time + dur * 0.85)
+  const g = envGain(context, time, gain * (accent ? 1.25 : 1), 0.002, dur, out)
+  osc.connect(lp).connect(g)
+  osc.start(time)
+  osc.stop(time + dur + 0.05)
+}
+
+// Garage / house organ stab (M1-organ / Hammond flavour) — additive drawbar
+// sines (1, 2, 3, 4 ×) with a percussive 4× "key click" partial and a fast
+// shallow vibrato. The sound of UKG, speed garage and organ house.
+export function organ(context, time, out, freqs, gain = 0.3, dur = 0.3) {
+  const vib = context.createOscillator()
+  vib.frequency.value = 6.5
+  const vibAmt = context.createGain()
+  vibAmt.gain.value = 3.5
+  vib.connect(vibAmt)
+  vib.start(time); vib.stop(time + dur + 0.05)
+
+  const drawbars = [[1, 1.0], [2, 0.55], [3, 0.25], [4, 0.32]]
+  freqs.forEach(freq => {
+    drawbars.forEach(([mult, amp]) => {
+      const o = context.createOscillator()
+      o.type = 'sine'
+      o.frequency.value = freq * mult
+      vibAmt.connect(o.detune)
+      const g = envGain(context, time, (gain * amp) / freqs.length, 0.004, dur, out)
+      o.connect(g)
+      o.start(time); o.stop(time + dur + 0.05)
+    })
+    // percussive key-click partial — fast decay regardless of dur
+    const click = context.createOscillator()
+    click.type = 'sine'
+    click.frequency.value = freq * 4
+    const cg = envGain(context, time, (gain * 0.5) / freqs.length, 0.001, 0.06, out)
+    click.connect(cg)
+    click.start(time); click.stop(time + 0.1)
+  })
+}
+
+// Clean sine sub bass with gentle saturation — DnB / UKG / trap low end.
+export function sub(context, time, out, freq, gain = 0.55, dur = 0.5) {
+  const osc = context.createOscillator()
+  osc.type = 'sine'
+  osc.frequency.value = freq
+  const shaper = context.createWaveShaper()
+  shaper.curve = makeDistortion(3)
+  const g = context.createGain()
+  g.gain.setValueAtTime(0, time)
+  g.gain.linearRampToValueAtTime(gain, time + 0.01)
+  g.gain.setValueAtTime(gain, Math.max(time + 0.01, time + dur - 0.08))
+  g.gain.exponentialRampToValueAtTime(0.0001, time + dur)
+  g.connect(out)
+  osc.connect(shaper).connect(g)
+  osc.start(time)
+  osc.stop(time + dur + 0.05)
+}
+
+// Rhodes-style electric piano — sine fundamental + quiet bell tine partial
+// (≈3.5×) + slow tremolo. Warmer and more "played" than softKeys; the lo-fi
+// hip-hop and deep house chord sound.
+export function rhodes(context, time, out, freqs, gain = 0.24, dur = 0.8) {
+  const trem = context.createOscillator()
+  trem.frequency.value = 4.2
+  const tremAmt = context.createGain()
+  tremAmt.gain.value = 0.18
+  const tremBus = context.createGain()
+  tremBus.gain.value = 0.88
+  trem.connect(tremAmt).connect(tremBus.gain)
+  tremBus.connect(out)
+  trem.start(time); trem.stop(time + dur + 0.05)
+
+  freqs.forEach(freq => {
+    const fund = context.createOscillator()
+    fund.type = 'sine'
+    fund.frequency.value = freq
+    const fg = envGain(context, time, (gain * 0.9) / freqs.length, 0.006, dur, tremBus)
+    fund.connect(fg)
+    fund.start(time); fund.stop(time + dur + 0.05)
+
+    const tine = context.createOscillator()
+    tine.type = 'sine'
+    tine.frequency.value = freq * 3.52 // slightly inharmonic tine "ding"
+    const tg = envGain(context, time, (gain * 0.16) / freqs.length, 0.002, dur * 0.3, tremBus)
+    tine.connect(tg)
+    tine.start(time); tine.stop(time + dur * 0.4)
+
+    const oct = context.createOscillator()
+    oct.type = 'triangle'
+    oct.frequency.value = freq * 2
+    const og = envGain(context, time, (gain * 0.18) / freqs.length, 0.01, dur * 0.7, tremBus)
+    oct.connect(og)
+    oct.start(time); oct.stop(time + dur + 0.05)
+  })
 }
 
 // Hard, distorted rave-style hoover/stab for hard techno / schranz.
