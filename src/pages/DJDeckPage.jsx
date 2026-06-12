@@ -187,6 +187,8 @@ export default function DJDeckPage() {
   const [scUrl, setScUrl]         = useState('') // SoundCloud track URL (embed mode)
   const [backendUrl, setBackendUrl] = useState(() => localStorage.getItem('looplab-backend') || '')
   const [showBackend, setShowBackend] = useState(false)
+  const [backendStatus, setBackendStatus] = useState('unknown') // unknown | waking | ok | error
+  const [copied, setCopied]         = useState(false)
   const [streamUrl, setStreamUrl] = useState('') // SC/YT url loaded via backend
 
   const audioCtxRef  = useRef(null)
@@ -416,6 +418,27 @@ export default function DJDeckPage() {
     }
   }
 
+  // ── Wake + ping the backend ───────────────────────────────────────────────
+  async function wakeBackend(url) {
+    if (!url) return
+    const base = url.replace(/\/$/, '')
+    setBackendStatus('waking')
+    try {
+      const res = await fetch(`${base}/health`, { signal: AbortSignal.timeout(60000) })
+      setBackendStatus(res.ok ? 'ok' : 'error')
+    } catch {
+      setBackendStatus('error')
+    }
+  }
+
+  function copyBackendUrl() {
+    if (!backendUrl) return
+    navigator.clipboard.writeText(backendUrl).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    })
+  }
+
   // ── Drag-and-drop ─────────────────────────────────────────────────────────
   function onDrop(e) {
     e.preventDefault()
@@ -444,45 +467,120 @@ export default function DJDeckPage() {
               DJ Deck
             </h1>
           </div>
-          <button
-            onClick={() => setShowBackend(s => !s)}
-            className={`ml-auto text-xs px-3 py-1.5 rounded-lg border transition ${backendUrl ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-white/10 text-gray-400 hover:text-white'}`}
-          >
-            ⚙ Backend {backendUrl ? '✓' : ''}
-          </button>
+          <div className="ml-auto flex items-center gap-2">
+            {backendUrl && !showBackend && (
+              <button
+                onClick={copyBackendUrl}
+                title="Click to copy backend URL"
+                className="hidden sm:flex items-center gap-1.5 text-xs text-gray-500 hover:text-emerald-300 transition font-mono max-w-[220px] truncate"
+              >
+                <span className="truncate">{backendUrl.replace(/^https?:\/\//, '')}</span>
+                <span className="shrink-0">{copied ? '✓' : '⎘'}</span>
+              </button>
+            )}
+            <button
+              onClick={() => {
+                const next = !showBackend
+                setShowBackend(next)
+                if (next && backendUrl) wakeBackend(backendUrl)
+              }}
+              className={`text-xs px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 ${backendUrl ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-white/10 text-gray-400 hover:text-white'}`}
+            >
+              ⚙ Backend
+              {backendUrl && backendStatus === 'ok'    && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />}
+              {backendUrl && backendStatus === 'waking' && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />}
+              {backendUrl && backendStatus === 'error'  && <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />}
+            </button>
+          </div>
         </div>
+
+        {/* How-to banner */}
+        {!backendUrl && (
+          <div className="rounded-2xl border border-purple-500/20 bg-purple-900/10 p-5 mb-6">
+            <h2 className="text-sm font-bold text-purple-300 mb-3">How to download SoundCloud / YouTube tracks</h2>
+            <ol className="space-y-2.5 text-xs text-gray-300 leading-relaxed">
+              <li className="flex gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">1</span>
+                <span>Go to <a href="https://dashboard.render.com" target="_blank" rel="noreferrer" className="text-purple-300 underline hover:text-purple-200">dashboard.render.com</a> and sign in with GitHub.</span>
+              </li>
+              <li className="flex gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">2</span>
+                <span>Click <strong className="text-white">New +</strong> → <strong className="text-white">Blueprint</strong> → select your LoopLab repo. Render finds the config automatically — click <strong className="text-white">Apply</strong>.</span>
+              </li>
+              <li className="flex gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">3</span>
+                <span>Wait a few minutes for the first build. You'll get a URL like <code className="text-purple-300">https://looplab-audio.onrender.com</code></span>
+              </li>
+              <li className="flex gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">4</span>
+                <span>Click the <strong className="text-white">⚙ Backend</strong> button (top right), paste the URL, and hit <strong className="text-white">Save &amp; Wake</strong>.</span>
+              </li>
+              <li className="flex gap-2.5">
+                <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">5</span>
+                <span>Paste any SoundCloud or YouTube link into the Load box below — it downloads into the deck, EQ works, and you can re-download the processed file.</span>
+              </li>
+            </ol>
+            <p className="text-xs text-gray-600 mt-3">Already deployed? Click <strong className="text-gray-400">⚙ Backend</strong> above to paste your URL and get started.</p>
+          </div>
+        )}
 
         {/* Backend settings */}
         {showBackend && (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 mb-6">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">Downloader Backend</h2>
-            <p className="text-xs text-gray-500 mb-3 leading-relaxed">
-              Paste the URL of your deployed LoopLab audio service to enable SoundCloud / YouTube download + EQ.
-              See <code className="text-purple-300">server/README.md</code> for one-click Render deploy steps.
-            </p>
-            <div className="flex gap-2">
+          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-900/10 p-5 mb-6">
+            <h2 className="text-sm font-semibold text-emerald-300 uppercase tracking-widest mb-3">Downloader Backend</h2>
+
+            {/* Status row */}
+            <div className="flex items-center gap-2 mb-4">
+              {backendStatus === 'unknown' && <span className="text-xs text-gray-500">Not yet checked</span>}
+              {backendStatus === 'waking'  && <span className="text-xs text-amber-400 animate-pulse">⏳ Waking up Render… (can take ~40s on free tier)</span>}
+              {backendStatus === 'ok'      && <span className="text-xs text-emerald-400">✓ Backend is live and responding</span>}
+              {backendStatus === 'error'   && <span className="text-xs text-red-400">✗ Backend not reachable — check the URL or wait for Render to wake</span>}
+              {backendUrl && backendStatus !== 'waking' && (
+                <button
+                  onClick={() => wakeBackend(backendUrl)}
+                  className="ml-auto text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition"
+                >
+                  Wake now
+                </button>
+              )}
+            </div>
+
+            <div className="flex gap-2 mb-2">
               <input
                 type="text"
                 value={backendUrl}
                 onChange={e => setBackendUrl(e.target.value)}
                 placeholder="https://looplab-audio.onrender.com"
-                className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 transition"
+                className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 transition font-mono"
               />
               <button
-                onClick={() => { localStorage.setItem('looplab-backend', backendUrl.trim()); setShowBackend(false) }}
+                onClick={() => {
+                  const u = backendUrl.trim()
+                  localStorage.setItem('looplab-backend', u)
+                  setBackendStatus('unknown')
+                  setShowBackend(false)
+                  if (u) wakeBackend(u)
+                }}
                 className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-sm font-semibold transition"
               >
-                Save
+                Save &amp; Wake
               </button>
             </div>
-            {backendUrl && (
-              <button
-                onClick={() => { setBackendUrl(''); localStorage.removeItem('looplab-backend') }}
-                className="text-xs text-gray-500 hover:text-red-400 mt-2 transition"
-              >
-                Clear backend
-              </button>
-            )}
+
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-gray-600 leading-relaxed">
+                After deploying to Render, paste your service URL above — it looks like{' '}
+                <code className="text-emerald-300/70">https://looplab-audio.onrender.com</code>
+              </p>
+              {backendUrl && (
+                <button
+                  onClick={() => { setBackendUrl(''); setBackendStatus('unknown'); localStorage.removeItem('looplab-backend') }}
+                  className="text-xs text-gray-600 hover:text-red-400 ml-4 shrink-0 transition"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
         )}
 
