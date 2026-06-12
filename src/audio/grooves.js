@@ -199,22 +199,59 @@ export const GENRE_GROOVES = {
     },
   },
 
-  // ---- Hard House: Tidy Trax / Lisa Lashes — Cm, hoover + donk ----
+  // ---- Hard House: Tidy Trax / Lisa Lashes / Julien Earle — Cm, 142 BPM ----
+  // Built from the tutorial video. Authentic UK hard house: punchy 909 4-on-floor,
+  // wall-to-wall 16th hats (open on every "and-of-2"), offbeat octave bass tracking
+  // chord changes, pitched donk blips on every "and", one screaming hoover per bar,
+  // chopped vocal hook. Full 4-bar (64-step) developing cycle.
+  // Chord progression Cm–Ab–Eb–Bb (i–VI–III–VII).
   'hard-house': {
-    bpm: 150,
-    swing: 0,
+    bpm: 142, swing: 0.04,
     voices: {
-      kick:    { steps: on(0,4,8,12), tone: '909' },
-      clap:    { steps: on(4,12) },
-      hat:     { steps: on(2,6,10,14), open: true, tone: '909' },
-      // Driving off-beat octave bass
-      bass:    { steps: on(2,6,10,14), notes: ['C2','C2','G1','A#1'] },
-      // Donk on every off-8th
-      donk:    { steps: on(2,4,6,8,10,12,14), notes: ['C3','C4','G3','C3','C4','A#3','G3'] },
-      // HOOVER stab — the hard house rave noise, syncopated so it punches
-      supersaw:{ steps: on2(0,12,16,28), notes: ['C4','D#4','C4','G4'], hoover: true },
-      // Melodic keys line in Cm (replaces goofy vocal synth)
-      vox:     { steps: on2(0,8,16,24), notes: ['C5','G4','A#4','C5'] },
+      kick: { steps: on(0,4,8,12), tone: '909' },
+      // Clap on 2&4 throughout; bar 4 adds ghost fills for the drop
+      clap: {
+        steps: on4(4,12, 20,28, 36,44, 52,56,60),
+        tone: '909',
+      },
+      // Constant 16th-note hats — open on every "and-of-2" (step 2,6,10,14)
+      hat: { steps: on(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15), open: true, tone: '909' },
+      // Offbeat octave-bounce bass tracking Cm–Ab–Eb–Bb over 4 bars
+      bass: {
+        steps: on4(
+          0,2,4,6,8,10,12,14,
+          16,18,20,22,24,26,28,30,
+          32,34,36,38,40,42,44,46,
+          48,50,52,54,56,58,60,62
+        ),
+        notes: [
+          'C1','C2','C1','C2','C1','C2','C1','C2',
+          'Ab1','Ab2','Ab1','Ab2','Ab1','Ab2','Ab1','Ab2',
+          'Eb2','Eb1','Eb2','Eb1','Eb2','Eb1','Eb2','Eb1',
+          'Bb1','Bb2','Bb1','Bb2','Bb1','C2','C2','C2',
+        ],
+      },
+      // Donk: short pitched blips on every "and" (offbeat 8ths), root of each chord
+      donk: {
+        steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,54,58,62),
+        notes: [
+          'C3','C4','C3','C4',
+          'Ab3','Ab4','Ab3','Ab4',
+          'Eb3','Eb4','Eb3','Eb4',
+          'Bb3','Bb4','C3','C4',
+        ],
+      },
+      // Hoover stab: one screaming chord-tone stab per bar on the "1"
+      supersaw: {
+        steps: on4(0, 16, 32, 48),
+        notes: ['C4','Ab3','Eb4','Bb3'],
+        hoover: true,
+      },
+      // Vocal chop: two off-beat chops per bar, tracking chord tones
+      vox: {
+        steps: on4(6,14, 22,30, 38,46, 54,62),
+        notes: ['C5','Eb5', 'C5','Ab4', 'Eb5','G4', 'Bb4','C5'],
+      },
     },
   },
 
