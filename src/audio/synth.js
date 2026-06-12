@@ -299,45 +299,93 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
 }
 
 // THE Bells — Roland System 100m ring-mod bell (Jeff Mills "The Bells").
-// Ring modulation of two sines produces inharmonic metallic sidebands at
-// freq×(ratio−1) and freq×(ratio+1). Ratio 2.76 places them at 1.76× and
-// 3.76× — the characteristic electronic metallic-yet-pitched clang.
-// No natural bell harmonics: just ring-mod transient + decaying fundamental.
-export function bell(context, time, out, freq, gain = 0.32, dur = 0.5) {
-  // Ring-mod transient — the metallic strike on attack.
+// The record's bell is NOT a soft sine bell: it's a harsh, honky, distorted
+// metallic STAB, drenched in dub delay. Recipe: square-wave carrier ring-
+// modulated by an inharmonic square, blended with a driven fundamental,
+// pushed through a waveshaper and a resonant peak around 1.5–2 kHz (the
+// "honk"), then echoed through a feedback delay so every hit trails off
+// into the groove the way the record does.
+export function bell(context, time, out, freq, gain = 0.3, dur = 0.5) {
+  // ---- voice bus: dry hit + delay echoes both come from here ----
+  const voice = context.createGain()
+  voice.gain.value = 1
+
+  // Ring mod of two SQUARES → dense inharmonic sideband cluster (the clang).
   const carrier = context.createOscillator()
-  carrier.type = 'sine'
+  carrier.type = 'square'
   carrier.frequency.value = freq
-
   const mod = context.createOscillator()
-  mod.type = 'sine'
+  mod.type = 'square'
   mod.frequency.value = freq * 2.76
-
   const ring = context.createGain()
   ring.gain.value = 0
   mod.connect(ring.gain)
   carrier.connect(ring)
+  const ringMix = context.createGain()
+  ringMix.gain.value = 0.5
+  ring.connect(ringMix)
 
-  const metalEnv = context.createGain()
-  metalEnv.gain.setValueAtTime(0, time)
-  metalEnv.gain.linearRampToValueAtTime(gain * 1.3, time + 0.001)
-  metalEnv.gain.exponentialRampToValueAtTime(gain * 0.18, time + 0.05)
-  metalEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.4)
-  ring.connect(metalEnv).connect(out)
+  // Fundamental square, slightly detuned pair → beating, keeps pitch readable.
+  const fundMix = context.createGain()
+  fundMix.gain.value = 0.55
+  ;[-6, 6].forEach(d => {
+    const o = context.createOscillator()
+    o.type = 'square'
+    o.frequency.value = freq
+    o.detune.value = d
+    o.connect(fundMix)
+    o.start(time); o.stop(time + dur + 0.05)
+  })
 
-  // Pure sine fundamental — sustains the pitched identity beneath the clang.
-  const fund = context.createOscillator()
-  fund.type = 'sine'
-  fund.frequency.value = freq
+  // Drive the lot through a shaper → aggressive, saturated edge.
+  const shaper = context.createWaveShaper()
+  shaper.curve = makeDistortion(14)
+  ringMix.connect(shaper)
+  fundMix.connect(shaper)
 
-  const fundEnv = context.createGain()
-  fundEnv.gain.setValueAtTime(0, time)
-  fundEnv.gain.linearRampToValueAtTime(gain * 0.6, time + 0.003)
-  fundEnv.gain.exponentialRampToValueAtTime(gain * 0.18, time + dur * 0.35)
-  fundEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur)
-  fund.connect(fundEnv).connect(out)
+  // Resonant "honk" peak — the telephone-bell midrange that defines the sound.
+  const honk = context.createBiquadFilter()
+  honk.type = 'peaking'
+  honk.frequency.value = 1700
+  honk.Q.value = 1.6
+  honk.gain.value = 10
+  // Tame the harsh top and the sub rumble from the shaper.
+  const lp = context.createBiquadFilter()
+  lp.type = 'lowpass'
+  lp.frequency.value = 5200
+  const hp = context.createBiquadFilter()
+  hp.type = 'highpass'
+  hp.frequency.value = 300
+  shaper.connect(honk).connect(hp).connect(lp)
 
-  ;[carrier, mod, fund].forEach(o => { o.start(time); o.stop(time + dur + 0.1) })
+  // Percussive amp envelope — hard strike, quick fall to a ringing tail.
+  const env = context.createGain()
+  env.gain.setValueAtTime(0, time)
+  env.gain.linearRampToValueAtTime(gain, time + 0.002)
+  env.gain.exponentialRampToValueAtTime(gain * 0.3, time + 0.09)
+  env.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.7)
+  lp.connect(env).connect(voice)
+
+  // ---- dub delay: echoes trail each hit into the groove ----
+  // dur arrives as ~6 steps, so dur/2 = a dotted-8th-ish echo spacing.
+  const dly = context.createDelay(2)
+  dly.delayTime.value = Math.min(1.5, dur * 0.5)
+  const fb = context.createGain()
+  fb.gain.setValueAtTime(0.38, time)
+  fb.gain.setValueAtTime(0, time + 3) // kill the loop once the echoes have died
+  const dlyHp = context.createBiquadFilter()
+  dlyHp.type = 'highpass'
+  dlyHp.frequency.value = 600 // echoes thin out like a real dub send
+  const wet = context.createGain()
+  wet.gain.value = 0.5
+  voice.connect(dly)
+  dly.connect(dlyHp).connect(fb).connect(dly)
+  dlyHp.connect(wet)
+
+  voice.connect(out)
+  wet.connect(out)
+
+  ;[carrier, mod].forEach(o => { o.start(time); o.stop(time + dur + 0.05) })
 }
 
 // Lush detuned-saw trance pad — slow attack, airy octave, no muddiness.
