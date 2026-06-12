@@ -616,94 +616,57 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
   })
 }
 
-// THE Bells — Roland System 100m ring-mod bell (Jeff Mills "The Bells").
-// The record's bell is NOT a soft sine bell: it's a harsh, honky, distorted
-// metallic STAB, drenched in dub delay. Recipe: square-wave carrier ring-
-// modulated by an inharmonic square, blended with a driven fundamental,
-// pushed through a waveshaper and a resonant peak around 1.5–2 kHz (the
-// "honk"), then echoed through a feedback delay so every hit trails off
-// into the groove the way the record does.
-export function bell(context, time, out, freq, gain = 0.3, dur = 0.5) {
-  // ---- voice bus: dry hit + delay echoes both come from here ----
-  const voice = context.createGain()
-  voice.gain.value = 1
+// FM bell — clean metallic tone, sharp attack, long natural decay, light delay.
+// Replaces the harsh ring-mod version which sounded too robotic/distorted.
+export function bell(context, time, out, freq, gain = 0.3, dur = 1.6) {
+  // FM synthesis: sine carrier + sine modulator at inharmonic ratio → metallic shimmer
+  const modFreq = freq * 3.5
+  const modIdx  = freq * 1.8
 
-  // Ring mod of two SQUARES → dense inharmonic sideband cluster (the clang).
+  const modOsc  = context.createOscillator()
+  modOsc.type = 'sine'
+  modOsc.frequency.value = modFreq
+
+  const modGain = context.createGain()
+  modGain.gain.setValueAtTime(modIdx, time)
+  modGain.gain.exponentialRampToValueAtTime(modIdx * 0.05, time + dur * 0.5)
+  modOsc.connect(modGain)
+
   const carrier = context.createOscillator()
-  carrier.type = 'square'
+  carrier.type = 'sine'
   carrier.frequency.value = freq
-  const mod = context.createOscillator()
-  mod.type = 'square'
-  mod.frequency.value = freq * 2.76
-  const ring = context.createGain()
-  ring.gain.value = 0
-  mod.connect(ring.gain)
-  carrier.connect(ring)
-  const ringMix = context.createGain()
-  ringMix.gain.value = 0.5
-  ring.connect(ringMix)
+  modGain.connect(carrier.frequency)
 
-  // Fundamental square, slightly detuned pair → beating, keeps pitch readable.
-  const fundMix = context.createGain()
-  fundMix.gain.value = 0.55
-  ;[-6, 6].forEach(d => {
-    const o = context.createOscillator()
-    o.type = 'square'
-    o.frequency.value = freq
-    o.detune.value = d
-    o.connect(fundMix)
-    o.start(time); o.stop(time + dur + 0.05)
-  })
-
-  // Drive the lot through a shaper → aggressive, saturated edge.
-  const shaper = context.createWaveShaper()
-  shaper.curve = makeDistortion(14)
-  ringMix.connect(shaper)
-  fundMix.connect(shaper)
-
-  // Resonant "honk" peak — the telephone-bell midrange that defines the sound.
-  const honk = context.createBiquadFilter()
-  honk.type = 'peaking'
-  honk.frequency.value = 1700
-  honk.Q.value = 1.6
-  honk.gain.value = 10
-  // Tame the harsh top and the sub rumble from the shaper.
-  const lp = context.createBiquadFilter()
-  lp.type = 'lowpass'
-  lp.frequency.value = 5200
-  const hp = context.createBiquadFilter()
-  hp.type = 'highpass'
-  hp.frequency.value = 300
-  shaper.connect(honk).connect(hp).connect(lp)
-
-  // Percussive amp envelope — hard strike, quick fall to a ringing tail.
+  // Amp envelope: instant attack, long exponential ring-out
   const env = context.createGain()
   env.gain.setValueAtTime(0, time)
-  env.gain.linearRampToValueAtTime(gain, time + 0.002)
-  env.gain.exponentialRampToValueAtTime(gain * 0.3, time + 0.09)
-  env.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.7)
-  lp.connect(env).connect(voice)
+  env.gain.linearRampToValueAtTime(gain, time + 0.003)
+  env.gain.exponentialRampToValueAtTime(0.0001, time + dur)
+  carrier.connect(env)
 
-  // ---- dub delay: echoes trail each hit into the groove ----
-  // dur arrives as ~6 steps, so dur/2 = a dotted-8th-ish echo spacing.
-  const dly = context.createDelay(2)
-  dly.delayTime.value = Math.min(1.5, dur * 0.5)
+  // Bright high shelf to keep the bell cutting through the mix
+  const shelf = context.createBiquadFilter()
+  shelf.type = 'highshelf'
+  shelf.frequency.value = 3000
+  shelf.gain.value = 5
+  env.connect(shelf)
+
+  // Short tempo-synced delay — 3/16 at 137 BPM ≈ 0.33s
+  const dly = context.createDelay(1)
+  dly.delayTime.value = 0.33
   const fb = context.createGain()
-  fb.gain.setValueAtTime(0.38, time)
-  fb.gain.setValueAtTime(0, time + 3) // kill the loop once the echoes have died
-  const dlyHp = context.createBiquadFilter()
-  dlyHp.type = 'highpass'
-  dlyHp.frequency.value = 600 // echoes thin out like a real dub send
+  fb.gain.value = 0.28
   const wet = context.createGain()
-  wet.gain.value = 0.5
-  voice.connect(dly)
-  dly.connect(dlyHp).connect(fb).connect(dly)
-  dlyHp.connect(wet)
+  wet.gain.value = 0.4
+  shelf.connect(dly)
+  dly.connect(fb).connect(dly)
+  dly.connect(wet)
 
-  voice.connect(out)
+  shelf.connect(out)
   wet.connect(out)
 
-  ;[carrier, mod].forEach(o => { o.start(time); o.stop(time + dur + 0.05) })
+  modOsc.start(time); modOsc.stop(time + dur + 0.1)
+  carrier.start(time); carrier.stop(time + dur + 0.1)
 }
 
 // Lush detuned-saw trance pad — slow attack, airy octave, no muddiness.

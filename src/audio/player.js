@@ -201,7 +201,7 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
   if (voice === 'riser') return S.riser(ctx, t, out, 0.14, stepDur * 64)
   if (evt.freq != null) {
     const f = evt.freq
-    if (evt.bell) return S.bell(ctx, t, out, f, 0.32, stepDur * 4)
+    if (evt.bell) return S.bell(ctx, t, out, f, 0.32, stepDur * 10)
     if (evt.hoover) return S.hoover(ctx, t, out, f, 0.26, stepDur * 2.2)
     if (evt.acid) return S.acid(ctx, t, out, f, 0.38, stepDur * 1.7, evt.accent)
     if (evt.sub) return S.sub(ctx, t, out, f, 0.55, evt.long ? stepDur * 6 : stepDur * 2)
