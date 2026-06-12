@@ -474,22 +474,50 @@ export const GENRE_GROOVES = {
     },
   },
 
-  // ---- Techno: Adam Beyer / Charlotte de Witte — Am, rumble + hypnosis ----
+  // ---- Techno: 909-driven hypnotic roller — Am, 140 BPM ----
+  // Built from the tutorial video. Rumbling 909 kick, relentless offbeat hats with
+  // a 16th flutter, rolling 909 perc, and the hypnotic offbeat BASSHOOK riff that
+  // is the spine of the track — a developing sub-bass figure. Minimal dark stabs,
+  // the Jeff Mills "Bells" line and sparse keys. 4-bar (64-step) cycle.
   techno: {
-    bpm: 132,
-    swing: 0,
+    bpm: 140, swing: 0,
     voices: {
-      kick:    { steps: on(0,4,8,12), tone: 'rumble' },
-      hat:     { steps: on(2,6,10,14), open: true, tone: '909' },
-      perc:    { steps: on(3,11), tone: '909' },
-      // Off-beat sub locked to the rumble kick
-      bass:    { steps: on(2,6,10,14), notes: ['A1','A1','A1','G1'], sub: true },
-      // Dark chord stab — minimal, every half-bar, hypnotic
-      supersaw:{ steps: on2(2,18), chords: ['Am','Gm'] },
+      kick: { steps: on(0,4,8,12), tone: 'rumble' },
+      // Offbeat opens with a 16th flutter building into bar 4
+      hat: {
+        steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,53,54,57,58,61,62),
+        open: true, tone: '909',
+      },
+      // Rolling 909 perc gallop developing over 4 bars
+      perc: {
+        steps: on4(3,11, 19,23,27, 35,43, 51,55,59,61,63),
+        tone: '909',
+      },
+      // THE hypnotic basshook — offbeat sub riff in Am that walks and develops
+      bass: {
+        steps: on4(
+          2,6,10,14,
+          18,22,26,30,
+          34,38,42,46,
+          50,54,58,62,
+        ),
+        notes: [
+          'A1','A1','A1','G1',
+          'A1','A1','C2','A1',
+          'A1','A1','A1','G1',
+          'F1','F1','G1','A1',
+        ],
+        sub: true,
+      },
+      // Dark hypnotic chord stab — minimal, develops Am–Gm–Am–F over 4 bars
+      supersaw: { steps: on4(2, 18, 34, 50), chords: ['Am','Gm','Am','F'] },
       // Jeff Mills "The Bells" — 4 notes then 3 bars silence, 4-bar loop
       bell:    { steps: on(0,2,4,6,8,10,12,14), notes: ['A3','C4','E4','D4'], bell: true },
-      // Sparse melodic keys in Am (replaces goofy vocal synth)
-      vox:     { steps: on2(0,12,16,28), notes: ['A4','C5','G4','A4'] },
+      // Sparse melodic keys in Am, developing over 4 bars
+      vox: {
+        steps: on4(0,12, 16,28, 32,44, 48,60),
+        notes: ['A4','C5', 'G4','A4', 'C5','E5', 'G4','A4'],
+      },
     },
   },
 
