@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { detectBpm } from '../audio/bpmDetect'
 
 // ─── Web Audio chain: source → low → mid → high → gain → destination ─────────
 function buildEQChain(ctx) {
@@ -203,6 +204,8 @@ export default function DJDeckPage() {
   const [backendStatus, setBackendStatus] = useState('unknown') // unknown | waking | ok | error
   const [copied, setCopied]         = useState(false)
   const [streamUrl, setStreamUrl] = useState('') // SC/YT url loaded via backend
+  const [detectedBpm, setDetectedBpm] = useState(null)
+  const [detecting, setDetecting]     = useState(false)
 
   const audioCtxRef  = useRef(null)
   const eqRef        = useRef(null)
@@ -336,7 +339,14 @@ export default function DJDeckPage() {
       setStatus('ready')
       setProgress(0)
       setCurrent(0)
+      setDetectedBpm(null)
       setTimeout(() => drawWaveform(canvasRef.current, buffer, 0), 50)
+      // Detect BPM after the deck is usable (non-blocking).
+      setDetecting(true)
+      detectBpm(buffer).then(bpm => {
+        setDetectedBpm(bpm)
+        setDetecting(false)
+      }).catch(() => setDetecting(false))
     } catch (err) {
       setStatus('error')
       setErrorMsg('Could not decode audio. Make sure the file is a valid MP3, WAV, OGG, or FLAC.')
@@ -697,9 +707,17 @@ export default function DJDeckPage() {
             )}
           </div>
 
-          {/* Time */}
-          <div className="flex justify-between text-xs font-mono text-gray-500 mb-4">
+          {/* Time + BPM */}
+          <div className="flex justify-between items-center text-xs font-mono text-gray-500 mb-4">
             <span>{fmt(currentTime)}</span>
+            <span className="flex items-center gap-1.5">
+              {detecting && <span className="text-gray-600 animate-pulse not-italic font-sans text-[10px]">detecting BPM…</span>}
+              {!detecting && detectedBpm && (
+                <span className="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 font-bold text-xs not-italic font-sans">
+                  {detectedBpm} BPM
+                </span>
+              )}
+            </span>
             <span>{fmt(duration)}</span>
           </div>
 

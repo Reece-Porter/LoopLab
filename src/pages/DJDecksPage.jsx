@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { makeTrackName, getBackendUrl, isStreamingUrl, fmtTime } from '../audio/djHelpers'
+import { detectBpm } from '../audio/bpmDetect'
 
 // ─── Single deck ──────────────────────────────────────────────────────────────
 // Audio plays through an AudioBufferSourceNode. Tempo (and therefore the
@@ -11,14 +12,15 @@ import { makeTrackName, getBackendUrl, isStreamingUrl, fmtTime } from '../audio/
 const Deck = forwardRef(function Deck({ ctx, destNode, label, accent }, ref) {
   const [url, setUrl]           = useState('')
   const [status, setStatus]     = useState('idle')
-  const [errorMsg, setErrorMsg] = useState('')
-  const [trackName, setName]    = useState('')
-  const [playing, setPlaying]   = useState(false)
-  const [origBpm, setOrigBpm]   = useState(120)
-  const [bpm, setBpmState]      = useState(120)
-  const [progress, setProgress] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [loopBars, setLoopBars] = useState(0)
+  const [errorMsg, setErrorMsg]     = useState('')
+  const [trackName, setName]        = useState('')
+  const [playing, setPlaying]       = useState(false)
+  const [origBpm, setOrigBpm]       = useState(120)
+  const [bpm, setBpmState]          = useState(120)
+  const [progress, setProgress]     = useState(0)
+  const [duration, setDuration]     = useState(0)
+  const [loopBars, setLoopBars]     = useState(0)
+  const [detecting, setDetecting]   = useState(false)
   const [gridSet, setGridSet]   = useState(false)
 
   // Refs so the imperative sync methods always see live values.
@@ -237,6 +239,12 @@ const Deck = forwardRef(function Deck({ ctx, destNode, label, accent }, ref) {
       setName(info ? makeTrackName(info) : (raw.split('/').pop() || 'track'))
       setStatus('ready'); setProgress(0)
       setTimeout(() => drawWave(buffer), 50)
+      // BPM detection runs after the deck is usable (non-blocking).
+      setDetecting(true)
+      detectBpm(buffer).then(detected => {
+        if (detected) { setOrigBpm(detected); setTrackBpm(detected) }
+        setDetecting(false)
+      }).catch(() => setDetecting(false))
     } catch (err) { setStatus('error'); setErrorMsg(err.message) }
   }
 
@@ -256,7 +264,10 @@ const Deck = forwardRef(function Deck({ ctx, destNode, label, accent }, ref) {
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-bold uppercase tracking-widest" style={{ color: accent }}>Deck {label}</span>
         <div className="flex items-center gap-1.5 font-mono">
-          <span className="text-2xl font-black" style={{ color: accent }}>{bpm}</span>
+          {detecting
+            ? <span className="text-xs text-gray-500 animate-pulse">detecting…</span>
+            : <span className="text-2xl font-black" style={{ color: accent }}>{bpm}</span>
+          }
           <span className="text-xs text-gray-500">BPM</span>
         </div>
       </div>
@@ -299,6 +310,8 @@ const Deck = forwardRef(function Deck({ ctx, destNode, label, accent }, ref) {
         <span className="text-[10px] text-gray-500 uppercase tracking-wider w-16">Track BPM</span>
         <input type="number" min={40} max={240} value={origBpm} onChange={e => setTrackBpm(e.target.value)}
           className="w-16 bg-black/30 border border-white/10 rounded-lg px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-white/30" />
+        {detecting && <span className="text-[10px] text-gray-500 animate-pulse">detecting…</span>}
+        {!detecting && status === 'ready' && <span className="text-[10px] text-gray-600">auto-detected</span>}
         <button onClick={setGrid} disabled={status !== 'ready'}
           className={`ml-auto px-2.5 py-1 rounded-lg text-[10px] font-semibold border transition disabled:opacity-30 ${gridSet ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-white/10 text-gray-400 hover:text-white'}`}
           title="Mark beat 1 at the current position">
