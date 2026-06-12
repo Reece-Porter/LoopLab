@@ -23,11 +23,12 @@ const on8 = (...list) => steps(128, list)
 
 export const GENRE_GROOVES = {
 
-  // ---- Eurodance: Haddaway / 2 Unlimited / Culture Beat — Am, 138 BPM ----
-  // A full 8-bar songwriting cycle over the classic Am–F–C–G progression, so
-  // the parts develop (question/answer phrasing, fills, octave variation)
-  // instead of looping a single bar. Drums run a 4-bar cycle with a turnaround
-  // fill; the lead and bass run an 8-bar A/B structure.
+  // ---- Eurodance: built from the tutorial video — G minor, 138 BPM ----
+  // Progression Gm–F–Eb–D (i–VII–VI–V) with a descending root line. The lead is
+  // the video's signature descending "staircase": four 16th-notes per scale
+  // degree cascading down the G-minor scale, then a higher answer phrase. Held
+  // pad chords underneath; rolling octave bass. Parts develop over a full
+  // multi-bar cycle instead of looping a single bar.
   eurodance: {
     bpm: 138,
     swing: 0,
@@ -40,38 +41,36 @@ export const GENRE_GROOVES = {
       // Driving off-beat open hats with a 16th-note flutter at the turnaround.
       hat:     { steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,54,58, 60,61,62,63),
                  open: true, tone: '909' },
-      // Octave-bounce bass walking Am–F–C–G: bars 1–4 straight, bars 5–8 add
-      // passing notes and a descending turnaround so the groove keeps moving.
+      // Rolling octave-bounce bass on the chord roots G–F–Eb–D: bars 1–4
+      // straight, bars 5–8 add passing notes and a turnaround so it keeps moving.
       bass:    { steps: on8(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30,
                            32,34,36,38,40,42,44,46, 48,50,52,54,56,58,60,62,
                            64,66,68,70,72,74,76,78, 80,82,84,86,88,90,92,94,
                            96,98,100,102,104,106,108,110, 112,114,116,118,120,122,124,126),
-                 notes: ['A1','A2','A1','A2','A1','A2','A1','A2',
+                 notes: ['G1','G2','G1','G2','G1','G2','G1','G2',
                          'F1','F2','F1','F2','F1','F2','F1','F2',
-                         'C2','C3','C2','C3','C2','C3','C2','C3',
-                         'G1','G2','G1','G2','G1','G2','G2','F2',
-                         'A1','A2','A1','A2','A1','A2','A1','C2',
-                         'F1','F2','F1','F2','F1','F2','A2','C3',
-                         'C2','C3','C2','C3','C2','C3','C2','D3',
-                         'G1','G2','G1','G2','G1','B2','A2','G2'] },
-      // Supersaw lead hook — 8-bar melody: bars 1–4 state the theme, bars 5–8
-      // answer it an octave higher then resolve back to A. Real toplines have
-      // rests and rhythm, so the notes don't land on every step.
-      supersaw:{ steps: on8(0,4,8,12, 16,20,24, 32,36,40,44, 48,56,
-                           64,68,72,76, 80,84,88,92, 96,100,104,108, 112,116),
-                 notes: ['A4','C5','E5','D5', 'C5','A4','B4',
-                         'G4','A4','C5','B4', 'A4','E5',
-                         'A4','C5','E5','A5', 'G5','E5','D5','C5',
-                         'E5','D5','C5','A4', 'B4','A4'] },
-      // Off-beat supersaw chord stabs interlocking with the kick — the iconic
-      // eurodance pump, moving through the full Am–F–C–G over 4 bars.
-      chord:   { steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,54,58,62),
-                 chords: ['Am','Am','Am','Am','F','F','F','F','C','C','C','C','G','G','G','G'],
-                 rave: true, gain: 0.3 },
-      // Vocal-hook topline (soft keys) — sparse phrases answering the lead in
-      // its gaps across the 8-bar cycle.
-      vox:     { steps: on8(24,28, 48,52,56, 88,92, 112,116,120),
-                 notes: ['E5','D5', 'C5','A4','B4', 'E5','C5', 'D5','C5','A4'] },
+                         'D#1','D#2','D#1','D#2','D#1','D#2','D#1','D#2',
+                         'D1','D2','D1','D2','D1','D2','D1','D2',
+                         'G1','G2','G1','G2','G1','G2','A1','A#1',
+                         'F1','F2','F1','F2','F1','F2','G1','A1',
+                         'D#1','D#2','D#1','D#2','D#1','D#2','F1','G1',
+                         'D1','D2','D1','D2','D1','A1','C2','D2'] },
+      // Supersaw lead — the video's descending staircase. Each scale degree is
+      // hammered as four 16th-notes, cascading D5→D4 over bars 1–2, then a
+      // higher answer G5→G4 over bars 3–4 (variation rather than a flat loop).
+      supersaw:{ steps: on4(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
+                           16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,
+                           32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,
+                           48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63),
+                 notes: ['D5','D5','D5','D5','C5','C5','C5','C5','A#4','A#4','A#4','A#4','A4','A4','A4','A4',
+                         'G4','G4','G4','G4','F4','F4','F4','F4','D#4','D#4','D#4','D#4','D4','D4','D4','D4',
+                         'G5','G5','G5','G5','F5','F5','F5','F5','D#5','D#5','D#5','D#5','D5','D5','D5','D5',
+                         'C5','C5','C5','C5','A#4','A#4','A#4','A#4','A4','A4','A4','A4','G4','G4','G4','G4'] },
+      // Held pad chords — sustained Gm–F–Eb–D, one per bar, as in the video.
+      chord:   { steps: on4(0,16,32,48), chords: ['Gm','F','D#','D'], pad: true, gain: 0.4 },
+      // Vocal-hook topline (soft keys) — sparse phrases in Gm answering the lead.
+      vox:     { steps: on8(24,28, 48,52,56, 88,92, 112,116,120,124),
+                 notes: ['A#4','C5', 'D5','C5','A#4', 'G5','F5', 'D5','C5','A4','G4'] },
       // One slow riser swell per 4 bars, used in the build sections.
       riser:   { steps: on4(0) },
     },
