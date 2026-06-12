@@ -568,19 +568,56 @@ export const GENRE_GROOVES = {
     },
   },
 
-  // ---- Schranz: DJ Rush / Chris Liebing — relentless industrial loop, Cm ----
+  // ---- Schranz: Julien Earle masterclass — relentless industrial loop, Cm ----
+  // Built from the tutorial video. The hardest, most loop-driven techno: distorted
+  // "hardbassdrum" 4-on-floor, hammering distorted bass, relentless industrial perc
+  // gallop with skittle rolls, 16th open hats, and brutal rave-loop stabs. 4-bar
+  // (64-step) cycle that grinds forward. Cm with an A#/Gm shift.
   schranz: {
-    bpm: 155,
-    swing: 0,
+    bpm: 155, swing: 0,
     voices: {
-      kick:    { steps: on(0,4,8,12), tone: 'hard' },
-      clap:    { steps: on(4,12) },
-      perc:    { steps: on(1,2,5,6,9,10,13,14), tone: 'conga' },
-      hat:     { steps: on(0,2,4,6,8,10,12,14), tone: '909' },
-      // Hammering quarter-note distorted acid bass
-      bass:    { steps: on(0,4,8,12), notes: ['C2','C2','C2','C2'], acid: true, accents: [0,8] },
-      // Brutal chord stabs every off-beat — no softness, straight sawtooth aggression
-      supersaw:{ steps: on(2,6,10,14), chords: ['Cm','Cm','A#','Gm'] },
+      kick: { steps: on(0,4,8,12), tone: 'hard' },
+      // Clap on 2&4 with ghost roll into bar 4
+      clap: { steps: on4(4,12, 20,28, 36,44, 52,56,60), tone: '909' },
+      // Relentless industrial conga/metal gallop with skittle rolls, developing
+      perc: {
+        steps: on4(
+          1,2,5,6,9,10,13,14,
+          17,18,21,22,25,26,29,30,
+          33,34,37,38,41,42,45,46,
+          49,50,53,54,57,58,61,62,
+        ),
+        tone: 'conga',
+        rolls: [13,14, 29,30, 45,46, 57,58,61,62], // fast skittle retrigs
+      },
+      // 16th open hats — the "OPENS" wall, with skittle bursts into bar 4
+      hat: {
+        steps: on4(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30,
+                   32,34,36,38,40,42,44,46, 48,50,52,54,56,58,60,62),
+        tone: '909',
+        rolls: [60,62],
+      },
+      // Hammering distorted acid bass, walking Cm and developing over 4 bars
+      bass: {
+        steps: on4(0,4,8,12, 16,20,24,28, 32,36,40,44, 48,52,56,60),
+        notes: [
+          'C2','C2','C2','C2',
+          'C2','C2','A#1','C2',
+          'C2','C2','C2','G1',
+          'A#1','A#1','D2','C2',
+        ],
+        acid: true, accents: [0,8, 16,24, 32,40, 48,56],
+      },
+      // Brutal rave-loop chord stabs — offbeat aggression developing Cm–A#–Gm–Cm
+      supersaw: {
+        steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,54,58,62),
+        chords: [
+          'Cm','Cm','Cm','Cm',
+          'A#','A#','A#','A#',
+          'Gm','Gm','Gm','Gm',
+          'Cm','Cm','A#','Gm',
+        ],
+      },
     },
   },
 }
