@@ -179,15 +179,14 @@ export default function GenrePage() {
             genreId={genre.id}
             parts={genre.parts}
             songGroove={selectedSong?.groove || null}
-            savedVocalClips={savedVocalClips}
           />
-          <VocalRecorder onClipsChange={setSavedVocalClips} />
         </div>
 
         {/* Custom arrangement builder */}
         <div className="mt-12">
           <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Build Your Own Arrangement</p>
-          <CustomArrangement parts={genre.parts} genreId={genre.id} accentClass={genre.color} bpm={bpm} />
+          <CustomArrangement parts={genre.parts} genreId={genre.id} accentClass={genre.color} bpm={bpm} savedVocalClips={savedVocalClips} />
+          <VocalRecorder onClipsChange={setSavedVocalClips} />
         </div>
       </div>
     </div>

@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { usePlayer } from '../audio/usePlayer'
 import { voiceFor } from '../audio/player'
 import { patternClip } from '../audio/arrangementClip'
+import { deserialise } from '../audio/vocalStore'
+import { getContext } from '../audio/synth'
 import PlayButton from './PlayButton'
 
 const LABEL_W = 220
@@ -27,26 +29,46 @@ function useLanes(parts) {
   [parts])
 }
 
-export default function CustomArrangement({ parts, genreId, accentClass, bpm }) {
+const VOCAL_LANE = 'Your Vocals'
+
+export default function CustomArrangement({ parts, genreId, accentClass, bpm, savedVocalClips = [] }) {
   const lanes = useLanes(parts)
 
   const [bars,   setBars]   = useState(32)
   // grid[partName][barIndex] = patternIndex (number)
   const [grid,   setGrid]   = useState({})
+  // vocalGrid[barIndex] = clipId string
+  const [vocalGrid, setVocalGrid] = useState({})
+  // armedVocal = clipId string | null
+  const [armedVocal, setArmedVocal] = useState(null)
   // armed = { part, idx } — pattern currently selected for paint; null = none
   const [armed,  setArmed]  = useState(null)
   const [frac,   setFrac]   = useState(null)
   const [follow, setFollow] = useState(true)
 
-  const scrollRef = useRef(null)
-  const gridRef   = useRef({})
-  const mutedRef  = useRef({})
+  const scrollRef       = useRef(null)
+  const gridRef         = useRef({})
+  const mutedRef        = useRef({})
+  const vocalBuffersRef = useRef({}) // clipId -> AudioBuffer
   // paintRef tracks an in-progress left-button drag across bars:
   //   { laneName, idx, mode: 'place'|'erase', painted: Set<bar> }
   const paintRef  = useRef(null)
 
   const { playing, start, stop, getPosition } = usePlayer(`custom-${genreId}`)
-  const tracks = useMemo(() => lanes.map(l => ({ name: l.name, voice: l.voice })), [lanes])
+  const tracks = useMemo(() => [
+    ...lanes.map(l => ({ name: l.name, voice: l.voice })),
+    { name: VOCAL_LANE, voice: 'vox' },
+  ], [lanes])
+
+  // Pre-decode vocal AudioBuffers whenever savedVocalClips changes.
+  useEffect(() => {
+    const ctx = getContext()
+    savedVocalClips.forEach(clip => {
+      if (!vocalBuffersRef.current[clip.id]) {
+        vocalBuffersRef.current[clip.id] = deserialise(ctx, clip)
+      }
+    })
+  }, [savedVocalClips])
 
   // ---- compile grid → live clips read by the audio engine every step ----
   useEffect(() => {
@@ -62,8 +84,20 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm }) 
       })
       compiled[lane.name] = barClips
     })
+    // Vocal lane: each bar gets a 16-step clip with vocalBuffer at step 0.
+    const vocalBarClips = new Array(bars).fill(null)
+    Object.keys(vocalGrid).forEach(barStr => {
+      const bar = Number(barStr)
+      const id = vocalGrid[barStr]
+      if (id && bar < bars) {
+        const clip16 = new Array(16).fill(null)
+        clip16[0] = { vocalBuffer: vocalBuffersRef.current[id] || null, level: 0.8 }
+        vocalBarClips[bar] = clip16
+      }
+    })
+    compiled[VOCAL_LANE] = vocalBarClips
     gridRef.current = compiled
-  }, [grid, lanes, bars])
+  }, [grid, vocalGrid, lanes, bars])
 
   // ---- grid mutations ----
   const place = useCallback((partName, bar, idx) => {
@@ -157,9 +191,10 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm }) 
   }, [frac, bars, follow])
 
   const timelineWidth = bars * BAR_W
-  const hasAnything   = Object.values(grid).some(l => l && Object.keys(l).length > 0)
+  const hasAnything   = Object.values(grid).some(l => l && Object.keys(l).length > 0) || Object.keys(vocalGrid).length > 0
   const armedLane     = armed ? lanes.find(l => l.name === armed.part) : null
   const armedPatName  = armedLane?.patterns[armed?.idx]?.name
+  const armedVocalMeta = armedVocal ? savedVocalClips.find(c => c.id === armedVocal) : null
 
   return (
     <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden select-none">
@@ -198,7 +233,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm }) 
         </button>
 
         <button
-          onClick={() => { setGrid({}); setArmed(null) }}
+          onClick={() => { setGrid({}); setVocalGrid({}); setArmed(null); setArmedVocal(null) }}
           className="text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
         >Clear</button>
 
@@ -260,8 +295,9 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm }) 
                             e.dataTransfer.setData('text/plain', payload)
                             e.dataTransfer.effectAllowed = 'copy'
                             setArmed({ part: lane.name, idx })
+                            setArmedVocal(null)
                           }}
-                          onClick={() => setArmed(isArmed ? null : { part: lane.name, idx })}
+                          onClick={() => { setArmed(isArmed ? null : { part: lane.name, idx }); setArmedVocal(null) }}
                           title={isArmed
                             ? 'Click to disarm · click/drag across bars to paint'
                             : 'Click to arm (then paint bars) · or drag me'}
@@ -318,6 +354,110 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm }) 
             )
           })}
 
+          {/* ── Your Vocals lane ── */}
+          {savedVocalClips.length > 0 && (
+            <div className="flex border-b border-white/5">
+              {/* Label + clip chips */}
+              <div
+                className="shrink-0 flex flex-col justify-center gap-1.5 px-3 py-2 border-r border-white/10 bg-black/25"
+                style={{ width: LABEL_W }}
+              >
+                <span className="text-xs text-gray-200 font-semibold truncate">🎤 Your Vocals</span>
+                <div className="flex flex-wrap gap-1">
+                  {savedVocalClips.map(clip => {
+                    const isArmed = armedVocal === clip.id
+                    return (
+                      <button
+                        key={clip.id}
+                        draggable
+                        onDragStart={e => {
+                          const payload = JSON.stringify({ vocalId: clip.id })
+                          e.dataTransfer.setData('application/looplab-vocal', payload)
+                          e.dataTransfer.effectAllowed = 'copy'
+                          setArmedVocal(clip.id)
+                          setArmed(null)
+                        }}
+                        onClick={() => { setArmedVocal(isArmed ? null : clip.id); setArmed(null) }}
+                        title={isArmed ? 'Click to disarm · click/drag across bars to paint' : 'Click to arm, then paint bars'}
+                        className={`text-[10px] px-1.5 py-0.5 rounded border transition-all cursor-grab active:cursor-grabbing ${
+                          isArmed ? 'font-bold ring-1 ring-white/50 text-black' : 'text-gray-300 hover:brightness-150'
+                        }`}
+                        style={isArmed
+                          ? { background: '#a855f7', borderColor: '#a855f7' }
+                          : { borderColor: '#a855f766', background: '#a855f718' }}
+                      >
+                        {clip.name}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Bar cells */}
+              <div className="flex" style={{ width: timelineWidth }}>
+                {Array.from({ length: bars }).map((_, b) => {
+                  const clipId  = vocalGrid[b]
+                  const filled  = clipId != null
+                  const meta    = filled ? savedVocalClips.find(c => c.id === clipId) : null
+                  return (
+                    <div
+                      key={b}
+                      onMouseDown={e => {
+                        if (e.button === 2) return
+                        e.preventDefault()
+                        if (armedVocal) {
+                          paintRef.current = { laneName: VOCAL_LANE, idx: armedVocal, mode: 'place', painted: new Set([b]) }
+                          setVocalGrid(g => ({ ...g, [b]: armedVocal }))
+                        } else if (filled) {
+                          paintRef.current = { laneName: VOCAL_LANE, idx: null, mode: 'erase', painted: new Set([b]) }
+                          setVocalGrid(g => { const n = { ...g }; delete n[b]; return n })
+                        }
+                      }}
+                      onMouseEnter={() => {
+                        const p = paintRef.current
+                        if (!p || p.laneName !== VOCAL_LANE || p.painted.has(b)) return
+                        p.painted.add(b)
+                        if (p.mode === 'place') setVocalGrid(g => ({ ...g, [b]: p.idx }))
+                        else setVocalGrid(g => { const n = { ...g }; delete n[b]; return n })
+                      }}
+                      onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy' }}
+                      onDrop={e => {
+                        e.preventDefault()
+                        const raw = e.dataTransfer.getData('application/looplab-vocal')
+                        if (!raw) return
+                        try {
+                          const { vocalId } = JSON.parse(raw)
+                          setVocalGrid(g => ({ ...g, [b]: vocalId }))
+                          setArmedVocal(vocalId)
+                        } catch {}
+                      }}
+                      onContextMenu={e => {
+                        e.preventDefault()
+                        setVocalGrid(g => { const n = { ...g }; delete n[b]; return n })
+                        paintRef.current = { laneName: VOCAL_LANE, idx: null, mode: 'erase', painted: new Set([b]) }
+                      }}
+                      title={filled ? `${meta?.name || 'Vocal'} — right-click to erase` : armedVocal ? 'Click to place vocal clip' : 'Arm a clip first'}
+                      className={`shrink-0 border-r h-14 flex items-center justify-center px-0.5 transition-colors ${
+                        b % 4 === 0 ? 'border-white/10' : 'border-white/[0.04]'
+                      } ${armedVocal ? 'cursor-cell' : filled ? 'cursor-pointer' : 'cursor-default'}`}
+                      style={{
+                        width: BAR_W,
+                        background: filled ? '#a855f72e' : armedVocal ? '#a855f708' : 'transparent',
+                        boxShadow: filled ? 'inset 0 0 0 1px #a855f788' : 'none',
+                      }}
+                    >
+                      {filled && (
+                        <span className="text-[9px] leading-tight text-center text-white/80 line-clamp-2 pointer-events-none break-words">
+                          {meta?.name || '🎤'}
+                        </span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Playhead */}
           {frac != null && (
             <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: LABEL_W, width: timelineWidth }}>
@@ -337,6 +477,10 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm }) 
         {armed ? (
           <span style={{ color: VOICE_COLOR[armedLane?.voice] || '#a855f7' }}>
             ✏️ <strong>{armedPatName}</strong> armed on {armed.part} — click or drag across bars to paint · right-click to erase · click the chip again to disarm
+          </span>
+        ) : armedVocal ? (
+          <span style={{ color: '#a855f7' }}>
+            🎤 <strong>{armedVocalMeta?.name || 'Vocal'}</strong> armed — click or drag across bars to paint · right-click to erase · click the chip again to disarm
           </span>
         ) : hasAnything ? (
           <span className="text-gray-600">Click a chip to arm it and paint bars · drag chips · right-click a bar to erase · press <strong className="text-gray-400">Play mine</strong> to hear it.</span>

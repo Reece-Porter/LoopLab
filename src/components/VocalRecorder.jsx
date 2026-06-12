@@ -215,7 +215,7 @@ export default function VocalRecorder({ onClipsChange }) {
       {open && (
         <div className="px-5 pb-5 border-t border-white/10">
           <p className="text-xs text-gray-500 mt-3 mb-4 leading-relaxed">
-            Record your voice, trim it, save it — then drag any saved clip onto the <strong className="text-gray-300">Your Vocals</strong> row in the arrangement above.
+            Record your voice, trim it, save it — your clips will appear as options in the <strong className="text-gray-300">Your Vocals</strong> row in the arrangement above.
           </p>
 
           {error && <p className="text-xs text-red-400 mb-3">{error}</p>}

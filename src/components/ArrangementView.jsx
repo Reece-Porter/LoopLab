@@ -3,7 +3,6 @@ import { usePlayer } from '../audio/usePlayer'
 import { voiceFor } from '../audio/player'
 import { buildTrackClip } from '../audio/arrangementClip'
 import PlayButton from './PlayButton'
-import { deserialise, loadAllClips } from '../audio/vocalStore'
 
 const LABEL_W_DESKTOP = 176 // px — track-name column on ≥640px
 const LABEL_W_MOBILE  = 100 // px — track-name column on <640px
@@ -59,10 +58,7 @@ function ClipPreview({ clip, color, bars, barOffset = 0 }) {
   )
 }
 
-// VOCAL_TRACK is a sentinel track injected at the bottom of every arrangement.
-const VOCAL_TRACK_NAME = 'Your Vocals'
-
-export default function ArrangementView({ arrangement, accentClass, bpm, genreId, parts = [], songGroove = null, savedVocalClips = [] }) {
+export default function ArrangementView({ arrangement, accentClass, bpm, genreId, parts = [], songGroove = null }) {
   const [hidden, setHidden] = useState({})
   const [selection, setSelection] = useState({}) // trackName -> 'groove' | patternIndex
   const { playing, start, stop, getPosition } = usePlayer('arrangement')
@@ -72,10 +68,6 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   const clipsRef = useRef({})  // live: trackName -> clip16
   const mutedRef = useRef({})  // live: trackName -> true
 
-  // Vocal row: each section slot holds either null or a saved-clip id.
-  const [vocalSlots, setVocalSlots] = useState([]) // array len = sections.length
-  const [dragOver, setDragOver]     = useState(null) // section index being hovered
-  const vocalBuffersRef = useRef({}) // id -> AudioBuffer (decoded, cached)
   const [frac, setFrac] = useState(null) // smooth playhead 0..1
   const [startBar, setStartBar] = useState(0) // where playback begins
   const [follow, setFollow] = useState(true) // auto-scroll to track the playhead
@@ -94,52 +86,13 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
 
   const toggleTrack = name => setHidden(h => ({ ...h, [name]: !h[name] }))
 
-  // Keep vocal slots array the right length as sections change.
-  useEffect(() => {
-    setVocalSlots(v => {
-      const n = arrangement.sections.length
-      if (v.length === n) return v
-      const next = new Array(n).fill(null)
-      v.slice(0, n).forEach((s, i) => { next[i] = s })
-      return next
-    })
-  }, [arrangement.sections.length])
-
-  // Pre-decode and cache vocal AudioBuffers whenever savedVocalClips changes.
-  useEffect(() => {
-    const AC = window.AudioContext || window.webkitAudioContext
-    const ctx = new AC()
-    savedVocalClips.forEach(clip => {
-      if (!vocalBuffersRef.current[clip.id]) {
-        vocalBuffersRef.current[clip.id] = deserialise(ctx, clip)
-      }
-    })
-  }, [savedVocalClips])
-
-  // Build the vocal clip array for the scheduler: 16-step array where step 0
-  // holds a { vocalBuffer } event and all others are null.
-  // If a section slot has a clip, every bar of that section fires it on step 0.
-  const vocalClip = useMemo(() => {
-    // Single-bar clip: fire on step 0 of every bar (player loops it by clip.length).
-    return new Array(16).fill(null)
-  }, [])
-
-  // Live ref the scheduler reads: keyed by VOCAL_TRACK_NAME.
-  // We build a per-step event by injecting the buffer into the clip at step 0.
-  // Instead of a fixed 16-step array we supply a Proxy-like object via clipsRef
-  // directly in the play callback below.
   const totalBars = arrangement.sections.reduce((sum, s) => sum + s.bars, 0)
 
   const timelineWidth = Math.max(300, totalBars * PX_PER_BAR)
 
-  // Static lineup the player walks (name + voice + per-section on/off).
-  // The vocal track fires on any section that has a clip dropped into it.
   const lineup = useMemo(
-    () => [
-      ...arrangement.tracks.map(t => ({ name: t.name, voice: voiceFor(t.name), sections: t.sections })),
-      { name: VOCAL_TRACK_NAME, voice: 'vox', sections: arrangement.sections.map((_, i) => vocalSlots[i] ? 1 : 0) },
-    ],
-    [arrangement.tracks, vocalSlots, arrangement.sections],
+    () => arrangement.tracks.map(t => ({ name: t.name, voice: voiceFor(t.name), sections: t.sections })),
+    [arrangement.tracks],
   )
 
   // For each track, the matching part (for its selectable example patterns).
@@ -173,46 +126,10 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
     return map
   }, [arrangement.tracks, selection, partFor, genreId, songGroove])
 
-  // Rebuild vocal 16-step clips per section whenever slots/buffers change.
-  // Each section gets its own 16-step clip: step 0 = { vocalBuffer }, rest null.
-  // The lineup marks each section active (1) only when a clip is assigned, so
-  // the scheduler only calls fireEvent for sections that have something to play.
-  const vocalSectionClips = useMemo(() =>
-    vocalSlots.map(id => {
-      if (!id) return null
-      const clip = new Array(16).fill(null)
-      // Lazy: buffer may not be decoded yet when memo runs; the ref is checked live.
-      clip[0] = { vocalBuffer: null, vocalClipId: id, level: 0.8 }
-      return clip
-    }),
-  [vocalSlots])
-
-  // Keep the live refs the audio scheduler reads in sync with React state.
+  // Keep the live clips ref in sync with React state.
   useEffect(() => {
-    // Merge synth clips with vocal clips. The vocal track gets a special
-    // 16-step array per section; the scheduler picks by global step, but
-    // we only mark step 0 active so each clip fires once per bar-boundary.
-    const merged = { ...clips }
-    // Build a unified 16-step clip for the vocal track. The player loops by
-    // clip.length, so we create a clip long enough to span all sections with
-    // the right buffer at the right bar. We fire on bar-1 of each section.
-    const totalBarsNow = arrangement.sections.reduce((s, sec) => s + sec.bars, 0)
-    const vocalFullClip = new Array(totalBarsNow * 16).fill(null)
-    let barCursor = 0
-    arrangement.sections.forEach((sec, i) => {
-      const id = vocalSlots[i]
-      if (id) {
-        // Fire at the first step of each bar in this section.
-        for (let b = 0; b < sec.bars; b++) {
-          const step = (barCursor + b) * 16
-          vocalFullClip[step] = { vocalBuffer: vocalBuffersRef.current[id] || null, vocalClipId: id, level: 0.8 }
-        }
-      }
-      barCursor += sec.bars
-    })
-    merged[VOCAL_TRACK_NAME] = vocalFullClip.length ? vocalFullClip : new Array(16).fill(null)
-    clipsRef.current = merged
-  }, [clips, vocalSlots, arrangement.sections])
+    clipsRef.current = { ...clips }
+  }, [clips])
   useEffect(() => {
     const m = {}
     Object.keys(hidden).forEach(k => { if (hidden[k]) m[k] = true })
@@ -403,69 +320,6 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
               </div>
             )
           })}
-
-          {/* ── Your Vocals row ─────────────────────────────────────────── */}
-          <div className={`flex border-b border-white/5 ${hidden[VOCAL_TRACK_NAME] ? 'opacity-40' : ''}`}>
-            <div
-              className="shrink-0 flex flex-col justify-center gap-1 px-2 sm:px-3 py-2 border-r border-white/10"
-              style={{ width: labelW }}
-            >
-              <button
-                onClick={() => toggleTrack(VOCAL_TRACK_NAME)}
-                className="flex items-center gap-1.5 hover:opacity-80 transition-opacity text-left"
-              >
-                <span
-                  className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-[3px] shrink-0 flex items-center justify-center text-[8px] text-black font-bold"
-                  style={{ backgroundColor: hidden[VOCAL_TRACK_NAME] ? 'transparent' : '#a855f7', border: '1.5px solid #a855f7' }}
-                >
-                  {hidden[VOCAL_TRACK_NAME] ? '' : '✓'}
-                </span>
-                <span className={`text-xs sm:text-sm truncate ${hidden[VOCAL_TRACK_NAME] ? 'text-gray-600 line-through' : 'text-gray-200'}`}>
-                  {labelW > 110 && '🎤 '}Your Vocals
-                </span>
-              </button>
-              {labelW > 110 && (
-                <span className="text-[10px] leading-tight text-purple-300/60 truncate">drag clips below</span>
-              )}
-            </div>
-
-            <div className="flex py-2 px-1 gap-1 items-center bg-black/20" style={{ width: timelineWidth }}>
-              {arrangement.sections.map((section, i) => {
-                const clipId    = vocalSlots[i]
-                const isDragTarget = dragOver === i
-                const clipRows  = savedVocalClips || []
-                const meta      = clipId ? clipRows.find(c => c.id === clipId) : null
-                return (
-                  <div
-                    key={i}
-                    className={`relative rounded h-12 border overflow-hidden flex items-center justify-center transition-colors ${isDragTarget ? 'border-purple-400/80 bg-purple-500/20' : clipId ? 'border-purple-500/40 bg-purple-500/10' : 'border-dashed border-white/10 hover:border-purple-400/30'}`}
-                    style={{ flex: section.bars }}
-                    onDragOver={e => { e.preventDefault(); setDragOver(i) }}
-                    onDragLeave={() => setDragOver(null)}
-                    onDrop={e => {
-                      e.preventDefault(); setDragOver(null)
-                      try {
-                        const data = JSON.parse(e.dataTransfer.getData('looplab/vocal-clip'))
-                        setVocalSlots(s => { const n = [...s]; n[i] = data.id; return n })
-                      } catch {}
-                    }}
-                  >
-                    {clipId ? (
-                      <div className="px-2 w-full">
-                        <p className="text-[10px] text-purple-300 truncate text-center">{meta?.name || '🎤'}</p>
-                        <button
-                          onClick={() => setVocalSlots(s => { const n = [...s]; n[i] = null; return n })}
-                          className="absolute top-0.5 right-0.5 text-[9px] text-gray-600 hover:text-red-400 transition leading-none"
-                        >✕</button>
-                      </div>
-                    ) : (
-                      <span className="text-[10px] text-gray-700">{isDragTarget ? 'drop here' : '+ drop clip'}</span>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
 
           {/* Bar counter */}
           <div className="flex border-t border-white/5 bg-black/20">
