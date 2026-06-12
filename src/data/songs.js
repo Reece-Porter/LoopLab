@@ -448,7 +448,11 @@ export const GENRE_SONGS = {
       // downbeats keep drifting forward each time round, exactly as in the record.
       // Bell sustain is set long (~10 × stepDur) so notes bleed into each other.
       groove: {
-        bass: { steps: on(0,4,8,12), notes: ['A1'] },
+        // Pounding 4/4 sub kick bass — the relentless engine of the track.
+        bass: { steps: on(0,4,8,12), notes: ['A1','A1','A1','A1'], long: true },
+        // 9-hit bell riff over 2 bars — alternating 4+3 step gaps so the phrase
+        // never aligns with the bar grid, creating the floating polyrhythmic feel.
+        // Notes: A–G#–A–F cell (harmonic minor tension/release) from the original.
         supersaw: {
           steps: on2(0,4,7,11,14,18,21,25,28),
           notes: ['A4','G#4','A4','F4','A4','G#4','A4','F4','A4'],

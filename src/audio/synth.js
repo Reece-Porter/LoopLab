@@ -298,48 +298,46 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
   })
 }
 
-// THE Bells — per Attack Magazine's Synth Secrets build, the bell tone is RING
-// MODULATION of two detuned sine oscillators: a carrier sine times a modulator
-// sine produces inharmonic metallic sidebands (the clang), and a clean sine
-// fundamental is kept underneath so the melodic pitch (A/G#/F) reads clearly.
-// Percussive amp envelope — fast attack, sustain 0 — with the fundamental
-// ringing slightly longer than the metallic partials, like a struck bell.
-export function bell(context, time, out, freq, gain = 0.28, dur = 0.5) {
-  // Roland System 100m-style ring-mod bell (as in Jeff Mills "The Bells").
-  // Ratio 2.4 gives the characteristic inharmonic metallic clang without
-  // sounding too clangorous — the fundamental stays clearly audible underneath.
-  const ratio = 2.4
+// THE Bells — Roland System 100m ring-mod bell (Jeff Mills "The Bells").
+// Ring modulation of two sines produces inharmonic metallic sidebands at
+// freq×(ratio−1) and freq×(ratio+1). Ratio 2.76 places them at 1.76× and
+// 3.76× — the characteristic electronic metallic-yet-pitched clang.
+// No natural bell harmonics: just ring-mod transient + decaying fundamental.
+export function bell(context, time, out, freq, gain = 0.32, dur = 0.5) {
+  // Ring-mod transient — the metallic strike on attack.
+  const carrier = context.createOscillator()
+  carrier.type = 'sine'
+  carrier.frequency.value = freq
 
-  // Ring-modulated attack transient — sharp hit, fades to the body quickly.
-  const carrier = context.createOscillator(); carrier.type = 'sine'; carrier.frequency.value = freq
-  const mod     = context.createOscillator(); mod.type     = 'sine'; mod.frequency.value     = freq * ratio
-  const ring    = context.createGain();       ring.gain.value = 0
-  mod.connect(ring.gain); carrier.connect(ring)
+  const mod = context.createOscillator()
+  mod.type = 'sine'
+  mod.frequency.value = freq * 2.76
+
+  const ring = context.createGain()
+  ring.gain.value = 0
+  mod.connect(ring.gain)
+  carrier.connect(ring)
+
   const metalEnv = context.createGain()
   metalEnv.gain.setValueAtTime(0, time)
-  metalEnv.gain.linearRampToValueAtTime(gain * 1.1, time + 0.002)
-  metalEnv.gain.exponentialRampToValueAtTime(gain * 0.15, time + dur * 0.12)
-  metalEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.6)
+  metalEnv.gain.linearRampToValueAtTime(gain * 1.3, time + 0.001)
+  metalEnv.gain.exponentialRampToValueAtTime(gain * 0.18, time + 0.05)
+  metalEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.4)
   ring.connect(metalEnv).connect(out)
 
-  // Pure sine fundamental — long sustain, carries the pitch through the bar.
-  const fund = context.createOscillator(); fund.type = 'sine'; fund.frequency.value = freq
+  // Pure sine fundamental — sustains the pitched identity beneath the clang.
+  const fund = context.createOscillator()
+  fund.type = 'sine'
+  fund.frequency.value = freq
+
   const fundEnv = context.createGain()
   fundEnv.gain.setValueAtTime(0, time)
-  fundEnv.gain.linearRampToValueAtTime(gain * 0.7, time + 0.004)
-  fundEnv.gain.exponentialRampToValueAtTime(gain * 0.25, time + dur * 0.35)
+  fundEnv.gain.linearRampToValueAtTime(gain * 0.6, time + 0.003)
+  fundEnv.gain.exponentialRampToValueAtTime(gain * 0.18, time + dur * 0.35)
   fundEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur)
   fund.connect(fundEnv).connect(out)
 
-  // 5th partial — adds body and the "church bell" quality.
-  const fifth = context.createOscillator(); fifth.type = 'sine'; fifth.frequency.value = freq * 1.5
-  const fifthEnv = context.createGain()
-  fifthEnv.gain.setValueAtTime(0, time)
-  fifthEnv.gain.linearRampToValueAtTime(gain * 0.18, time + 0.003)
-  fifthEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.45)
-  fifth.connect(fifthEnv).connect(out)
-
-  ;[carrier, mod, fund, fifth].forEach(o => { o.start(time); o.stop(time + dur + 0.1) })
+  ;[carrier, mod, fund].forEach(o => { o.start(time); o.stop(time + dur + 0.1) })
 }
 
 // Lush detuned-saw trance pad — slow attack, airy octave, no muddiness.
