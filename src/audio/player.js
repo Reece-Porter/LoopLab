@@ -152,6 +152,17 @@ export function playPattern(pattern, partName, bpm, { withClick = true, onStep }
 // absolute audio time. Used by both the genre arrangement and the custom
 // arrangement builder so they always sound identical.
 function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
+  // User-recorded vocal clip — play the raw AudioBuffer directly.
+  if (evt.vocalBuffer || evt.vocalClipId) {
+    const buf = evt.vocalBuffer
+    if (!buf) return // buffer not yet decoded, skip silently
+    const src = ctx.createBufferSource()
+    src.buffer = buf
+    const g = ctx.createGain(); g.gain.value = 0.85
+    src.connect(g); g.connect(out)
+    src.start(t)
+    return
+  }
   if (evt.drum) {
     if (voice === 'kick') return S.kick(ctx, t, out, 1)
     if (voice === 'clap') return S.clap(ctx, t, out, 0.6)

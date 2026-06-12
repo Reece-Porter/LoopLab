@@ -6,6 +6,7 @@ import { parseBpm } from '../audio/theory'
 import PartPanel from '../components/PartPanel'
 import ArrangementView from '../components/ArrangementView'
 import CustomArrangement from '../components/CustomArrangement'
+import VocalRecorder from '../components/VocalRecorder'
 
 export default function GenrePage() {
   const { id } = useParams()
@@ -14,6 +15,7 @@ export default function GenrePage() {
   const [activePart, setActivePart] = useState(null)
   const [bpm, setBpm] = useState(() => (genre ? parseBpm(genre.bpm) : 120))
   const [selectedSong, setSelectedSong] = useState(null)
+  const [savedVocalClips, setSavedVocalClips] = useState([])
 
   const songs = (genre && GENRE_SONGS[genre.id]) || []
 
@@ -170,7 +172,16 @@ export default function GenrePage() {
               ))}
             </div>
           )}
-          <ArrangementView arrangement={activeArrangement} accentClass={genre.color} bpm={bpm} genreId={genre.id} parts={genre.parts} songGroove={selectedSong?.groove || null} />
+          <ArrangementView
+            arrangement={activeArrangement}
+            accentClass={genre.color}
+            bpm={bpm}
+            genreId={genre.id}
+            parts={genre.parts}
+            songGroove={selectedSong?.groove || null}
+            savedVocalClips={savedVocalClips}
+          />
+          <VocalRecorder onClipsChange={setSavedVocalClips} />
         </div>
 
         {/* Custom arrangement builder */}
