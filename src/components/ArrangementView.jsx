@@ -4,7 +4,8 @@ import { voiceFor } from '../audio/player'
 import { buildTrackClip } from '../audio/arrangementClip'
 import PlayButton from './PlayButton'
 
-const LABEL_W = 176 // px — width of the track-name column
+const LABEL_W_DESKTOP = 176 // px — track-name column on ≥640px
+const LABEL_W_MOBILE  = 100 // px — track-name column on <640px
 const PX_PER_BAR = 26 // px — horizontal zoom of the timeline
 
 // Normalise a track name for matching arrangement tracks to part definitions.
@@ -61,17 +62,30 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   const { playing, start, stop, getPosition } = usePlayer('arrangement')
   const scrollRef = useRef(null)
   const seekRef = useRef(null)
+  const containerRef = useRef(null)
   const clipsRef = useRef({})  // live: trackName -> clip16
   const mutedRef = useRef({})  // live: trackName -> true
   const [frac, setFrac] = useState(null) // smooth playhead 0..1
   const [startBar, setStartBar] = useState(0) // where playback begins
   const [follow, setFollow] = useState(true) // auto-scroll to track the playhead
+  const [labelW, setLabelW] = useState(LABEL_W_DESKTOP)
+
+  // Respond to container width changes so the label column narrows on mobile.
+  useEffect(() => {
+    if (!containerRef.current) return
+    const ro = new ResizeObserver(entries => {
+      const w = entries[0].contentRect.width
+      setLabelW(w < 500 ? LABEL_W_MOBILE : LABEL_W_DESKTOP)
+    })
+    ro.observe(containerRef.current)
+    return () => ro.disconnect()
+  }, [])
 
   const toggleTrack = name => setHidden(h => ({ ...h, [name]: !h[name] }))
 
   const totalBars = arrangement.sections.reduce((sum, s) => sum + s.bars, 0)
 
-  const timelineWidth = Math.max(584, totalBars * PX_PER_BAR)
+  const timelineWidth = Math.max(300, totalBars * PX_PER_BAR)
 
   // Static lineup the player walks (name + voice + per-section on/off).
   const lineup = useMemo(
@@ -157,54 +171,54 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   useEffect(() => {
     if (!follow || frac == null || !scrollRef.current) return
     const el = scrollRef.current
-    const x = LABEL_W + frac * timelineWidth
+    const x = labelW + frac * timelineWidth
     const view = el.scrollLeft
     const w = el.clientWidth
-    if (x < view + LABEL_W + 40 || x > view + w - 60) {
+    if (x < view + labelW + 40 || x > view + w - 60) {
       el.scrollTo({ left: Math.max(0, x - w / 2), behavior: 'smooth' })
     }
-  }, [frac, timelineWidth, follow])
+  }, [frac, timelineWidth, follow, labelW])
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden">
+    <div ref={containerRef} className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-5 py-3 border-b border-white/10">
+        <div className="flex items-center gap-2 min-w-0">
           <span className="text-lg">🎼</span>
-          <div>
-            <span className="text-base font-semibold text-white">Arrangement</span>
+          <div className="min-w-0">
+            <span className="text-sm sm:text-base font-semibold text-white">Arrangement</span>
             <span className="text-xs text-gray-600 ml-2">
-              {totalBars} bars · plays at {bpm} BPM
+              {totalBars} bars · {bpm} BPM
               {currentBar >= 0
-                ? <span className="text-purple-300 ml-2">▸ bar {currentBar + 1}</span>
-                : <span className="text-cyan-300/80 ml-2">start: bar {startBar + 1}</span>}
+                ? <span className="text-purple-300 ml-1">▸ {currentBar + 1}</span>
+                : <span className="text-cyan-300/80 ml-1">▷ {startBar + 1}</span>}
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setFollow(f => !f)}
-            className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+            className={`text-xs px-2.5 py-1.5 rounded-lg border transition-colors ${
               follow
                 ? 'border-purple-500/50 bg-purple-500/15 text-purple-200'
                 : 'border-white/10 bg-white/5 text-gray-400 hover:text-gray-200'
             }`}
             title="When on, the view scrolls to follow the playhead. Turn off to scroll/edit freely while it plays."
           >
-            {follow ? '🔒 Following' : '🔓 Free scroll'}
+            {follow ? '🔒' : '🔓'}<span className="hidden sm:inline ml-1">{follow ? 'Following' : 'Free scroll'}</span>
           </button>
           <PlayButton playing={playing} onClick={onPlay} accentClass={accentClass} label="Play arrangement" />
         </div>
       </div>
 
       <div ref={scrollRef} className="overflow-x-auto looplab-scroll">
-        <div className="relative" style={{ minWidth: LABEL_W + timelineWidth }}>
+        <div className="relative" style={{ minWidth: labelW + timelineWidth }}>
 
           {/* Section ruler */}
           <div className="flex border-b border-white/10 bg-white/5">
             <div
               className="shrink-0 px-4 py-2.5 text-xs text-gray-500 border-r border-white/10 font-semibold uppercase tracking-wider"
-              style={{ width: LABEL_W }}
+              style={{ width: labelW }}
             >
               Track
             </div>
@@ -234,30 +248,30 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
             return (
               <div key={track.name} className={`flex border-b border-white/5 group ${isHidden ? 'opacity-40' : ''}`}>
                 <div
-                  className="shrink-0 flex flex-col justify-center gap-1.5 px-3 py-2 border-r border-white/10"
-                  style={{ width: LABEL_W }}
+                  className="shrink-0 flex flex-col justify-center gap-1 px-2 sm:px-3 py-2 border-r border-white/10"
+                  style={{ width: labelW }}
                 >
                   <button
                     onClick={() => toggleTrack(track.name)}
-                    className="flex items-center gap-2 hover:opacity-80 transition-opacity text-left"
+                    className="flex items-center gap-1.5 hover:opacity-80 transition-opacity text-left"
                     title={isHidden ? 'Click to un-mute (start playing live)' : 'Click to mute (stop playing live)'}
                   >
                     <span
-                      className="w-4 h-4 rounded-[3px] shrink-0 flex items-center justify-center text-[9px] text-black font-bold"
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-[3px] shrink-0 flex items-center justify-center text-[8px] sm:text-[9px] text-black font-bold"
                       style={{ backgroundColor: isHidden ? 'transparent' : track.color, border: `1.5px solid ${track.color}` }}
                     >
                       {isHidden ? '' : '✓'}
                     </span>
-                    <span className={`text-sm truncate ${isHidden ? 'text-gray-600 line-through' : 'text-gray-200'}`}>
-                      {track.icon} {track.name}
+                    <span className={`text-xs sm:text-sm truncate ${isHidden ? 'text-gray-600 line-through' : 'text-gray-200'}`}>
+                      {labelW > 110 && <span>{track.icon} </span>}{track.name}
                     </span>
                   </button>
-                  {track.instrument && (
+                  {track.instrument && labelW > 110 && (
                     <span className="text-[10px] leading-tight text-amber-300/80 truncate" title={track.instrument}>
                       {track.instrument}
                     </span>
                   )}
-                  {options.length > 0 && (
+                  {options.length > 0 && labelW > 110 && (
                     <select
                       value={sel}
                       onChange={e => {
@@ -305,7 +319,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
 
           {/* Bar counter */}
           <div className="flex border-t border-white/5 bg-black/20">
-            <div className="shrink-0 border-r border-white/10 px-4 py-1.5 text-[10px] text-gray-700 uppercase tracking-wider" style={{ width: LABEL_W }}>Bar</div>
+            <div className="shrink-0 border-r border-white/10 px-4 py-1.5 text-[10px] text-gray-700 uppercase tracking-wider" style={{ width: labelW }}>Bar</div>
             <div className="flex" style={{ width: timelineWidth }}>
               {arrangement.sections.map((section, i) => {
                 const barsBefore = arrangement.sections.slice(0, i).reduce((s, x) => s + x.bars, 0)
@@ -323,12 +337,12 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
             ref={seekRef}
             onClick={onSeek}
             className="absolute top-0 bottom-0 cursor-pointer"
-            style={{ left: LABEL_W, width: timelineWidth }}
+            style={{ left: labelW, width: timelineWidth }}
             title="Click to set where playback starts"
           />
 
           {/* Start marker + playhead overlay (non-interactive) */}
-          <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: LABEL_W, width: timelineWidth }}>
+          <div className="absolute top-0 bottom-0 pointer-events-none" style={{ left: labelW, width: timelineWidth }}>
             {/* Start point marker */}
             <div
               className="absolute top-0 bottom-0 w-px border-l border-dashed border-cyan-400/70"
