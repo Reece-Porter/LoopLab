@@ -69,6 +69,19 @@ async function renderWithEQ(buffer, { low, mid, high, vol }) {
   return off.startRendering()
 }
 
+// ─── Build a filesystem-safe "Artist - Title" name from track info ───────────
+// The "_looplab" suffix is appended at download time so it isn't doubled up.
+function makeTrackName(info) {
+  if (!info || !info.title) return 'track'
+  // SoundCloud titles often already include the artist (e.g. "Artist - Title").
+  const title = String(info.title).trim()
+  const artist = (info.uploader || '').trim()
+  const hasArtist = artist && !title.toLowerCase().includes(artist.toLowerCase())
+  const base = hasArtist ? `${artist} - ${title}` : title
+  // Strip characters that browsers/filesystems dislike, collapse whitespace.
+  return base.replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim() || 'track'
+}
+
 // ─── Waveform drawer ─────────────────────────────────────────────────────────
 function drawWaveform(canvas, audioBuffer, playhead = 0) {
   if (!canvas || !audioBuffer) return
@@ -287,7 +300,7 @@ export default function DJDeckPage() {
       const blob = audioBufferToWav(rendered)
       const a = document.createElement('a')
       a.href = URL.createObjectURL(blob)
-      a.download = `${trackName || 'mix'}-looplab.wav`
+      a.download = `${trackName || 'track'}_looplab.wav`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
@@ -361,13 +374,20 @@ export default function DJDeckPage() {
       setScUrl('')
       setStatus('loading')
       try {
+        // Grab the track's real name/artist in parallel with the audio.
+        const infoPromise = fetch(`${backend}/api/info?url=${encodeURIComponent(raw)}`)
+          .then(r => r.ok ? r.json() : null)
+          .catch(() => null)
+
         const res = await fetch(`${backend}/api/fetch?url=${encodeURIComponent(raw)}`)
         if (!res.ok) {
           const msg = await res.json().catch(() => ({}))
           throw new Error(msg.error || `HTTP ${res.status}`)
         }
         const ab = await res.arrayBuffer()
-        setTrackName('track')
+
+        const info = await infoPromise
+        setTrackName(makeTrackName(info))
         setStreamUrl(raw)
         await decodeAndLoad(ab)
       } catch (err) {
@@ -764,7 +784,8 @@ export default function DJDeckPage() {
 
             {streamUrl && backendUrl && (
               <a
-                href={`${backendUrl.replace(/\/$/, '')}/api/fetch?url=${encodeURIComponent(streamUrl)}`}
+                href={`${backendUrl.replace(/\/$/, '')}/api/fetch?url=${encodeURIComponent(streamUrl)}&name=${encodeURIComponent(trackName)}`}
+                download={`${trackName || 'track'}_looplab.mp3`}
                 className="mt-3 w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 font-semibold text-sm transition flex items-center justify-center gap-2 text-gray-200"
               >
                 ⬇ Download original MP3 (no EQ)

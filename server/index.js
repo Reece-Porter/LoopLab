@@ -71,8 +71,13 @@ app.get('/api/fetch', (req, res) => {
     url,
   ]
 
+  // Optional client-supplied filename (track name + artist). Sanitise it so it
+  // can't break the header or escape into a path.
+  const rawName = (req.query.name || 'looplab-track').toString()
+  const safeName = rawName.replace(/[\\/:*?"<>|\r\n]/g, '').replace(/\s+/g, ' ').trim().slice(0, 150) || 'looplab-track'
+
   res.setHeader('Content-Type', 'audio/mpeg')
-  res.setHeader('Content-Disposition', 'attachment; filename="looplab-track.mp3"')
+  res.setHeader('Content-Disposition', `attachment; filename="${safeName}_looplab.mp3"`)
 
   const dl = spawn('yt-dlp', args)
   let err = ''
