@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import HomePage from './pages/HomePage'
 import GenrePage from './pages/GenrePage'
 import TipsPage from './pages/TipsPage'
@@ -10,6 +10,14 @@ import SuggestPage from './pages/SuggestPage'
 import { stopAllPlayback } from './audio/usePlayer'
 
 export default function App() {
+  const location = useLocation()
+
+  // Fire a GA4 page_view on every route change.
+  useEffect(() => {
+    if (typeof window.gtag !== 'function') return
+    window.gtag('event', 'page_view', { page_path: location.pathname + location.search })
+  }, [location])
+
   // Spacebar stops any playback (anywhere on the site), unless you're typing.
   useEffect(() => {
     const onKey = e => {
