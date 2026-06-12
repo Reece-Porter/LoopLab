@@ -298,53 +298,60 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
   })
 }
 
-// THE Bells stab — Jeff Mills' "bells" are not a soft mellow bell but a
-// PUNCHY, bright, detuned chord stab: the note plus a minor third above (two
-// oscillators a minor third apart, as in the original patch), a metallic high
-// partial for the "ring", and a sub-octave for weight. Fast attack, percussive
-// decay so each 16th cuts and drives.
+// THE Bells stab — per the production deconstructions, Jeff Mills' "bells" are
+// three oscillators stacked into a MINOR TRIAD (root + minor 3rd + 5th) per
+// key, played as a punchy, bright, detuned chord stab — not a soft FM bell.
+// Layered: a metallic high partial that rings short, and a sub-octave that
+// holds longer (the track's two bell layers). Fast attack, percussive decay.
 export function bell(context, time, out, freq, gain = 0.3, dur = 0.35) {
-  const g = context.createGain()
-  g.gain.setValueAtTime(0, time)
-  g.gain.linearRampToValueAtTime(gain, time + 0.003)
-  g.gain.exponentialRampToValueAtTime(0.0001, time + dur)
-  g.connect(out)
+  const env = context.createGain()
+  env.gain.setValueAtTime(0, time)
+  env.gain.linearRampToValueAtTime(gain, time + 0.003)
+  env.gain.exponentialRampToValueAtTime(0.0001, time + dur)
+  env.connect(out)
   const lp = context.createBiquadFilter()
   lp.type = 'lowpass'
   lp.frequency.setValueAtTime(7200, time)
   lp.frequency.exponentialRampToValueAtTime(2200, time + dur)
   lp.Q.value = 2
-  lp.connect(g)
-  // Root + minor third (×2^(3/12)), each lightly detuned → punchy chord stab.
+  lp.connect(env)
+  // Minor triad: root, minor 3rd (×2^(3/12)), 5th (×2^(7/12)) — each lightly
+  // detuned for the thick analog chord-stab character. Summed through a mix
+  // gain so the six saws stay at unity before the envelope.
   const third = freq * 1.18921
-  ;[[freq, -7], [freq, 7], [third, -6], [third, 6]].forEach(([f, d]) => {
+  const fifth = freq * 1.49831
+  const voices = [[freq, -7], [freq, 7], [third, -6], [third, 6], [fifth, -5], [fifth, 5]]
+  const mix = context.createGain()
+  mix.gain.value = 1 / voices.length
+  mix.connect(lp)
+  voices.forEach(([f, d]) => {
     const osc = context.createOscillator()
     osc.type = 'sawtooth'
     osc.frequency.value = f
     osc.detune.value = d
-    osc.connect(lp)
+    osc.connect(mix)
     osc.start(time)
     osc.stop(time + dur + 0.05)
   })
-  // Metallic high partial gives the "bell" ring without softening the attack.
+  // Metallic high partial — the short, bright "ring" layer.
   const ring = context.createOscillator()
   ring.type = 'square'
   ring.frequency.value = freq * 3.01
   const rg = context.createGain()
-  rg.gain.setValueAtTime(gain * 0.16, time)
+  rg.gain.setValueAtTime(gain * 0.14, time)
   rg.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.5)
-  rg.connect(g)
+  rg.connect(out)
   ring.connect(rg)
   ring.start(time)
   ring.stop(time + dur + 0.05)
-  // Sub-octave body so the stab has weight under the ring.
+  // Sub-octave — the longer, lower bell layer that gives weight.
   const sub = context.createOscillator()
   sub.type = 'sine'
   sub.frequency.value = freq / 2
   const sg = context.createGain()
   sg.gain.setValueAtTime(0, time)
   sg.gain.linearRampToValueAtTime(gain * 0.5, time + 0.004)
-  sg.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.8)
+  sg.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.85)
   sg.connect(out)
   sub.connect(sg)
   sub.start(time)

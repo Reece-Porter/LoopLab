@@ -411,24 +411,26 @@ export const GENRE_SONGS = {
       title: 'The Bells',
       artist: 'Jeff Mills',
       year: 1996,
-      bpm: 137,
+      bpm: 138,
       key: 'A minor',
       tracks: [
-        { name: 'Kick',       instrument: 'Relentless Detroit kick',        sections: [1,1,1,1,1,1,1] },
-        { name: 'Hi-Hats',    instrument: 'Machine 8th hats',               sections: [1,1,1,1,1,1,1] },
-        { name: 'Percussion', instrument: 'Ride-driven percussion',         sections: [1,1,1,0,1,1,1] },
-        { name: 'Sub Bass',   instrument: 'Pumping A sub',                  sections: [0,1,1,0,1,1,0] },
-        { name: 'Hypno Stab', instrument: 'THE ringing bell riff (A–G#–F)', sections: [0,1,1,1,1,1,0] },
-        { name: 'Vocal',      instrument: '(none — pure machine)',          sections: [0,0,0,0,0,0,0] },
+        { name: 'Kick',       instrument: 'Distorted TR-909 kick (4/4)',     sections: [1,1,1,1,1,1,1] },
+        { name: 'Hi-Hats',    instrument: '909 open hats, offbeat 8ths',     sections: [0,1,1,1,1,1,1] },
+        { name: 'Percussion', instrument: '909 claps through delay',         sections: [0,0,1,0,1,1,1] },
+        { name: 'Sub Bass',   instrument: 'Pumping A sub',                    sections: [0,1,1,0,1,1,0] },
+        { name: 'Hypno Stab', instrument: 'THE bell riff — Am triad stabs',  sections: [0,1,1,1,1,1,0] },
+        { name: 'Vocal',      instrument: '(none — pure machine)',           sections: [0,0,0,0,0,0,0] },
       ],
-      // Am, 137 BPM. 5-note loop cycling against the bar (Mills' odd-length
-      // trick). Notes A4–G#4–F4–G#4–A4 played as spaced 8th-note stabs — the
-      // riff "dings" with air between hits, not a rushed 16th stream.
+      // A minor, 137.5 BPM. Per the production deconstructions the "bells" are
+      // a 3-osc minor-triad stack with a constant high note over a moving inner
+      // voice. Recreated monophonically: a steady high A pedal alternating with
+      // the moving F/G# below it (A–F–A–G#), as spaced 8th-note triad stabs
+      // through the bell synth so it rings rather than rushes.
       groove: {
         bass:     { steps: on(0,4,8,12), notes: ['A1','A1','A1','G1'] },
         supersaw: {
           steps: on(0,2,4,6,8,10,12,14),
-          notes: ['A4','G#4','F4','G#4','A4'],
+          notes: ['A4','F4','A4','G#4'],
           bell: true,
         },
       },
