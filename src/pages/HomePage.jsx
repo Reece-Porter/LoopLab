@@ -16,6 +16,14 @@ export default function HomePage() {
     <div className="min-h-screen bg-gray-950 text-white">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
         <header className="text-center mb-12">
+          <div className="flex justify-end mb-2">
+            <button
+              onClick={() => navigate('/suggest')}
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-amber-400 border border-white/10 hover:border-amber-400/40 rounded-lg px-3 py-1.5 transition"
+            >
+              <span>💡</span> Suggest an improvement
+            </button>
+          </div>
           <div className="flex items-center justify-center gap-3 mb-4">
             <span className="text-4xl">🎛️</span>
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
