@@ -298,64 +298,54 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
   })
 }
 
-// THE Bells stab — per the production deconstructions, Jeff Mills' "bells" are
-// three oscillators stacked into a MINOR TRIAD (root + minor 3rd + 5th) per
-// key, played as a punchy, bright, detuned chord stab — not a soft FM bell.
-// Layered: a metallic high partial that rings short, and a sub-octave that
-// holds longer (the track's two bell layers). Fast attack, percussive decay.
-export function bell(context, time, out, freq, gain = 0.3, dur = 0.35) {
-  const env = context.createGain()
-  env.gain.setValueAtTime(0, time)
-  env.gain.linearRampToValueAtTime(gain, time + 0.003)
-  env.gain.exponentialRampToValueAtTime(0.0001, time + dur)
-  env.connect(out)
-  const lp = context.createBiquadFilter()
-  lp.type = 'lowpass'
-  lp.frequency.setValueAtTime(7200, time)
-  lp.frequency.exponentialRampToValueAtTime(2200, time + dur)
-  lp.Q.value = 2
-  lp.connect(env)
-  // Minor triad: root, minor 3rd (×2^(3/12)), 5th (×2^(7/12)) — each lightly
-  // detuned for the thick analog chord-stab character. Summed through a mix
-  // gain so the six saws stay at unity before the envelope.
-  const third = freq * 1.18921
-  const fifth = freq * 1.49831
-  const voices = [[freq, -7], [freq, 7], [third, -6], [third, 6], [fifth, -5], [fifth, 5]]
-  const mix = context.createGain()
-  mix.gain.value = 1 / voices.length
-  mix.connect(lp)
-  voices.forEach(([f, d]) => {
-    const osc = context.createOscillator()
-    osc.type = 'sawtooth'
-    osc.frequency.value = f
-    osc.detune.value = d
-    osc.connect(mix)
-    osc.start(time)
-    osc.stop(time + dur + 0.05)
-  })
-  // Metallic high partial — the short, bright "ring" layer.
-  const ring = context.createOscillator()
-  ring.type = 'square'
-  ring.frequency.value = freq * 3.01
-  const rg = context.createGain()
-  rg.gain.setValueAtTime(gain * 0.14, time)
-  rg.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.5)
-  rg.connect(out)
-  ring.connect(rg)
-  ring.start(time)
-  ring.stop(time + dur + 0.05)
-  // Sub-octave — the longer, lower bell layer that gives weight.
-  const sub = context.createOscillator()
-  sub.type = 'sine'
-  sub.frequency.value = freq / 2
-  const sg = context.createGain()
-  sg.gain.setValueAtTime(0, time)
-  sg.gain.linearRampToValueAtTime(gain * 0.5, time + 0.004)
-  sg.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.85)
-  sg.connect(out)
-  sub.connect(sg)
-  sub.start(time)
-  sub.stop(time + dur + 0.05)
+// THE Bells — per Attack Magazine's Synth Secrets build, the bell tone is RING
+// MODULATION of two detuned sine oscillators: a carrier sine times a modulator
+// sine produces inharmonic metallic sidebands (the clang), and a clean sine
+// fundamental is kept underneath so the melodic pitch (A/G#/F) reads clearly.
+// Percussive amp envelope — fast attack, sustain 0 — with the fundamental
+// ringing slightly longer than the metallic partials, like a struck bell.
+export function bell(context, time, out, freq, gain = 0.28, dur = 0.5) {
+  const ratio = 2.76 // inharmonic modulator ratio → bell-like metallic sidebands
+
+  // Metallic ring-modulated layer: carrier × modulator (gain modulated around
+  // zero = ring modulation). Decays faster than the body, as in a real bell.
+  const carrier = context.createOscillator()
+  carrier.type = 'sine'
+  carrier.frequency.value = freq
+  const mod = context.createOscillator()
+  mod.type = 'sine'
+  mod.frequency.value = freq * ratio
+  const ring = context.createGain()
+  ring.gain.value = 0
+  mod.connect(ring.gain)
+  carrier.connect(ring)
+  const metalEnv = context.createGain()
+  metalEnv.gain.setValueAtTime(0, time)
+  metalEnv.gain.linearRampToValueAtTime(gain * 0.8, time + 0.002)
+  metalEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.55)
+  ring.connect(metalEnv).connect(out)
+
+  // Clean fundamental sine — carries the perceived pitch, rings the longest.
+  const fund = context.createOscillator()
+  fund.type = 'sine'
+  fund.frequency.value = freq
+  const fundEnv = context.createGain()
+  fundEnv.gain.setValueAtTime(0, time)
+  fundEnv.gain.linearRampToValueAtTime(gain * 0.6, time + 0.003)
+  fundEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur)
+  fund.connect(fundEnv).connect(out)
+
+  // Octave shimmer — quiet and short, adds the bright "ting" of the attack.
+  const oct = context.createOscillator()
+  oct.type = 'sine'
+  oct.frequency.value = freq * 2
+  const octEnv = context.createGain()
+  octEnv.gain.setValueAtTime(0, time)
+  octEnv.gain.linearRampToValueAtTime(gain * 0.22, time + 0.002)
+  octEnv.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.4)
+  oct.connect(octEnv).connect(out)
+
+  ;[carrier, mod, fund, oct].forEach(o => { o.start(time); o.stop(time + dur + 0.05) })
 }
 
 // Lush detuned-saw trance pad — slow attack, airy octave, no muddiness.

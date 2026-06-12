@@ -439,16 +439,15 @@ export const GENRE_SONGS = {
         { name: 'Hypno Stab', instrument: 'THE bell riff — Am triad stabs',  sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',      instrument: '(none — pure machine)',           sections: [0,0,0,0,0,0,0] },
       ],
-      // A minor, 137.5 BPM. The "bells" are a 3-osc minor-triad stab. Mills'
-      // signature is an ODD-LENGTH sequence (a 5-note cell) running in 8th-note
-      // stabs against the 4/4 bar, so it never lines up the same way twice —
-      // the hypnotic "floating" riff. Recreated as a 4-bar (64-step) phrase: the
-      // 5-cell A–G#–F–G#–A phases across the bars exactly like the original.
+      // A minor, 137.5 BPM. The bell tone is a ring-modulated sine bell (see
+      // synth.js bell()). The riff is the clear descending motif A–G#–F voiced
+      // as steady 8th-note bells — recognisable and ringing, not a rushed 16th
+      // wall or a wandering phase pattern.
       groove: {
         bass:     { steps: on(0,4,8,12), notes: ['A1','A1','A1','G1'] },
         supersaw: {
-          steps: on4(0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62),
-          notes: ['A4','G#4','F4','G#4','A4'],
+          steps: on(0,2,4,6,8,10,12,14),
+          notes: ['A4','G#4','F4','G#4'],
           bell: true,
         },
       },
