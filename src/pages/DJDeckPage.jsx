@@ -184,6 +184,7 @@ export default function DJDeckPage() {
   const [volume,   setVolume]     = useState(0.8)
   const [trackName, setTrackName] = useState('mix')
   const [exporting, setExporting] = useState(false)
+  const [scUrl, setScUrl]         = useState('') // SoundCloud track URL (embed mode)
 
   const audioCtxRef  = useRef(null)
   const eqRef        = useRef(null)
@@ -327,6 +328,7 @@ export default function DJDeckPage() {
   // ── Load from file upload ─────────────────────────────────────────────────
   async function loadFile(file) {
     stopSource()
+    setScUrl('')
     setPlaying(false)
     setStatus('loading')
     setErrorMsg('')
@@ -345,7 +347,19 @@ export default function DJDeckPage() {
     setStatus('loading')
     setErrorMsg('')
 
-    // SoundCloud / YouTube notes
+    // SoundCloud → embed the official widget player (browsers can't fetch its
+    // audio for Web Audio EQ, but the widget plays anything public).
+    if (/soundcloud\.com|snd\.sc/.test(raw)) {
+      bufferRef.current = null
+      setScUrl(raw)
+      setStatus('soundcloud')
+      return
+    }
+
+    // Loading a real audio URL clears any SoundCloud embed
+    setScUrl('')
+
+    // YouTube note
     if (/youtube\.com|youtu\.be/.test(raw)) {
       setStatus('error')
       setErrorMsg(
@@ -440,12 +454,41 @@ export default function DJDeckPage() {
           {status === 'loading' && (
             <p className="text-xs text-purple-400 mt-3 animate-pulse">Fetching and decoding audio…</p>
           )}
+          <p className="text-xs text-gray-600 mt-3">
+            Tip: paste a <span className="text-orange-400">SoundCloud</span> track URL to play it in the embedded player below.
+          </p>
           {status === 'error' && (
             <div className="mt-3 rounded-xl bg-red-900/20 border border-red-500/20 p-3 text-xs text-red-300 leading-relaxed">
               {errorMsg}
             </div>
           )}
         </div>
+
+        {/* SoundCloud embedded player */}
+        {status === 'soundcloud' && scUrl && (
+          <div className="rounded-2xl border border-orange-500/20 bg-orange-900/10 p-5 mb-6">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">☁️</span>
+              <h2 className="text-sm font-semibold text-orange-300 uppercase tracking-widest">SoundCloud Player</h2>
+            </div>
+            <iframe
+              key={scUrl}
+              title="SoundCloud player"
+              width="100%"
+              height="166"
+              scrolling="no"
+              frameBorder="no"
+              allow="autoplay"
+              className="rounded-xl"
+              src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(scUrl)}&color=%23a855f7&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=false`}
+            />
+            <p className="text-xs text-orange-300/50 mt-3 leading-relaxed">
+              SoundCloud audio plays inside its own player, so the 3-band EQ and download below can't process it
+              (browser security blocks cross-origin audio access). For full EQ + download control, load a file or a
+              direct audio URL instead.
+            </p>
+          </div>
+        )}
 
         {/* Deck — visible once ready */}
         <div className={`rounded-2xl border border-white/10 bg-white/5 p-5 transition-opacity ${status === 'ready' ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
