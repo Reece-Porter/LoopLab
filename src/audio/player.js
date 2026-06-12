@@ -245,7 +245,10 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
         if (muted[track.name]) return
         if (!track.sections[sectionIdx]) return
         const clip = clips[track.name]
-        const evt = clip && clip[stepInBar]
+        // Index by GLOBAL step modulo this clip's own length, so a 16-step clip
+        // loops every bar while a 32/64-step phrase evolves over 2/4 bars — all
+        // phase-locked to the song grid.
+        const evt = clip && clip[g % clip.length]
         if (!evt) return
         fire(track.voice, evt, stepInBar, nextStepTime)
       })

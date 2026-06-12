@@ -15,7 +15,7 @@ const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, '')
 // per bar across the whole section, so you see every individual note exactly
 // where it sounds — like clips in the FL Studio playlist. Each slot is an
 // event with a `level` (0..1 height) or null (rest).
-function ClipPreview({ clip, color, bars }) {
+function ClipPreview({ clip, color, bars, barOffset = 0 }) {
   const ref = useRef(null)
   useEffect(() => {
     try {
@@ -31,7 +31,9 @@ function ClipPreview({ clip, color, bars }) {
       c.fillStyle = color
       for (let b = 0; b < bars; b++) {
         for (let i = 0; i < 16; i++) {
-          const evt = clip[i]
+          // Phase a multi-bar phrase against the song grid so the preview
+          // matches what actually sounds at this point in the arrangement.
+          const evt = clip[((barOffset + b) * 16 + i) % clip.length]
           if (!evt) continue
           const lvl = evt.level || 0.6
           const x = b * 16 + i
@@ -46,7 +48,7 @@ function ClipPreview({ clip, color, bars }) {
         }
       }
     } catch { /* canvas unavailable — preview is decorative, skip silently */ }
-  }, [clip, color, bars])
+  }, [clip, color, bars, barOffset])
   return (
     <canvas
       ref={ref}
@@ -307,7 +309,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
                         }}
                       >
                         {active && hasNotes && (
-                          <ClipPreview clip={clip} color={track.color} bars={section.bars} />
+                          <ClipPreview clip={clip} color={track.color} bars={section.bars} barOffset={sectionStartBars[i]} />
                         )}
                       </div>
                     )

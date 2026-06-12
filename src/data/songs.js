@@ -11,12 +11,18 @@
 //   bass, reese, donk, piano, supersaw, pluck, chord, vox, perc…
 // (see voiceFor in player.js). Patterns use the same shape as grooves.js.
 
-// 16-step helper: list the steps that fire.
-const on = (...steps) => {
-  const a = new Array(16).fill(0)
-  steps.forEach(s => { a[s] = 1 })
+// Step helpers: list the steps that fire over a phrase of N bars (16 steps/bar).
+// `on` = 1 bar (16 steps), `on2` = 2 bars (32), `on4` = 4 bars (64). A longer
+// phrase lets a hook evolve across bars instead of repeating every bar — real
+// chord progressions and the floating sequence in The Bells need this.
+const steps = (len, list) => {
+  const a = new Array(len).fill(0)
+  list.forEach(s => { a[s] = 1 })
   return a
 }
+const on = (...list) => steps(16, list)
+const on2 = (...list) => steps(32, list)
+const on4 = (...list) => steps(64, list)
 
 export const GENRE_SONGS = {
 
@@ -37,14 +43,15 @@ export const GENRE_SONGS = {
         { name: 'Vocal Hook', instrument: '"What is love" vocal',           sections: [0,1,0,1,1,1,1,1,0] },
         { name: 'FX/Riser',   instrument: 'White-noise sweep',              sections: [0,0,1,0,0,1,0,0,0] },
       ],
-      // Real key: G minor. BPM: 124. Chord progression: Gm–Bb–Dm–F (i–III–v–VII).
-      // The iconic synth-brass stab plays a descending Gm figure: D–D–C–Bb
-      // then answers up: A–Bb–D. Bass pumps G octaves.
+      // Real key: G minor. BPM: 124. Progression Gm–Bb–Dm–F (i–III–v–VII), one
+      // chord per bar over a 4-bar phrase. The iconic synth-brass stab rides on
+      // top; the pad carries the progression so it actually moves like the song.
       groove: {
         bass:  { steps: on(0,2,4,6,8,10,12,14), notes: ['G1','G2','G1','G2','F1','F2','D#1','D#2'] },
-        pluck: { steps: on(0,2,4,7,10,12,15),   notes: ['D5','D5','C5','A#4','A4','A#4','D5'] },
-        chord: { steps: on(0,4,8,12), chords: ['Gm','A#','Dm','F'], pad: true },
-        vox:   { steps: on(0,3,6,10,13), notes: ['D5','D5','C5','A#4','D5'] },
+        pluck: { steps: on2(0,2,4,7,10,12,15, 16,18,20,23,26,28,31),
+                 notes: ['D5','D5','C5','A#4','A4','A#4','D5','D5','D5','C5','A#4','A4','A#4','D5'] },
+        chord: { steps: on4(0, 16, 32, 48), chords: ['Gm','A#','Dm','F'], pad: true },
+        vox:   { steps: on2(0,3,6,10,13, 16,19,22,26,29), notes: ['D5','D5','C5','A#4','D5','D5','D5','C5','A#4','F5'] },
       },
     },
     {
@@ -182,13 +189,17 @@ export const GENRE_SONGS = {
         { name: 'Hoover Stab', instrument: 'THE Dawn rising riff (Bm)',     sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',       instrument: '"The dawn..." spoken vocal',    sections: [0,0,1,0,0,1,0] },
       ],
-      // Real key: B minor. BPM: 140. Chord seq: Bm–D–F#–A (i–III–V–VII).
-      // The famous climbing riff ascends B3→D4→F#4→A4 then cascades back.
+      // Real key: B minor. BPM: 140. The famous hoover riff is a 2-bar phrase:
+      // bar 1 climbs the Bm arpeggio B3→D4→F#4→A4→B4, bar 2 cascades back down
+      // — that long rise-and-fall is what makes it recognisable, so it needs
+      // two bars to play out rather than looping every bar.
       groove: {
         bass:     { steps: on(2,6,10,14), notes: ['B1','B1','D2','F#1'] },
         donk:     { steps: on(2,4,6,8,10,12,14), notes: ['B2','B3','D3','B2','B3','F#3','D3'] },
-        supersaw: { steps: on(0,2,4,6,8,10,12,14), notes: ['B3','D4','F#4','A4','F#4','D4','B3','A3'], hoover: true },
-        vox:      { steps: on(0,8), notes: ['B4','F#4'] },
+        supersaw: { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
+                    notes: ['B3','D4','F#4','A4','B4','A4','F#4','D4','B4','A4','F#4','D4','B3','D4','F#4','A4'],
+                    hoover: true },
+        vox:      { steps: on2(0, 16), notes: ['B4','F#4'] },
       },
     },
     {
@@ -230,12 +241,16 @@ export const GENRE_SONGS = {
         { name: 'Piano',  instrument: 'THE rolling house piano Em–Am–C–Bm', sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',  instrument: '"Move your body" chant',             sections: [0,0,1,1,0,1,0] },
       ],
-      // Real key: E minor. BPM: 122. Prophet-2000 piano chords Em–Am–C–Bm.
-      // Earliest piano-led house track — those rolling chord stabs are the whole hook.
+      // Real key: E minor. BPM: 122. Prophet-2000 piano chords Em–Am–C–Bm —
+      // ONE chord per bar over a 4-bar phrase (the progression is the hook, and
+      // it must breathe across 4 bars, not flash by every bar). Rolling offbeat
+      // stabs within each bar; bass walks the root of each chord.
       groove: {
-        bass:  { steps: on(0,3,6,10,14), notes: ['E2','E2','A1','C2','B1'] },
-        piano: { steps: on(0,4,8,12), chords: ['Em','Am','C','Bm'] },
-        vox:   { steps: on(0,4,8,12), notes: ['E5','A4','C5','B4'] },
+        bass:  { steps: on4(0,8, 16,24, 32,40, 48,56),
+                 notes: ['E2','E2','A1','A1','C2','C2','B1','B1'] },
+        piano: { steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,54,58,62),
+                 chords: ['Em','Em','Em','Em','Am','Am','Am','Am','C','C','C','C','Bm','Bm','Bm','Bm'] },
+        vox:   { steps: on4(0, 16, 32, 48), notes: ['E5','A4','C5','B4'] },
       },
     },
     {
@@ -253,11 +268,14 @@ export const GENRE_SONGS = {
         { name: 'Vocal',  instrument: 'Loleatta Holloway "Love Sensation"', sections: [0,1,1,1,1,1,0] },
       ],
       // Real key: A minor. BPM: 119. Sampled from Holloway's "Love Sensation".
-      // Piano stabs: Am–G–F–E (i–VII–VI–V). Bass pumps A octaves.
+      // Piano stabs Am–G–F–E (i–VII–VI–V) — ONE chord per bar over a 4-bar
+      // phrase; octave italo bass pumps the root of each chord underneath.
       groove: {
-        bass:  { steps: on(0,2,4,6,8,10,12,14), notes: ['A1','A2','A1','A2','G1','G2','F1','E1'] },
-        piano: { steps: on(0,4,8,12), chords: ['Am','G','F','E'] },
-        vox:   { steps: on(0,3,6,10), notes: ['E5','C5','A4','C5'] },
+        bass:  { steps: on4(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30, 32,34,36,38,40,42,44,46, 48,50,52,54,56,58,60,62),
+                 notes: ['A1','A2','A1','A2','A1','A2','A1','A2','G1','G2','G1','G2','G1','G2','G1','G2','F1','F2','F1','F2','F1','F2','F1','F2','E1','E2','E1','E2','E1','E2','E1','E2'] },
+        piano: { steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,54,58,62),
+                 chords: ['Am','Am','Am','Am','G','G','G','G','F','F','F','F','E','E','E','E'] },
+        vox:   { steps: on4(0,6, 16,22, 32,38, 48,54), notes: ['E5','C5','D5','B4','C5','A4','B4','G#4'] },
       },
     },
   ],
@@ -421,16 +439,16 @@ export const GENRE_SONGS = {
         { name: 'Hypno Stab', instrument: 'THE bell riff — Am triad stabs',  sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',      instrument: '(none — pure machine)',           sections: [0,0,0,0,0,0,0] },
       ],
-      // A minor, 137.5 BPM. Per the production deconstructions the "bells" are
-      // a 3-osc minor-triad stack with a constant high note over a moving inner
-      // voice. Recreated monophonically: a steady high A pedal alternating with
-      // the moving F/G# below it (A–F–A–G#), as spaced 8th-note triad stabs
-      // through the bell synth so it rings rather than rushes.
+      // A minor, 137.5 BPM. The "bells" are a 3-osc minor-triad stab. Mills'
+      // signature is an ODD-LENGTH sequence (a 5-note cell) running in 8th-note
+      // stabs against the 4/4 bar, so it never lines up the same way twice —
+      // the hypnotic "floating" riff. Recreated as a 4-bar (64-step) phrase: the
+      // 5-cell A–G#–F–G#–A phases across the bars exactly like the original.
       groove: {
         bass:     { steps: on(0,4,8,12), notes: ['A1','A1','A1','G1'] },
         supersaw: {
-          steps: on(0,2,4,6,8,10,12,14),
-          notes: ['A4','F4','A4','G#4'],
+          steps: on4(0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62),
+          notes: ['A4','G#4','F4','G#4','A4'],
           bell: true,
         },
       },

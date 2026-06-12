@@ -25,23 +25,28 @@ function vowelFor(name = '') {
 // Post-process a finished clip so any vocal notes sustain right up to the next
 // note (covering the bar), all on one held vowel. Mutates + returns clip.
 function shapeVocal(clip, vowel = 'ah') {
+  const len = clip.length
   const steps = []
-  for (let i = 0; i < 16; i++) if (clip[i] && clip[i].freq != null) steps.push(i)
+  for (let i = 0; i < len; i++) if (clip[i] && clip[i].freq != null) steps.push(i)
   steps.forEach((s, k) => {
-    // hold until the next sung note (wrapping to the first note of next bar)
-    const next = k + 1 < steps.length ? steps[k + 1] : steps[0] + 16
+    // hold until the next sung note (wrapping to the first note of next phrase)
+    const next = k + 1 < steps.length ? steps[k + 1] : steps[0] + len
     const span = Math.min(8, Math.max(2, next - s)) // cap so holds don't pile up
     clip[s] = { ...clip[s], vowel, sustain: span }
   })
   return clip
 }
 
-// Genre groove pattern → clip.
+// Genre groove pattern → clip. The clip is as long as the pattern's `steps`
+// array: 16 = a 1-bar loop, 32 = a 2-bar phrase, 64 = 4 bars. The player loops
+// each clip by its own length, so multi-bar hooks (chord progressions, the
+// odd-length phasing in The Bells) evolve instead of repeating every bar.
 export function grooveClip(voice, gp) {
-  const clip = new Array(16).fill(null)
+  const len = (gp && gp.steps && gp.steps.length) || 16
+  const clip = new Array(len).fill(null)
   if (!gp) return clip
   let hit = 0
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < len; i++) {
     if (!gp.steps[i]) continue
     if (voice === 'break') {
       clip[i] = { drum: true, breakSnare: !!(gp.snares && gp.snares.includes(i)), level: DRUM_LEVEL.break }
