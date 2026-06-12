@@ -246,8 +246,8 @@ export const GENRE_GROOVES = {
       bass:    { steps: on(2,6,10,14), notes: ['A1','A1','A1','G1'], sub: true },
       // Dark chord stab — minimal, every half-bar, hypnotic
       supersaw:{ steps: on2(2,18), chords: ['Am','Gm'] },
-      // Jeff Mills "The Bells" — 4 quarter notes then full bar silence, repeats
-      bell:    { steps: on2(2,6,10,14), notes: ['A4','C5','E5','D5'], bell: true },
+      // Jeff Mills "The Bells" — 4 notes then 3 bars silence, 4-bar loop
+      bell:    { steps: on4(2,6,10,14), notes: ['A4','C5','E5','D5'], bell: true },
       // Sparse melodic keys in Am (replaces goofy vocal synth)
       vox:     { steps: on2(0,12,16,28), notes: ['A4','C5','G4','A4'] },
     },
