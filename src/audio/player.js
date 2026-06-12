@@ -9,6 +9,7 @@ import { grooveFor } from './grooves'
 // Decide which synth voice a part uses, from its name.
 export function voiceFor(partName) {
   const n = partName.toLowerCase()
+  if (n.includes('drum')) return 'kick'   // e.g. "Drums" in lo-fi
   if (n.includes('808')) return 'eight08'
   if (n.includes('kick')) return 'kick'
   if (n.includes('clap')) return 'clap'
@@ -19,15 +20,16 @@ export function voiceFor(partName) {
   if (n.includes('donk') || n.includes('bounce')) return 'donk'
   if (n.includes('piano')) return 'piano'
   if (n.includes('organ')) return 'piano'
-  if (n.includes('reese')) return 'reese'
+  if (n.includes('reese') || (n.includes('mid') && n.includes('bass'))) return 'reese'
   if (n.includes('sub') || n.includes('bass')) return 'bass'
   if (n.includes('rumble')) return 'kick'
-  if (n.includes('fx') || n.includes('riser') || n.includes('atmos')) return 'riser'
-  if (n.includes('bell')) return 'supersaw' // bell riffs ride the stab voice (bell flag set in groove)
+  if (n.includes('fx') || n.includes('riser') || n.includes('atmos') || n.includes('texture')) return 'riser'
+  if (n.includes('bell')) return 'supersaw'
   if (n.includes('string') || n.includes('chord') || n.includes('pad') || n.includes('key')) return 'chord'
-  if (n.includes('vocal') || n.includes('vox') || n.includes('voice')) return 'vox'
+  if (n.includes('vocal') || n.includes('vox') || n.includes('voice') || n.includes('vocals')) return 'vox'
   if (n.includes('hoover') || n.includes('stab') || n.includes('rave') ||
       n.includes('acid')) return 'supersaw'
+  if (n.includes('lead') && n.includes('synth')) return 'supersaw'  // "Lead Synth" → detuned supersaw
   if (n.includes('lead') || n.includes('melody') || n.includes('synth') ||
       n.includes('sample')) return 'pluck'
   return 'pluck'
