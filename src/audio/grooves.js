@@ -114,25 +114,58 @@ export const GENRE_GROOVES = {
     },
   },
 
-  // ---- Drum & Bass: Amen break + sine sub + Reese — Dm, 174 BPM ----
+  // ---- Drum & Bass: Julien Earle jungle template — Dm, 174 BPM ----
+  // Built from the tutorial video. Classic jungle/DnB: chopped Amen/Think breakbeat,
+  // 808 kick/snare, clean sine sub holding long notes that shift, growling Reese
+  // mid-bass and a liquid lead. 4-bar (64-step) cycle that chops and develops.
+  // Dm progression Dm–F–B♭–A (i–III–VI–V).
   'drum-and-bass': {
-    bpm: 174,
-    swing: 0,
+    bpm: 174, swing: 0,
     voices: {
-      break:   { steps: on2(0,4,7,10,12, 16,20,23,26,28), snares: [4,7,12,20,23,28], tone: 'dnb' },
-      kick:    { steps: on2(0,10,16,26), tone: 'dnb' },
-      snare:   { steps: on2(4,12,20,28), tone: 'dnb' },
-      hat:     { steps: on(2,6,11,14), tone: '909' },
-      // Clean sub holding long low notes
-      eight08: { steps: on2(0,12,16), notes: ['D1','D1','F1'], long: true },
-      bass:    { steps: on2(0,12,16), notes: ['D1','D1','F1'], long: true, sub: true },
-      // Growling Reese mid-bass — syncopated against the sub
-      reese:   { steps: on2(0,6,11,16,22,27), notes: ['D2','D2','F2','D2','A1','C2'] },
-      // Liquid DnB lead — ascending Dm7 phrase over 2 bars
-      pluck:   { steps: on2(0,6,12,18, 24,28), notes: ['D5','F5','A5','C5','G5','F5'] },
-      chord:   { steps: on2(0,16), chords: ['Dm7','Gm7'], pad: true },
-      // Soft keys melody in Dm (replaces goofy vocal synth)
-      vox:     { steps: on2(0,8,16,24), notes: ['D5','F5','A4','C5'] },
+      // Chopped Amen across 4 bars with a rolling turnaround fill in bar 4
+      break: {
+        steps: on4(
+          0,4,7,10,12,
+          16,20,23,26,28,
+          32,36,39,42,44,
+          48,52,55,58,60,62,63,
+        ),
+        snares: [4,7,12, 20,23,28, 36,39,44, 52,55,60,62],
+        tone: 'dnb',
+      },
+      kick:  { steps: on4(0,10, 16,26, 32,42, 48,58), tone: 'dnb' },
+      snare: { steps: on4(4,12, 20,28, 36,44, 52,60), tone: 'dnb' },
+      hat:   { steps: on(2,6,11,14), tone: '909' },
+      // Clean sine sub holding long low notes shifting Dm–F–B♭–A
+      eight08: { steps: on4(0, 16, 32, 48), notes: ['D1','F1','A#1','A1'], long: true },
+      bass:    { steps: on4(0, 16, 32, 48), notes: ['D1','F1','A#1','A1'], long: true, sub: true },
+      // Growling Reese mid-bass — syncopated against the sub, developing
+      reese: {
+        steps: on4(0,6,11, 16,22,27, 32,38,43, 48,54,59,62),
+        notes: [
+          'D2','D2','F2',
+          'F2','A2','F2',
+          'A#1','A#1','D2',
+          'A1','A1','C2','D2',
+        ],
+      },
+      // Liquid DnB lead — ascending phrase developing over the 4-bar cycle
+      pluck: {
+        steps: on4(0,6,12, 18,24,30, 34,40,46, 52,58),
+        notes: [
+          'D5','F5','A5',
+          'C6','A5','F5',
+          'A#5','D6','F6',
+          'A5','D5',
+        ],
+      },
+      // Lush pad following the progression, one chord per bar
+      chord: { steps: on4(0,16,32,48), chords: ['Dm7','Fmaj7','A#maj7','A7'], pad: true },
+      // Soft keys melody in Dm, developing over 4 bars
+      vox: {
+        steps: on4(0,8, 16,24, 32,40, 48,56),
+        notes: ['D5','F5', 'A4','C5', 'A#4','D5', 'A4','D5'],
+      },
     },
   },
 
