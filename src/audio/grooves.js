@@ -95,22 +95,55 @@ export const GENRE_GROOVES = {
     },
   },
 
-  // ---- Deep House: Larry Heard / Kerri Chandler — Fm, warm and soulful ----
+  // ---- Deep House: Julien Earle "DTS" template — Fm, 124 BPM, warm + soulful ----
+  // Built from the tutorial video. Rhodes-driven deep house: minimal swung kick,
+  // soft offbeat hats + ride, warm pizzicato/sub bass and syncopated Rhodes e-piano
+  // chord stabs (the signature) with a pentatonic pluck lick. 4-bar (64-step) cycle.
+  // Progression Fm7–D#maj7–A#maj7–Cm7 (i–VII–IV–v).
   'deep-house': {
-    bpm: 124,
-    swing: 0.12,
+    bpm: 124, swing: 0.12,
     voices: {
-      kick:    { steps: on(0,4,8,12), tone: '909' },
-      snare:   { steps: on(4,12), tone: '909' },
-      hat:     { steps: on(2,6,10,14), open: true, tone: '909' },
-      // Warm off-beat sub bass walking the Fm scale
-      bass:    { steps: on(2,6,10,14), notes: ['F1','F1','G#1','C2'], sub: true },
-      // Rhodes electric-piano off-beat chords — the deep house signature
-      chord:   { steps: on2(2,10,18,26), chords: ['Fm7','Fm7','A#maj7','D#maj7'], rhodes: true },
-      // Pluck lick — short pentatonic phrase in Fm over 2 bars
-      pluck:   { steps: on2(0,5,10, 16,22,28), notes: ['F4','G#4','C5','A#4','G4','F4'] },
-      // Soft keys melodic phrase in Fm (replaces goofy vocal synth)
-      vox:     { steps: on2(2,10,18,26), notes: ['F4','G#4','C5','A#4'] },
+      kick: { steps: on(0,4,8,12), tone: '909' },
+      // Clap/rim on 2&4 with ghost into bar 4
+      snare: { steps: on4(4,12, 20,28, 36,44, 52,56,60), tone: '909' },
+      hat: { steps: on(2,6,10,14), open: true, tone: '909' },
+      // Warm offbeat pizzicato sub bass walking Fm through the chord changes
+      bass: {
+        steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,54,58,62),
+        notes: [
+          'F1','F1','G#1','C2',
+          'D#1','D#1','G1','A#1',
+          'A#1','A#1','C2','D2',
+          'C2','C2','D#2','C2',
+        ],
+        sub: true,
+      },
+      // Rhodes e-piano off-beat chord stabs — syncopated, one chord per bar
+      chord: {
+        steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,54,58,62),
+        chords: [
+          'Fm7','Fm7','Fm7','Fm7',
+          'D#maj7','D#maj7','D#maj7','D#maj7',
+          'A#maj7','A#maj7','A#maj7','A#maj7',
+          'Cm7','Cm7','Cm7','Cm7',
+        ],
+        rhodes: true,
+      },
+      // Pluck lick — pentatonic phrase in Fm developing over 4 bars
+      pluck: {
+        steps: on4(0,5,10, 16,21,26, 32,37,42, 48,53,58),
+        notes: [
+          'F4','G#4','C5',
+          'D#4','G4','A#4',
+          'A#4','C5','D5',
+          'C5','G4','F4',
+        ],
+      },
+      // Soft keys melodic phrase in Fm, developing over 4 bars
+      vox: {
+        steps: on4(2,10, 18,26, 34,42, 50,58),
+        notes: ['F4','G#4', 'D#4','G4', 'A#4','D5', 'C5','F4'],
+      },
     },
   },
 
