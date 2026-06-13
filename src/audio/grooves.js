@@ -439,16 +439,21 @@ export const GENRE_GROOVES = {
 
   // ---- Hard Bounce: Julien Earle "World Bounce" / donk — Am, 150 BPM ----
   // Built from the tutorial video. UK hard bounce / donk: hard distorted 4-on-floor
-  // kick, busy offbeat hats, the signature bouncing donk walking up/down the A-minor
-  // scale, euphoric rave-stab riff, pitched vocal hook. 4-bar (64-step) cycle.
+  // kick + sub, busy offbeat hats, the signature bouncing donk walking up/down the
+  // A-minor scale, euphoric supersaw rave-stab riff, melodic hook. 4-bar (64-step).
   // Chord progression Am–G–F–G (i–VII–VI–VII).
   'bouncy-techno': {
     bpm: 150, swing: 0,
     voices: {
       kick: { steps: on(0,4,8,12), tone: 'hard' },
-      // Clap on 2&4 with a ghost roll into bar 4
       clap: { steps: on4(4,12, 20,28, 36,44, 52,56,60), tone: '909' },
       hat: { steps: on(2,6,10,14), open: true, tone: '909' },
+      // Sub bass: root thump on beat 1 of each bar to anchor the low end
+      bass: {
+        steps: on4(0, 16, 32, 48),
+        notes: ['A1','G1','F1','G1'],
+        sub: true,
+      },
       // THE donk — relentless 8th-note bounce, octave-jumping and walking the
       // A-minor scale through the chord changes over 4 bars
       donk: {
@@ -465,21 +470,16 @@ export const GENRE_GROOVES = {
           'G2','G3','G2','G3','D3','D2','G2','A3',
         ],
       },
-      // Euphoric rave-stab riff — full chord stabs, one chord per bar plus a
-      // mid-bar push, progressing Am–G–F–G
+      // Euphoric rave stabs — thick detuned supersaw chords, one per half-bar
       supersaw: {
         steps: on4(0,8, 16,24, 32,40, 48,56),
         chords: ['Am','Am', 'G','G', 'F','F', 'G','G'],
+        rave: true,
       },
-      // Pitched rave-lead vocal hook in A minor, evolving over 4 bars
+      // Melodic hook in A minor — one phrase per bar, giving space to breathe
       vox: {
-        steps: on4(0,4,8,12, 16,20,24,28, 32,36,40,44, 48,52,56,60),
-        notes: [
-          'A4','E5','C5','A4',
-          'G4','D5','B4','G4',
-          'F4','C5','A4','F4',
-          'G4','D5','E5','A4',
-        ],
+        steps: on4(0,8, 16,24, 32,40, 48,56),
+        notes: ['A4','C5', 'G4','B4', 'F4','A4', 'G4','A4'],
       },
     },
   },
