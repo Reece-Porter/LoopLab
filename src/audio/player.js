@@ -196,9 +196,9 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
     if (evt.rhodes) return S.rhodes(ctx, t, out, evt.freqs, 0.24 * vg, stepDur * 7)
     if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24 * vg, evt.pad ? stepDur * 8 : stepDur * 3)
     if (evt.pad) return S.synthPad(ctx, t, out, evt.freqs, 0.20 * vg, stepDur * 12)
-    if (evt.rave) return S.supersawChord(ctx, t, out, evt.freqs, 0.18 * vg, stepDur * 3.2)
-    if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.22 * vg, stepDur * 6)
-    return S.chordStab(ctx, t, out, evt.freqs, 0.26 * vg, stepDur * 4, true)
+    if (evt.rave) return S.supersawChord(ctx, t, out, evt.freqs, 0.13 * vg, stepDur * 3.2)
+    if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.17 * vg, stepDur * 6)
+    return S.chordStab(ctx, t, out, evt.freqs, 0.18 * vg, stepDur * 4, true)
   }
   if (voice === 'riser') return S.riser(ctx, t, out, 0.14, stepDur * 64)
   if (evt.freq != null) {
@@ -213,8 +213,8 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
     if (voice === 'bass') return S.bass(ctx, t, out, f, 0.5, evt.long ? stepDur * 4 : stepDur * 1.5)
     if (voice === 'supersaw') return S.supersaw(ctx, t, out, f, 0.28, stepDur * 1.8)
     if (voice === 'piano') return S.piano(ctx, t, out, [f], 0.22, stepDur * 3)
-    if (voice === 'vox' && evt.pluck) return S.pluck(ctx, t, out, f, 0.28, stepDur * 2.5)
-    if (voice === 'vox') return S.softKeys(ctx, t, out, [f], 0.22, stepDur * (evt.sustain || 5))
+    if (voice === 'vox' && evt.pluck) return S.pluck(ctx, t, out, f, 0.22, stepDur * 2)
+    if (voice === 'vox') return S.vox(ctx, t, out, f, 0.15, stepDur * (evt.sustain || 5), evt.vowel || 'oo', false)
     return S.pluck(ctx, t, out, f, 0.3, stepDur * 2)
   }
 }

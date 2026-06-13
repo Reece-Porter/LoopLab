@@ -523,7 +523,7 @@ export const GENRE_GROOVES = {
         ],
         sub: true,
       },
-      // Syncopated vocal-chop stabs — piano/keys feel for the tech house hook
+      // Syncopated vocal-chop stabs — rhodes electric piano for a warm, punchy chop
       supersaw: {
         steps: on4(2,6, 18,22, 34,38, 50,54,60),
         chords: [
@@ -532,7 +532,7 @@ export const GENRE_GROOVES = {
           'Cm7','G7',
           'A#maj7','Cm7','Cm7',
         ],
-        keys: true,
+        rhodes: true,
       },
       // "Ah-ah" vocal hook in Cm — plucked mallet/marimba feel
       vox: {
