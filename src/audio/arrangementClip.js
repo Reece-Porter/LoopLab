@@ -68,7 +68,7 @@ export function grooveClip(voice, gp) {
       const f = name ? noteToFreq(name) : null
       clip[i] = {
         freq: f, long: gp.long, bell: !!gp.bell, hoover: !!gp.hoover,
-        acid: !!gp.acid, sub: !!gp.sub, pluck: !!gp.pluck,
+        acid: !!gp.acid, sub: !!gp.sub, pluck: !!gp.pluck, chop: !!gp.chop,
         accent: !!(gp.accents && gp.accents.includes(i)),
         level: freqLevel(f),
       }

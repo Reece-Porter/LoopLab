@@ -476,11 +476,24 @@ export const GENRE_GROOVES = {
         chords: ['Am','Am', 'G','G', 'F','F', 'G','G'],
         rave: true,
       },
-      // Melodic hook in A minor — plucked synth/mallet for contrast with the donk
+      // Chopped vocal hook — syncopated stabs following the Am–G–F–G chords, up-
+      // and-down contour per bar with a G5 lift in bar 4. `chop` slices the real
+      // vocal sample into tight gated stabs in the fixed arrangement; `pluck`
+      // keeps it crisp on the synth (custom builder).
       vox: {
-        steps: on4(0,8, 16,24, 32,40, 48,56),
-        notes: ['A4','C5', 'G4','B4', 'F4','A4', 'G4','A4'],
-        pluck: true,
+        steps: on4(
+          0,3,6,10,13,
+          16,19,22,26,29,
+          32,35,38,42,45,
+          48,51,54,58,61
+        ),
+        notes: [
+          'A4','C5','E5','C5','A4',
+          'G4','B4','D5','B4','G4',
+          'F4','A4','C5','A4','F4',
+          'G4','B4','D5','G5','B4',
+        ],
+        chop: true, pluck: true,
       },
     },
   },

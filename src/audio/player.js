@@ -158,17 +158,35 @@ export function playPattern(pattern, partName, bpm, { withClick = true, onStep }
 // arrangement builder so they always sound identical.
 function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
   // Recorded vocal clip or hardcoded sample — play the AudioBuffer directly.
-  // `evt.rate` pitch-shifts the sample (so a one-shot can follow a hook melody);
-  // `evt.gain` trims its level.
+  //   evt.rate       pitch-shift (so a one-shot can follow a hook melody)
+  //   evt.gain       level trim
+  //   evt.offset     start position into the buffer, in seconds (for chops)
+  //   evt.gateSteps  gate length in steps — slices the sample into a short,
+  //                  enveloped chop instead of playing it in full
   if (evt.vocalBuffer || evt.vocalClipId) {
     const buf = evt.vocalBuffer
     if (!buf) return // buffer not yet decoded / file missing, skip silently
     const src = ctx.createBufferSource()
     src.buffer = buf
     if (evt.rate && evt.rate > 0) src.playbackRate.value = evt.rate
-    const g = ctx.createGain(); g.gain.value = (evt.gain != null ? evt.gain : 1) * 0.85
+    const peak = (evt.gain != null ? evt.gain : 1) * 0.85
+    const off = evt.offset || 0
+    const g = ctx.createGain()
     src.connect(g); g.connect(out)
-    src.start(t)
+    if (evt.gateSteps != null) {
+      const dur = evt.gateSteps * stepDur
+      const a = 0.006                       // tiny attack to avoid clicks
+      const r = Math.min(0.06, dur * 0.4)   // short release tail
+      g.gain.setValueAtTime(0, t)
+      g.gain.linearRampToValueAtTime(peak, t + a)
+      g.gain.setValueAtTime(peak, Math.max(t + a, t + dur - r))
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
+      src.start(t, off)
+      src.stop(t + dur + 0.05)
+    } else {
+      g.gain.value = peak
+      src.start(t, off)
+    }
     return
   }
   if (evt.drum) {

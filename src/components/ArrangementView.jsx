@@ -9,12 +9,23 @@ import PlayButton from './PlayButton'
 
 // Turn a synth vocal clip into one that triggers a real vocal sample, pitched
 // per note to follow the written hook (rate clamped so it never chipmunks).
+// When an event is flagged `chop`, the sample is sliced into a short, gated
+// stab (cycling through a few in-sample offsets for movement) — the classic
+// vocal-chop hook. Otherwise it's gated to the note's own sustain so held
+// vowels breathe with the phrase instead of droning over each other.
+const CHOP_GATE = 1.5                          // chop length, in 16th steps
+const CHOP_OFFSETS = [0.08, 0.24, 0.14, 0.32]  // seconds into the vowel
 function sampleiseVocalClip(clip, buf, baseFreq) {
   if (!clip) return clip
+  let hit = 0
   return clip.map(evt => {
     if (!evt || evt.freq == null) return evt
     const rate = Math.min(2, Math.max(0.5, evt.freq / baseFreq))
-    return { vocalBuffer: buf, rate, gain: 0.9, level: evt.level }
+    const chop = !!evt.chop
+    const gateSteps = chop ? CHOP_GATE : Math.min(8, evt.sustain || 4)
+    const offset = chop ? CHOP_OFFSETS[hit % CHOP_OFFSETS.length] : 0
+    hit++
+    return { vocalBuffer: buf, rate, gain: chop ? 0.85 : 0.9, gateSteps, offset, level: evt.level }
   })
 }
 
