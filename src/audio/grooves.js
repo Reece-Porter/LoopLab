@@ -443,7 +443,7 @@ export const GENRE_GROOVES = {
   // A-minor scale, euphoric supersaw rave-stab riff, melodic hook. 4-bar (64-step).
   // Chord progression Am–G–F–G (i–VII–VI–VII).
   'bouncy-techno': {
-    bpm: 150, swing: 0,
+    bpm: 160, swing: 0,
     voices: {
       kick: { steps: on(0,4,8,12), tone: 'hard' },
       clap: { steps: on4(4,12, 20,28, 36,44, 52,56,60), tone: '909' },
@@ -476,10 +476,11 @@ export const GENRE_GROOVES = {
         chords: ['Am','Am', 'G','G', 'F','F', 'G','G'],
         rave: true,
       },
-      // Melodic hook in A minor — one phrase per bar, giving space to breathe
+      // Melodic hook in A minor — plucked synth/mallet for contrast with the donk
       vox: {
         steps: on4(0,8, 16,24, 32,40, 48,56),
         notes: ['A4','C5', 'G4','B4', 'F4','A4', 'G4','A4'],
+        pluck: true,
       },
     },
   },
@@ -522,7 +523,7 @@ export const GENRE_GROOVES = {
         ],
         sub: true,
       },
-      // Syncopated vocal-chop stabs — the tech house hook, develops over 4 bars
+      // Syncopated vocal-chop stabs — piano/keys feel for the tech house hook
       supersaw: {
         steps: on4(2,6, 18,22, 34,38, 50,54,60),
         chords: [
@@ -531,11 +532,13 @@ export const GENRE_GROOVES = {
           'Cm7','G7',
           'A#maj7','Cm7','Cm7',
         ],
+        keys: true,
       },
-      // "Ah-ah" vocal hook in Cm
+      // "Ah-ah" vocal hook in Cm — plucked mallet/marimba feel
       vox: {
         steps: on4(2,10, 18,26, 34,42, 50,58),
         notes: ['C5','D#5', 'G4','A#4', 'C5','G5', 'A#4','C5'],
+        pluck: true,
       },
     },
   },
@@ -575,8 +578,8 @@ export const GENRE_GROOVES = {
         ],
         sub: true,
       },
-      // Dark hypnotic chord stab — minimal, develops Am–Gm–Am–F over 4 bars
-      supersaw: { steps: on4(2, 18, 34, 50), chords: ['Am','Gm','Am','F'] },
+      // Dark atmospheric pad — minimal, held chords evolving Am–Gm–Am–F over 4 bars
+      supersaw: { steps: on4(2, 18, 34, 50), chords: ['Am','Gm','Am','F'], pad: true },
       // Jeff Mills "The Bells" — 4 notes then 3 bars silence, 4-bar loop
       bell:    { steps: on(0,2,4,6,8,10,12,14), notes: ['A3','C4','E4','D4'], bell: true },
       // Sparse melodic keys in Am, developing over 4 bars
@@ -674,7 +677,7 @@ export const GENRE_GROOVES = {
         ],
         acid: true, accents: [0,8, 16,24, 32,40, 48,56],
       },
-      // Brutal rave-loop chord stabs — offbeat aggression developing Cm–A#–Gm–Cm
+      // Brutal rave-loop chord stabs — detuned supersaw aggression developing Cm–A#–Gm–Cm
       supersaw: {
         steps: on4(2,6,10,14, 18,22,26,30, 34,38,42,46, 50,54,58,62),
         chords: [
@@ -683,6 +686,7 @@ export const GENRE_GROOVES = {
           'Gm','Gm','Gm','Gm',
           'Cm','Cm','A#','Gm',
         ],
+        rave: true,
       },
     },
   },
