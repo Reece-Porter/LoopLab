@@ -4,6 +4,8 @@ import { voiceFor } from '../audio/player'
 import { patternClip } from '../audio/arrangementClip'
 import { deserialise } from '../audio/vocalStore'
 import { getContext } from '../audio/synth'
+import { SAMPLE_PRESETS } from '../audio/samplePresets'
+import { loadSample } from '../audio/sampleLoader'
 import PlayButton from './PlayButton'
 
 const LABEL_W = 220
@@ -48,7 +50,8 @@ function useLanes(parts) {
   [parts])
 }
 
-const VOCAL_LANE = 'Your Vocals'
+const VOCAL_LANE  = 'Your Vocals'
+const SAMPLE_LANE = 'Sample Presets'
 
 export default function CustomArrangement({ parts, genreId, accentClass, bpm, savedVocalClips = [] }) {
   const lanes = useLanes(parts)
@@ -60,6 +63,12 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
   const [vocalGrid, setVocalGrid] = useState({})
   // armedVocal = clipId string | null
   const [armedVocal, setArmedVocal] = useState(null)
+  // sampleGrid[barIndex] = presetId string
+  const [sampleGrid, setSampleGrid] = useState({})
+  // armedSample = presetId string | null
+  const [armedSample, setArmedSample] = useState(null)
+  // presetStatus: presetId → 'loading' | 'ready' | 'failed'
+  const [presetStatus, setPresetStatus] = useState({})
   // armed = { part, idx } — pattern currently selected for paint; null = none
   const [armed,  setArmed]  = useState(null)
   const [frac,   setFrac]   = useState(null)
@@ -78,7 +87,8 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
   const { playing, start, stop, getPosition } = usePlayer(`custom-${genreId}`)
   const tracks = useMemo(() => [
     ...lanes.map(l => ({ name: l.name, voice: l.voice })),
-    { name: VOCAL_LANE, voice: 'vox' },
+    { name: SAMPLE_LANE, voice: 'vox' },
+    { name: VOCAL_LANE,  voice: 'vox' },
   ], [lanes])
 
   // Pre-decode vocal AudioBuffers whenever savedVocalClips changes.
@@ -90,6 +100,21 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
       }
     })
   }, [savedVocalClips])
+
+  // Fetch and decode all preset samples at mount. Missing files resolve to null
+  // so unavailable presets show as dimmed rather than crashing.
+  useEffect(() => {
+    const ctx = getContext()
+    const initial = {}
+    SAMPLE_PRESETS.forEach(p => { initial[p.id] = 'loading' })
+    setPresetStatus(initial)
+    SAMPLE_PRESETS.forEach(preset => {
+      loadSample(ctx, preset.src).then(buf => {
+        vocalBuffersRef.current[preset.id] = buf // null if missing
+        setPresetStatus(s => ({ ...s, [preset.id]: buf ? 'ready' : 'failed' }))
+      })
+    })
+  }, [])
 
   // ---- compile grid → live clips read by the audio engine every step ----
   useEffect(() => {
@@ -117,8 +142,22 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
       }
     })
     compiled[VOCAL_LANE] = vocalBarClips
+
+    // Sample presets lane
+    const sampleBarClips = new Array(bars).fill(null)
+    Object.keys(sampleGrid).forEach(barStr => {
+      const bar = Number(barStr)
+      const id  = sampleGrid[barStr]
+      if (id && bar < bars) {
+        const clip16 = new Array(16).fill(null)
+        clip16[0] = { vocalBuffer: vocalBuffersRef.current[id] || null, level: 0.85 }
+        sampleBarClips[bar] = clip16
+      }
+    })
+    compiled[SAMPLE_LANE] = sampleBarClips
+
     gridRef.current = compiled
-  }, [grid, vocalGrid, lanes, bars])
+  }, [grid, vocalGrid, sampleGrid, lanes, bars])
 
   // ---- grid mutations ----
   const place = useCallback((partName, bar, idx) => {
@@ -257,7 +296,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
         </button>
 
         <button
-          onClick={() => { setGrid({}); setVocalGrid({}); setArmed(null); setArmedVocal(null) }}
+          onClick={() => { setGrid({}); setVocalGrid({}); setSampleGrid({}); setArmed(null); setArmedVocal(null); setArmedSample(null) }}
           className="text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
         >Clear</button>
 
@@ -379,6 +418,110 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
             )
           })}
 
+          {/* ── Sample Presets lane ── */}
+          <div className="flex border-b border-white/5">
+            {/* Label + preset chips */}
+            <div
+              className="shrink-0 flex flex-col justify-center gap-1.5 px-3 py-2 border-r border-white/10 bg-black/25"
+              style={{ width: LABEL_W }}
+            >
+              <span className="text-xs text-gray-200 font-semibold truncate">🎵 Samples</span>
+              <VolumeFader name={SAMPLE_LANE} volumes={volumes} setVolumes={setVolumes} />
+              <div className="flex flex-wrap gap-1">
+                {SAMPLE_PRESETS.map(preset => {
+                  const status  = presetStatus[preset.id] || 'loading'
+                  const isArmed = armedSample === preset.id
+                  const ready   = status === 'ready'
+                  return (
+                    <button
+                      key={preset.id}
+                      disabled={!ready}
+                      title={
+                        status === 'failed'  ? `File not found: ${preset.src.split('/').pop()} — add it to public/samples/` :
+                        status === 'loading' ? 'Loading…' :
+                        isArmed ? 'Click to disarm · click/drag across bars to paint' :
+                        'Click to arm, then paint bars'
+                      }
+                      onClick={() => {
+                        if (!ready) return
+                        setArmedSample(isArmed ? null : preset.id)
+                        setArmedVocal(null)
+                        setArmed(null)
+                      }}
+                      className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${
+                        !ready   ? 'opacity-30 cursor-not-allowed text-gray-500 border-white/10' :
+                        isArmed  ? 'font-bold ring-1 ring-white/50 text-black cursor-grab active:cursor-grabbing' :
+                                   'text-gray-300 hover:brightness-150 cursor-grab active:cursor-grabbing'
+                      }`}
+                      style={
+                        !ready  ? { borderColor: '#ffffff18', background: 'transparent' } :
+                        isArmed ? { background: '#10b981', borderColor: '#10b981' } :
+                                  { borderColor: '#10b98166', background: '#10b98118' }
+                      }
+                    >
+                      {status === 'loading' ? '…' : preset.name}
+                    </button>
+                  )
+                })}
+              </div>
+              <p className="text-[9px] text-gray-600 leading-tight">
+                Add .mp3/.wav to <code className="text-gray-500">public/samples/</code>
+              </p>
+            </div>
+
+            {/* Bar cells */}
+            <div className="flex" style={{ width: timelineWidth }}>
+              {Array.from({ length: bars }).map((_, b) => {
+                const presetId = sampleGrid[b]
+                const filled   = presetId != null
+                const meta     = filled ? SAMPLE_PRESETS.find(p => p.id === presetId) : null
+                return (
+                  <div
+                    key={b}
+                    onMouseDown={e => {
+                      if (e.button === 2) return
+                      e.preventDefault()
+                      if (armedSample) {
+                        paintRef.current = { laneName: SAMPLE_LANE, idx: armedSample, mode: 'place', painted: new Set([b]) }
+                        setSampleGrid(g => ({ ...g, [b]: armedSample }))
+                      } else if (filled) {
+                        paintRef.current = { laneName: SAMPLE_LANE, idx: null, mode: 'erase', painted: new Set([b]) }
+                        setSampleGrid(g => { const n = { ...g }; delete n[b]; return n })
+                      }
+                    }}
+                    onMouseEnter={() => {
+                      const p = paintRef.current
+                      if (!p || p.laneName !== SAMPLE_LANE || p.painted.has(b)) return
+                      p.painted.add(b)
+                      if (p.mode === 'place') setSampleGrid(g => ({ ...g, [b]: p.idx }))
+                      else setSampleGrid(g => { const n = { ...g }; delete n[b]; return n })
+                    }}
+                    onContextMenu={e => {
+                      e.preventDefault()
+                      setSampleGrid(g => { const n = { ...g }; delete n[b]; return n })
+                      paintRef.current = { laneName: SAMPLE_LANE, idx: null, mode: 'erase', painted: new Set([b]) }
+                    }}
+                    title={filled ? `${meta?.name || 'Sample'} — right-click to erase` : armedSample ? 'Click to place sample' : 'Arm a sample first'}
+                    className={`shrink-0 border-r h-14 flex items-center justify-center px-0.5 transition-colors ${
+                      b % 4 === 0 ? 'border-white/10' : 'border-white/[0.04]'
+                    } ${armedSample ? 'cursor-cell' : filled ? 'cursor-pointer' : 'cursor-default'}`}
+                    style={{
+                      width: BAR_W,
+                      background: filled ? '#10b9812e' : armedSample ? '#10b98108' : 'transparent',
+                      boxShadow: filled ? 'inset 0 0 0 1px #10b98188' : 'none',
+                    }}
+                  >
+                    {filled && (
+                      <span className="text-[9px] leading-tight text-center text-white/80 line-clamp-2 pointer-events-none break-words">
+                        {meta?.name || '🎵'}
+                      </span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
           {/* ── Your Vocals lane ── */}
           {savedVocalClips.length > 0 && (
             <div className="flex border-b border-white/5">
@@ -402,8 +545,9 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                           e.dataTransfer.effectAllowed = 'copy'
                           setArmedVocal(clip.id)
                           setArmed(null)
+                          setArmedSample(null)
                         }}
-                        onClick={() => { setArmedVocal(isArmed ? null : clip.id); setArmed(null) }}
+                        onClick={() => { setArmedVocal(isArmed ? null : clip.id); setArmed(null); setArmedSample(null) }}
                         title={isArmed ? 'Click to disarm · click/drag across bars to paint' : 'Click to arm, then paint bars'}
                         className={`text-[10px] px-1.5 py-0.5 rounded border transition-all cursor-grab active:cursor-grabbing ${
                           isArmed ? 'font-bold ring-1 ring-white/50 text-black' : 'text-gray-300 hover:brightness-150'
