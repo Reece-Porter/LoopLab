@@ -436,6 +436,15 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                     <button
                       key={preset.id}
                       disabled={!ready}
+                      draggable={ready}
+                      onDragStart={e => {
+                        if (!ready) return
+                        e.dataTransfer.setData('application/looplab-sample', JSON.stringify({ presetId: preset.id }))
+                        e.dataTransfer.effectAllowed = 'copy'
+                        setArmedSample(preset.id)
+                        setArmedVocal(null)
+                        setArmed(null)
+                      }}
                       title={
                         status === 'failed'  ? `File not found: ${preset.src.split('/').pop()} — add it to public/samples/` :
                         status === 'loading' ? 'Loading…' :
@@ -495,6 +504,17 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                       p.painted.add(b)
                       if (p.mode === 'place') setSampleGrid(g => ({ ...g, [b]: p.idx }))
                       else setSampleGrid(g => { const n = { ...g }; delete n[b]; return n })
+                    }}
+                    onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy' }}
+                    onDrop={e => {
+                      e.preventDefault()
+                      const raw = e.dataTransfer.getData('application/looplab-sample')
+                      if (!raw) return
+                      try {
+                        const { presetId } = JSON.parse(raw)
+                        setSampleGrid(g => ({ ...g, [b]: presetId }))
+                        setArmedSample(presetId)
+                      } catch { /* malformed drag payload */ }
                     }}
                     onContextMenu={e => {
                       e.preventDefault()

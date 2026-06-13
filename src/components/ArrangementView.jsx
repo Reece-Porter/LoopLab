@@ -2,7 +2,21 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { usePlayer } from '../audio/usePlayer'
 import { voiceFor } from '../audio/player'
 import { buildTrackClip } from '../audio/arrangementClip'
+import { vocalPresetFor } from '../audio/samplePresets'
+import { loadSample } from '../audio/sampleLoader'
+import { getContext } from '../audio/synth'
 import PlayButton from './PlayButton'
+
+// Turn a synth vocal clip into one that triggers a real vocal sample, pitched
+// per note to follow the written hook (rate clamped so it never chipmunks).
+function sampleiseVocalClip(clip, buf, baseFreq) {
+  if (!clip) return clip
+  return clip.map(evt => {
+    if (!evt || evt.freq == null) return evt
+    const rate = Math.min(2, Math.max(0.5, evt.freq / baseFreq))
+    return { vocalBuffer: buf, rate, gain: 0.9, level: evt.level }
+  })
+}
 
 const LABEL_W_DESKTOP = 176 // px — track-name column on ≥640px
 const LABEL_W_MOBILE  = 100 // px — track-name column on <640px
@@ -75,6 +89,21 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   const [follow, setFollow] = useState(true) // auto-scroll to track the playhead
   const [labelW, setLabelW] = useState(LABEL_W_DESKTOP)
 
+  // Real vocal sample for this genre — plays on the Vocals track instead of the
+  // synth voice when enabled (default on). Falls back to the synth if not loaded.
+  const vocalPreset = useMemo(() => vocalPresetFor(genreId), [genreId])
+  const [vocalSample, setVocalSample] = useState({ src: null, buf: null })
+  const [useSampleVox, setUseSampleVox] = useState(true)
+  useEffect(() => {
+    let live = true
+    loadSample(getContext(), vocalPreset.src).then(buf => {
+      if (live) setVocalSample({ src: vocalPreset.src, buf })
+    })
+    return () => { live = false }
+  }, [vocalPreset])
+  // Ignore a stale buffer from the previous genre until the new one resolves.
+  const vocalBuf = vocalSample.src === vocalPreset.src ? vocalSample.buf : null
+
   // Respond to container width changes so the label column narrows on mobile.
   useEffect(() => {
     if (!containerRef.current) return
@@ -95,6 +124,11 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   const lineup = useMemo(
     () => arrangement.tracks.map(t => ({ name: t.name, voice: voiceFor(t.name), sections: t.sections })),
     [arrangement.tracks],
+  )
+
+  const hasVocalTrack = useMemo(
+    () => lineup.some(t => t.voice === 'vox'),
+    [lineup],
   )
 
   // For each track, the matching part (for its selectable example patterns).
@@ -123,10 +157,14 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
       const source = (sel != null && sel !== 'groove' && options[sel])
         ? { type: 'pattern', pattern: options[sel] }
         : { type: 'groove', genreId, override: songGroove }
-      map[t.name] = buildTrackClip(v, source)
+      let clip = buildTrackClip(v, source)
+      if (v === 'vox' && useSampleVox && vocalBuf) {
+        clip = sampleiseVocalClip(clip, vocalBuf, vocalPreset.baseFreq)
+      }
+      map[t.name] = clip
     })
     return map
-  }, [arrangement.tracks, selection, partFor, genreId, songGroove])
+  }, [arrangement.tracks, selection, partFor, genreId, songGroove, useSampleVox, vocalBuf, vocalPreset])
 
   // Keep the live clips ref in sync with React state.
   useEffect(() => {
@@ -203,6 +241,26 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {hasVocalTrack && (
+            <button
+              onClick={() => setUseSampleVox(v => !v)}
+              disabled={!vocalBuf}
+              className={`text-xs px-2.5 py-1.5 rounded-lg border transition-colors ${
+                !vocalBuf
+                  ? 'border-white/10 bg-white/5 text-gray-600 cursor-wait'
+                  : useSampleVox
+                    ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-200'
+                    : 'border-white/10 bg-white/5 text-gray-400 hover:text-gray-200'
+              }`}
+              title={
+                !vocalBuf ? 'Loading vocal sample…'
+                : useSampleVox ? `Vocals: real sample (${vocalPreset.name}) — click for synth`
+                : 'Vocals: synth — click for real sample'
+              }
+            >
+              🎤<span className="hidden sm:inline ml-1">{useSampleVox ? 'Sample' : 'Synth'}</span>
+            </button>
+          )}
           <button
             onClick={() => setFollow(f => !f)}
             className={`text-xs px-2.5 py-1.5 rounded-lg border transition-colors ${

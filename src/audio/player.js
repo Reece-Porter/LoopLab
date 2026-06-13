@@ -157,13 +157,16 @@ export function playPattern(pattern, partName, bpm, { withClick = true, onStep }
 // absolute audio time. Used by both the genre arrangement and the custom
 // arrangement builder so they always sound identical.
 function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
-  // User-recorded vocal clip — play the raw AudioBuffer directly.
+  // Recorded vocal clip or hardcoded sample — play the AudioBuffer directly.
+  // `evt.rate` pitch-shifts the sample (so a one-shot can follow a hook melody);
+  // `evt.gain` trims its level.
   if (evt.vocalBuffer || evt.vocalClipId) {
     const buf = evt.vocalBuffer
-    if (!buf) return // buffer not yet decoded, skip silently
+    if (!buf) return // buffer not yet decoded / file missing, skip silently
     const src = ctx.createBufferSource()
     src.buffer = buf
-    const g = ctx.createGain(); g.gain.value = 0.85
+    if (evt.rate && evt.rate > 0) src.playbackRate.value = evt.rate
+    const g = ctx.createGain(); g.gain.value = (evt.gain != null ? evt.gain : 1) * 0.85
     src.connect(g); g.connect(out)
     src.start(t)
     return
