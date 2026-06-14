@@ -21,7 +21,7 @@ export default function HomePage() {
               onClick={() => navigate('/suggest')}
               className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-amber-400 border border-white/10 hover:border-amber-400/40 rounded-lg px-3 py-1.5 transition"
             >
-              <span>💡</span> Suggest an improvement
+              Suggest an improvement
             </button>
           </div>
           <div className="mb-4">

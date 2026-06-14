@@ -68,15 +68,13 @@ export default function GenrePage() {
               </svg>
               <span className="hidden xs:inline">All genres</span>
             </button>
-            <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br ${genre.color} flex items-center justify-center text-xl shadow-lg shrink-0`}>
-              {genre.emoji}
-            </div>
+            <span className="text-xl shrink-0">{genre.emoji}</span>
             <div className="min-w-0 flex-1">
               <h1 className="text-base sm:text-xl font-black tracking-tight text-white truncate">{genre.name}</h1>
               <div className="flex gap-2">
-                <span className="text-xs text-gray-400 hidden sm:inline">🎚 typical {genre.bpm} BPM</span>
+                <span className="text-xs text-gray-400 hidden sm:inline">typical {genre.bpm} BPM</span>
                 <span className="text-xs text-gray-500 hidden sm:inline">·</span>
-                <span className="text-xs text-gray-400 hidden sm:inline">🎵 {genre.key}</span>
+                <span className="text-xs text-gray-400 hidden sm:inline">{genre.key}</span>
               </div>
             </div>
             {/* BPM display — always visible in header */}
