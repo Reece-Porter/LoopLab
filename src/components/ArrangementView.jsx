@@ -240,7 +240,6 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-5 py-3 border-b border-white/10">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-lg">🎼</span>
           <div className="min-w-0">
             <span className="text-sm sm:text-base font-semibold text-white">Arrangement</span>
             <span className="text-xs text-gray-600 ml-2">

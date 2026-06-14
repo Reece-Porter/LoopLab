@@ -5,32 +5,30 @@ export default function GenreCard({ genre }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur shadow-lg">
+    <div className="bg-[#0a0a0f] border border-white/[0.08] rounded-lg overflow-hidden hover:border-white/20 hover:bg-white/[0.04] transition-colors">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full text-left p-6 flex items-center gap-4 hover:bg-white/5 transition-colors"
+        className="w-full text-left p-4 flex items-start gap-3"
       >
-        <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${genre.color} flex items-center justify-center text-2xl shrink-0 shadow-md`}>
-          {genre.emoji}
-        </div>
         <div className="flex-1 min-w-0">
-          <h2 className="text-xl font-bold text-white mb-1">{genre.name}</h2>
-          <p className="text-sm text-gray-400 line-clamp-2">{genre.description}</p>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm">{genre.emoji}</span>
+            <h2 className="text-base font-semibold text-white truncate">{genre.name}</h2>
+            <span className="text-xs text-gray-500 ml-1 shrink-0">{genre.bpm} BPM</span>
+          </div>
+          <p className="text-sm text-gray-400 leading-relaxed line-clamp-2">{genre.description}</p>
         </div>
-        <div className="flex flex-col items-end gap-1 shrink-0 ml-2">
-          <span className="text-xs text-gray-500 bg-white/10 px-2 py-0.5 rounded-full">{genre.bpm} BPM</span>
-          <svg
-            className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
-            fill="none" viewBox="0 0 24 24" stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
+        <svg
+          className={`w-4 h-4 text-gray-500 transition-transform duration-300 shrink-0 mt-0.5 ${open ? 'rotate-180' : ''}`}
+          fill="none" viewBox="0 0 24 24" stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
       {open && (
-        <div className="border-t border-white/10 px-6 pb-6 pt-4">
-          <div className="flex flex-wrap gap-3 mb-6">
+        <div className="border-t border-white/[0.08] px-4 pb-4 pt-3">
+          <div className="flex flex-wrap gap-2 mb-4">
             <InfoPill label="BPM" value={genre.bpm} />
             <InfoPill label="Key" value={genre.key} />
           </div>

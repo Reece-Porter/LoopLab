@@ -76,9 +76,9 @@ export default function GenrePage() {
             <div className="min-w-0 flex-1">
               <h1 className="text-base sm:text-xl font-black tracking-tight text-white truncate">{genre.name}</h1>
               <div className="flex gap-2">
-                <span className="text-xs text-gray-400 hidden sm:inline">🎚 typical {genre.bpm} BPM</span>
+                <span className="text-xs text-gray-400 hidden sm:inline">typical {genre.bpm} BPM</span>
                 <span className="text-xs text-gray-500 hidden sm:inline">·</span>
-                <span className="text-xs text-gray-400 hidden sm:inline">🎵 {genre.key}</span>
+                <span className="text-xs text-gray-400 hidden sm:inline">{genre.key}</span>
               </div>
             </div>
             {/* BPM display — always visible in header */}
@@ -137,7 +137,6 @@ export default function GenrePage() {
           <PartPanel part={activePart} accentClass={genre.color} bpm={bpm} />
         ) : (
           <div className="text-center py-16 text-gray-700 border border-white/5 rounded-2xl">
-            <span className="text-4xl block mb-3">👆</span>
             Pick an element above to see tips, example patterns and hear them play
           </div>
         )}
