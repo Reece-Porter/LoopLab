@@ -4,8 +4,8 @@ import { voiceFor } from '../audio/player'
 import { buildTrackClip } from '../audio/arrangementClip'
 import { vocalPresetFor } from '../audio/samplePresets'
 import { loadSample } from '../audio/sampleLoader'
-import { getContext } from '../audio/synth'
 import { exportGrooveMidi } from '../audio/midiExport'
+import { getContext } from '../audio/synth'
 import PlayButton from './PlayButton'
 
 // Turn a synth vocal clip into one that triggers a real vocal sample, pitched
@@ -286,9 +286,9 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
           <button
             onClick={() => exportGrooveMidi(genreId)}
             className="text-xs px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
-            title="Download this groove as a MIDI file"
+            title="Download groove as MIDI — drag into FL Studio"
           >
-            ⬇ MIDI
+            ↓ MIDI
           </button>
           <PlayButton playing={playing} onClick={onPlay} accentClass={accentClass} label="Play arrangement" />
         </div>

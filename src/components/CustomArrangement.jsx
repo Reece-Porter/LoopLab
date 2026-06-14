@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { usePlayer } from '../audio/usePlayer'
 import { voiceFor } from '../audio/player'
 import { patternClip } from '../audio/arrangementClip'
+import { exportClipsMidi } from '../audio/midiExport'
 import { deserialise } from '../audio/vocalStore'
 import { getContext } from '../audio/synth'
 import { SAMPLE_PRESETS } from '../audio/samplePresets'
@@ -306,6 +307,12 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
           onClick={() => { setGrid({}); setVocalGrid({}); setSampleGrid({}); setArmed(null); setArmedVocal(null); setArmedSample(null) }}
           className="text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
         >Clear</button>
+
+        <button
+          onClick={() => exportClipsMidi(gridRef.current, bpm, tracks.map(t => t.name))}
+          className="text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
+          title="Download arrangement as MIDI — drag into FL Studio"
+        >↓ MIDI</button>
 
         <PlayButton playing={playing} onClick={onPlay} accentClass={accentClass} label="Play mine" />
       </div>
