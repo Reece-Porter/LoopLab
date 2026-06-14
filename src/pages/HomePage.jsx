@@ -27,7 +27,9 @@ export default function HomePage() {
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
             LoopLab
           </h1>
-          <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">FL Studio Production Reference</p>
+          <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">
+            FL Studio Production Reference
+          </p>
           <p className="text-gray-400 text-base max-w-xl mx-auto">
             Genre guides — pick a style to get a full breakdown of every track element with example patterns.
           </p>
@@ -37,31 +39,43 @@ export default function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
           <button
             onClick={() => navigate('/tips')}
-            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06] transition p-4 [border-left:3px_solid_rgb(245_158_11)] group"
+            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group border-l-[3px] border-l-amber-500"
           >
-            <span className="block font-semibold text-white group-hover:text-amber-300 transition-colors">FL Studio Tips &amp; Shortcuts</span>
-            <span className="block text-xs text-gray-500 mt-0.5">Keyboard shortcuts and workflow tricks</span>
+            <span className="flex-1">
+              <span className="block font-semibold text-white text-sm">FL Studio Tips &amp; Shortcuts</span>
+              <span className="block text-xs text-gray-500 mt-0.5">Keyboard shortcuts and workflow tricks</span>
+            </span>
+            <span className="text-gray-600 group-hover:text-gray-400 group-hover:translate-x-1 transition-all text-sm">→</span>
           </button>
           <button
             onClick={() => navigate('/tools')}
-            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06] transition p-4 [border-left:3px_solid_rgb(16_185_129)] group"
+            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group border-l-[3px] border-l-emerald-500"
           >
-            <span className="block font-semibold text-white group-hover:text-emerald-300 transition-colors">Production Tools &amp; Resources</span>
-            <span className="block text-xs text-gray-500 mt-0.5">Free samples, vocals, plugins and where to find tracks</span>
+            <span className="flex-1">
+              <span className="block font-semibold text-white text-sm">Production Tools &amp; Resources</span>
+              <span className="block text-xs text-gray-500 mt-0.5">Free samples, vocals, plugins and where to find tracks</span>
+            </span>
+            <span className="text-gray-600 group-hover:text-gray-400 group-hover:translate-x-1 transition-all text-sm">→</span>
           </button>
           <button
             onClick={() => navigate('/player')}
-            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06] transition p-4 [border-left:3px_solid_rgb(168_85_247)] group"
+            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group border-l-[3px] border-l-purple-500"
           >
-            <span className="block font-semibold text-white group-hover:text-purple-300 transition-colors">Player &amp; Downloader</span>
-            <span className="block text-xs text-gray-500 mt-0.5">Load or download a track and mix it with 3-band EQ</span>
+            <span className="flex-1">
+              <span className="block font-semibold text-white text-sm">Player &amp; Downloader</span>
+              <span className="block text-xs text-gray-500 mt-0.5">Load or download a track and mix it with 3-band EQ</span>
+            </span>
+            <span className="text-gray-600 group-hover:text-gray-400 group-hover:translate-x-1 transition-all text-sm">→</span>
           </button>
           <button
             onClick={() => navigate('/dj')}
-            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06] transition p-4 [border-left:3px_solid_rgb(6_182_212)] group"
+            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group border-l-[3px] border-l-cyan-500"
           >
-            <span className="block font-semibold text-white group-hover:text-cyan-300 transition-colors">DJ Deck</span>
-            <span className="block text-xs text-gray-500 mt-0.5">Two decks — mix &amp; beat-match two tracks together</span>
+            <span className="flex-1">
+              <span className="block font-semibold text-white text-sm">DJ Deck</span>
+              <span className="block text-xs text-gray-500 mt-0.5">Two decks — mix &amp; beat-match two tracks together</span>
+            </span>
+            <span className="text-gray-600 group-hover:text-gray-400 group-hover:translate-x-1 transition-all text-sm">→</span>
           </button>
         </div>
 
@@ -84,13 +98,13 @@ export default function HomePage() {
               <button
                 key={genre.id}
                 onClick={() => navigate(`/genre/${genre.id}`)}
-                className="text-left rounded-lg border border-white/[0.08] bg-[#0a0a0f] hover:bg-white/[0.04] hover:border-white/20 transition-all duration-200 p-4 group"
+                className="text-left rounded-lg border border-white/[0.08] bg-[#0a0a0f] hover:border-white/20 hover:bg-white/[0.04] transition-all duration-200 p-4 group"
               >
-                <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm">{genre.emoji}</span>
-                  <h2 className="text-base font-semibold text-white group-hover:text-purple-300 transition-colors truncate">{genre.name}</h2>
-                  <span className="text-xs text-gray-500 ml-auto shrink-0">{genre.bpm}</span>
+                  <h2 className="text-base font-semibold text-white group-hover:text-purple-300 transition-colors truncate flex-1">{genre.name}</h2>
                 </div>
+                <p className="text-xs text-gray-500 mb-2">{genre.bpm} BPM</p>
                 <p className="text-sm text-gray-400 line-clamp-2 leading-relaxed">{genre.description}</p>
               </button>
             ))

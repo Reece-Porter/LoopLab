@@ -5,7 +5,7 @@ export default function GenreCard({ genre }) {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="bg-[#0a0a0f] border border-white/[0.08] rounded-lg overflow-hidden hover:border-white/20 hover:bg-white/[0.04] transition-colors">
+    <div className="bg-[#0a0a0f] border border-white/[0.08] rounded-lg overflow-hidden hover:border-white/20 hover:bg-white/[0.04] transition-all duration-200">
       <button
         onClick={() => setOpen(!open)}
         className="w-full text-left p-4 flex items-start gap-3"
@@ -14,7 +14,7 @@ export default function GenreCard({ genre }) {
           <div className="flex items-center gap-2 mb-1">
             <span className="text-sm">{genre.emoji}</span>
             <h2 className="text-base font-semibold text-white truncate">{genre.name}</h2>
-            <span className="text-xs text-gray-500 ml-1 shrink-0">{genre.bpm} BPM</span>
+            <span className="text-xs text-gray-500 shrink-0">{genre.bpm} BPM</span>
           </div>
           <p className="text-sm text-gray-400 leading-relaxed line-clamp-2">{genre.description}</p>
         </div>
@@ -28,7 +28,7 @@ export default function GenreCard({ genre }) {
 
       {open && (
         <div className="border-t border-white/[0.08] px-4 pb-4 pt-3">
-          <div className="flex flex-wrap gap-2 mb-4">
+          <div className="flex flex-wrap gap-3 mb-4">
             <InfoPill label="BPM" value={genre.bpm} />
             <InfoPill label="Key" value={genre.key} />
           </div>
