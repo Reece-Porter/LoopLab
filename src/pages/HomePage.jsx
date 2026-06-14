@@ -24,62 +24,62 @@ export default function HomePage() {
               <span>💡</span> Suggest an improvement
             </button>
           </div>
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <span className="text-4xl">🎛️</span>
-            <h1 className="text-3xl sm:text-4xl font-black tracking-tight bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
+          <div className="mb-4">
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
               LoopLab
             </h1>
+            <p className="text-xs uppercase tracking-widest text-gray-500 mt-2">FL Studio Production Reference</p>
           </div>
-          <p className="text-gray-400 text-lg max-w-xl mx-auto">
-            FL Studio genre guides — pick a style to get a full breakdown of every track element with example patterns.
+          <p className="text-gray-400 text-base max-w-xl mx-auto">
+            Pick a genre to get a full breakdown of every track element with example patterns.
           </p>
         </header>
 
         {/* Quick links to the reference areas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
           <button
             onClick={() => navigate('/tips')}
-            className="text-left rounded-2xl border border-white/10 bg-gradient-to-br from-amber-500/10 to-orange-600/10 hover:border-amber-400/40 transition p-5 flex items-center gap-4 group"
+            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group"
+            style={{ borderLeft: '3px solid #f59e0b' }}
           >
-            <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-2xl shrink-0">⌨️</span>
             <span className="flex-1">
-              <span className="block font-bold text-white group-hover:text-amber-300 transition-colors">FL Studio Tips & Shortcuts</span>
-              <span className="block text-xs text-gray-400 mt-0.5">Keyboard shortcuts and workflow tricks</span>
+              <span className="block font-semibold text-white text-sm group-hover:text-amber-300 transition-colors">FL Studio Tips & Shortcuts</span>
+              <span className="block text-xs text-gray-500 mt-0.5">Keyboard shortcuts and workflow tricks</span>
             </span>
-            <span className="text-gray-600 group-hover:text-amber-400 group-hover:translate-x-1 transition-all">→</span>
+            <span className="text-gray-600 group-hover:text-amber-400 group-hover:translate-x-1 transition-all text-sm">→</span>
           </button>
           <button
             onClick={() => navigate('/tools')}
-            className="text-left rounded-2xl border border-white/10 bg-gradient-to-br from-emerald-500/10 to-teal-600/10 hover:border-emerald-400/40 transition p-5 flex items-center gap-4 group"
+            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group"
+            style={{ borderLeft: '3px solid #10b981' }}
           >
-            <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl shrink-0">🧰</span>
             <span className="flex-1">
-              <span className="block font-bold text-white group-hover:text-emerald-300 transition-colors">Production Tools & Resources</span>
-              <span className="block text-xs text-gray-400 mt-0.5">Free samples, vocals, plugins and where to find tracks</span>
+              <span className="block font-semibold text-white text-sm group-hover:text-emerald-300 transition-colors">Production Tools & Resources</span>
+              <span className="block text-xs text-gray-500 mt-0.5">Free samples, vocals, plugins and where to find tracks</span>
             </span>
-            <span className="text-gray-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all">→</span>
+            <span className="text-gray-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all text-sm">→</span>
           </button>
           <button
             onClick={() => navigate('/player')}
-            className="text-left rounded-2xl border border-white/10 bg-gradient-to-br from-purple-500/10 to-pink-600/10 hover:border-purple-400/40 transition p-5 flex items-center gap-4 group"
+            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group"
+            style={{ borderLeft: '3px solid #a855f7' }}
           >
-            <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-2xl shrink-0">🎚️</span>
             <span className="flex-1">
-              <span className="block font-bold text-white group-hover:text-purple-300 transition-colors">Player &amp; Downloader</span>
-              <span className="block text-xs text-gray-400 mt-0.5">Load or download a track and mix it with 3-band EQ</span>
+              <span className="block font-semibold text-white text-sm group-hover:text-purple-300 transition-colors">Player &amp; Downloader</span>
+              <span className="block text-xs text-gray-500 mt-0.5">Load or download a track and mix it with 3-band EQ</span>
             </span>
-            <span className="text-gray-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all">→</span>
+            <span className="text-gray-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all text-sm">→</span>
           </button>
           <button
             onClick={() => navigate('/dj')}
-            className="text-left rounded-2xl border border-white/10 bg-gradient-to-br from-cyan-500/10 to-purple-600/10 hover:border-cyan-400/40 transition p-5 flex items-center gap-4 group"
+            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group"
+            style={{ borderLeft: '3px solid #06b6d4' }}
           >
-            <span className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center text-2xl shrink-0">🎧</span>
             <span className="flex-1">
-              <span className="block font-bold text-white group-hover:text-cyan-300 transition-colors">DJ Deck</span>
-              <span className="block text-xs text-gray-400 mt-0.5">Two decks — mix &amp; beat-match two tracks together</span>
+              <span className="block font-semibold text-white text-sm group-hover:text-cyan-300 transition-colors">DJ Deck</span>
+              <span className="block text-xs text-gray-500 mt-0.5">Two decks — mix &amp; beat-match two tracks together</span>
             </span>
-            <span className="text-gray-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all">→</span>
+            <span className="text-gray-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all text-sm">→</span>
           </button>
         </div>
 
@@ -92,44 +92,30 @@ export default function HomePage() {
             placeholder="Search genres..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition"
+            className="w-full bg-white/[0.04] border border-white/10 rounded-lg pl-11 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition"
           />
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {filtered.length > 0 ? (
             filtered.map(genre => (
               <button
                 key={genre.id}
                 onClick={() => navigate(`/genre/${genre.id}`)}
-                className="text-left rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all duration-200 p-6 group"
+                className="text-left rounded-lg border border-white/[0.08] bg-[#0a0a0f] hover:border-white/20 hover:bg-white/[0.04] transition-all duration-200 p-4 group"
               >
-                <div className="flex items-center gap-4 mb-3">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${genre.color} flex items-center justify-center text-xl shrink-0 shadow-md`}>
-                    {genre.emoji}
-                  </div>
+                <div className="flex items-start gap-2 mb-2">
+                  <span className="text-base shrink-0 mt-0.5">{genre.emoji}</span>
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-lg font-bold text-white group-hover:text-purple-300 transition-colors">{genre.name}</h2>
-                    <span className="text-xs text-gray-500 bg-white/10 px-2 py-0.5 rounded-full">{genre.bpm} BPM</span>
+                    <h2 className="text-sm font-semibold text-white group-hover:text-purple-300 transition-colors leading-tight">{genre.name}</h2>
+                    <span className="text-xs text-gray-600">{genre.bpm} BPM</span>
                   </div>
-                  <svg className="w-5 h-5 text-gray-600 group-hover:text-purple-400 group-hover:translate-x-1 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
                 </div>
-                <p className="text-sm text-gray-400 line-clamp-2">{genre.description}</p>
-                <div className="mt-3 flex flex-wrap gap-1">
-                  {genre.parts.slice(0, 5).map(p => (
-                    <span key={p.name} className="text-xs text-gray-600 bg-white/5 px-2 py-0.5 rounded-full">{p.icon} {p.name}</span>
-                  ))}
-                  {genre.parts.length > 5 && (
-                    <span className="text-xs text-gray-600 bg-white/5 px-2 py-0.5 rounded-full">+{genre.parts.length - 5} more</span>
-                  )}
-                </div>
+                <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">{genre.description}</p>
               </button>
             ))
           ) : (
             <div className="col-span-full text-center py-16 text-gray-600">
-              <span className="text-4xl block mb-3">🔍</span>
               No genres match &ldquo;{search}&rdquo;
             </div>
           )}
