@@ -8,7 +8,6 @@ import { getContext } from '../audio/synth'
 import { SAMPLE_PRESETS } from '../audio/samplePresets'
 import { loadSample } from '../audio/sampleLoader'
 import PlayButton from './PlayButton'
-import { exportClipsMidi } from '../audio/midiExport'
 
 const LABEL_W = 220
 const BAR_W   = 60       // px per bar — wide enough to read pattern names
