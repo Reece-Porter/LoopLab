@@ -7,6 +7,7 @@ import { getContext } from '../audio/synth'
 import { SAMPLE_PRESETS } from '../audio/samplePresets'
 import { loadSample } from '../audio/sampleLoader'
 import PlayButton from './PlayButton'
+import { exportClipsMidi } from '../audio/midiExport'
 
 const LABEL_W = 220
 const BAR_W   = 60       // px per bar — wide enough to read pattern names
@@ -294,6 +295,12 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
         >
           {follow ? '🔒 Following' : '🔓 Free scroll'}
         </button>
+
+        <button
+          onClick={() => exportClipsMidi(gridRef.current, bpm, tracks.map(t => t.name))}
+          className="text-xs px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
+          title="Download custom arrangement as a MIDI file"
+        >⬇ MIDI</button>
 
         <button
           onClick={() => { setGrid({}); setVocalGrid({}); setSampleGrid({}); setArmed(null); setArmedVocal(null); setArmedSample(null) }}

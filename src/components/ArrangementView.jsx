@@ -5,6 +5,7 @@ import { buildTrackClip } from '../audio/arrangementClip'
 import { vocalPresetFor } from '../audio/samplePresets'
 import { loadSample } from '../audio/sampleLoader'
 import { getContext } from '../audio/synth'
+import { exportGrooveMidi } from '../audio/midiExport'
 import PlayButton from './PlayButton'
 
 // Turn a synth vocal clip into one that triggers a real vocal sample, pitched
@@ -281,6 +282,13 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
             title="When on, the view scrolls to follow the playhead. Turn off to scroll/edit freely while it plays."
           >
             {follow ? '🔒' : '🔓'}<span className="hidden sm:inline ml-1">{follow ? 'Following' : 'Free scroll'}</span>
+          </button>
+          <button
+            onClick={() => exportGrooveMidi(genreId)}
+            className="text-xs px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
+            title="Download this groove as a MIDI file"
+          >
+            ⬇ MIDI
           </button>
           <PlayButton playing={playing} onClick={onPlay} accentClass={accentClass} label="Play arrangement" />
         </div>
