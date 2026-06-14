@@ -5,214 +5,142 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LoopLab — Minimal Editorial</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     body { font-family: 'Inter', sans-serif; background: #080808; color: #fff; }
-    .divider { border-top: 1px solid #1a1a1a; }
     .genre-row:hover { background: #0f0f0f; }
-    .genre-row:hover .arrow-icon { opacity: 1; transform: translateX(2px); }
-    .arrow-icon { opacity: 0.3; transition: all 0.15s ease; }
     .pill-link:hover { background: #1c1c1c; color: #fff; }
-    .search-input:focus { outline: none; border-color: #444; }
+    .search-input:focus { outline: none; }
+    .search-input::placeholder { color: #444; }
+    .search-input { color: #aaa; }
   </style>
 </head>
 <body class="min-h-screen">
 
-  <!-- Top Nav -->
-  <header class="border-b border-[#141414] px-8 py-4 flex items-center justify-between max-w-[1280px] mx-auto">
-    <div class="flex items-center gap-3">
-      <!-- Logo -->
-      <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-sm" style="background: linear-gradient(135deg, #7c3aed, #ea580c);">LL</div>
-      <span class="text-white font-semibold text-base tracking-tight">LoopLab</span>
-      <span class="text-[#333] text-sm ml-1">/ reference</span>
+  <!-- Top nav -->
+  <header style="border-bottom: 1px solid #141414;">
+    <div class="max-w-5xl mx-auto px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm text-white" style="background: linear-gradient(135deg, #7c3aed, #ea580c);">LL</div>
+        <span class="text-white font-semibold text-base tracking-tight">LoopLab</span>
+      </div>
+      <nav class="flex items-center gap-6">
+        <a href="#" class="text-sm transition-colors" style="color:#555;">Genres</a>
+        <a href="#" class="text-sm transition-colors" style="color:#555;">BPM Guide</a>
+        <a href="#" class="text-sm transition-colors" style="color:#555;">Theory</a>
+        <a href="#" class="text-sm transition-colors" style="color:#555;">Tools</a>
+        <button class="text-sm px-4 py-1.5 rounded-md font-medium text-white" style="background:#7c3aed;">Sign in</button>
+      </nav>
     </div>
-    <nav class="flex items-center gap-6 text-sm text-[#555]">
-      <a href="#" class="hover:text-white transition-colors">Genres</a>
-      <a href="#" class="hover:text-white transition-colors">BPM Guide</a>
-      <a href="#" class="hover:text-white transition-colors">Scales</a>
-      <a href="#" class="hover:text-white transition-colors">Docs</a>
-      <div class="w-7 h-7 rounded-full bg-[#1a1a1a] flex items-center justify-center text-xs text-[#666]">R</div>
-    </nav>
   </header>
 
-  <main class="max-w-[1280px] mx-auto px-8 py-16">
+  <main class="max-w-5xl mx-auto px-8 py-16">
 
-    <!-- Hero Block -->
-    <div class="mb-16">
-      <div class="flex items-center gap-2 mb-4">
-        <span class="text-xs font-medium text-[#444] uppercase tracking-widest">Music Production</span>
-      </div>
-      <h1 class="text-4xl font-semibold tracking-tight text-white mb-3 leading-tight">Genre Reference</h1>
-      <p class="text-[#555] text-base max-w-xl leading-relaxed">BPM ranges, scale recommendations, and production notes for modern electronic and urban genres.</p>
+    <!-- Hero -->
+    <div class="mb-14">
+      <p class="text-xs font-medium tracking-widest uppercase mb-4" style="color:#555;">Music Production Reference</p>
+      <h1 class="text-4xl font-semibold tracking-tight leading-tight mb-4" style="letter-spacing:-0.03em;">
+        Everything you need<br/>to produce better music.
+      </h1>
+      <p class="text-sm max-w-md leading-relaxed" style="color:#555;">
+        Genre guides, BPM references, chord progressions, and production templates — all in one place.
+      </p>
     </div>
 
     <!-- Search -->
-    <div class="mb-12">
-      <div class="relative max-w-md">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#333]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-        <input type="text" placeholder="Search genres, BPM, scales…" class="search-input w-full bg-[#0f0f0f] border border-[#1e1e1e] text-white text-sm pl-9 pr-4 py-2.5 rounded-md placeholder-[#333] transition-colors" />
-      </div>
-    </div>
-
-    <!-- Quick Links -->
     <div class="mb-14">
-      <p class="text-xs text-[#333] uppercase tracking-widest font-medium mb-4">Quick Access</p>
-      <div class="flex items-center gap-2 flex-wrap">
-        <a href="#" class="pill-link text-xs text-[#555] border border-[#1c1c1c] px-3.5 py-1.5 rounded-full transition-all">BPM Calculator</a>
-        <a href="#" class="pill-link text-xs text-[#555] border border-[#1c1c1c] px-3.5 py-1.5 rounded-full transition-all">Scale Finder</a>
-        <a href="#" class="pill-link text-xs text-[#555] border border-[#1c1c1c] px-3.5 py-1.5 rounded-full transition-all">Chord Progressions</a>
-        <a href="#" class="pill-link text-xs text-[#555] border border-[#1c1c1c] px-3.5 py-1.5 rounded-full transition-all">Drum Patterns</a>
-        <a href="#" class="pill-link text-xs text-[#555] border border-[#1c1c1c] px-3.5 py-1.5 rounded-full transition-all">Mixing Reference</a>
-        <a href="#" class="pill-link text-xs text-[#555] border border-[#1c1c1c] px-3.5 py-1.5 rounded-full transition-all">Key & Mode Guide</a>
+      <div class="flex items-center gap-3 max-w-lg px-4 py-3 rounded-lg border" style="background:#0d0d0d; border-color:#1f1f1f;">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="#555" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search genres, BPM, techniques…" class="search-input bg-transparent text-sm w-full border-0" />
+        <span class="text-xs px-2 py-1 rounded" style="color:#555; background:#161616; border:1px solid #2a2a2a;">⌘K</span>
       </div>
     </div>
 
-    <!-- Genre List -->
-    <section>
-      <div class="flex items-center justify-between mb-2">
-        <p class="text-xs text-[#333] uppercase tracking-widest font-medium">Genre Guides</p>
-        <span class="text-xs text-[#333]">8 genres</span>
+    <!-- Quick links -->
+    <div class="mb-14">
+      <p class="text-xs font-medium uppercase tracking-widest mb-4" style="color:#555;">Quick access</p>
+      <div class="flex flex-wrap gap-2">
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">BPM Reference</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Chord Progressions</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Drum Patterns</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Sample Packs</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Mix Templates</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Scale Reference</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Reverb Settings</a>
       </div>
+    </div>
 
-      <!-- Header row -->
-      <div class="grid grid-cols-[24px_1fr_80px_80px_32px] gap-4 px-4 py-2 text-xs text-[#2a2a2a] uppercase tracking-widest font-medium">
-        <div></div>
-        <div>Genre</div>
-        <div>BPM Range</div>
-        <div>Key Feel</div>
-        <div></div>
+    <!-- Genre list -->
+    <div class="mb-14">
+      <div class="flex items-center justify-between mb-6">
+        <p class="text-xs font-medium uppercase tracking-widest" style="color:#555;">Genre Guides</p>
+        <a href="#" class="text-xs transition-colors" style="color:#555;">View all →</a>
       </div>
+      <div class="rounded-lg border overflow-hidden" style="border-color:#1a1a1a;">
 
-      <div class="divider"></div>
-
-      <!-- Trap -->
-      <div class="genre-row grid grid-cols-[24px_1fr_80px_80px_32px] gap-4 items-center px-4 py-4 cursor-pointer transition-colors rounded-sm">
-        <div class="w-2.5 h-2.5 rounded-full bg-violet-500 flex-shrink-0"></div>
-        <div>
-          <span class="text-white font-medium text-sm">Trap</span>
-          <span class="text-[#3a3a3a] text-xs ml-2.5">Hip-Hop / Southern US</span>
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#a855f7;"></div>
+          <span class="text-sm font-medium flex-1">Trap</span>
+          <span class="text-xs mr-8" style="color:#a855f7;">140 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="text-[#555] text-xs font-mono">130–160</div>
-        <div class="text-[#555] text-xs">Minor</div>
-        <svg class="arrow-icon w-4 h-4 text-[#444]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </div>
-      <div class="divider"></div>
 
-      <!-- House -->
-      <div class="genre-row grid grid-cols-[24px_1fr_80px_80px_32px] gap-4 items-center px-4 py-4 cursor-pointer transition-colors rounded-sm">
-        <div class="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0"></div>
-        <div>
-          <span class="text-white font-medium text-sm">House</span>
-          <span class="text-[#3a3a3a] text-xs ml-2.5">Electronic / Dance</span>
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#f59e0b;"></div>
+          <span class="text-sm font-medium flex-1">House</span>
+          <span class="text-xs mr-8" style="color:#f59e0b;">128 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="text-[#555] text-xs font-mono">120–130</div>
-        <div class="text-[#555] text-xs">Major / Minor</div>
-        <svg class="arrow-icon w-4 h-4 text-[#444]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </div>
-      <div class="divider"></div>
 
-      <!-- Drum & Bass -->
-      <div class="genre-row grid grid-cols-[24px_1fr_80px_80px_32px] gap-4 items-center px-4 py-4 cursor-pointer transition-colors rounded-sm">
-        <div class="w-2.5 h-2.5 rounded-full bg-cyan-400 flex-shrink-0"></div>
-        <div>
-          <span class="text-white font-medium text-sm">Drum &amp; Bass</span>
-          <span class="text-[#3a3a3a] text-xs ml-2.5">Electronic / UK</span>
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#06b6d4;"></div>
+          <span class="text-sm font-medium flex-1">Drum &amp; Bass</span>
+          <span class="text-xs mr-8" style="color:#06b6d4;">174 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="text-[#555] text-xs font-mono">160–180</div>
-        <div class="text-[#555] text-xs">Minor</div>
-        <svg class="arrow-icon w-4 h-4 text-[#444]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </div>
-      <div class="divider"></div>
 
-      <!-- Techno -->
-      <div class="genre-row grid grid-cols-[24px_1fr_80px_80px_32px] gap-4 items-center px-4 py-4 cursor-pointer transition-colors rounded-sm">
-        <div class="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0"></div>
-        <div>
-          <span class="text-white font-medium text-sm">Techno</span>
-          <span class="text-[#3a3a3a] text-xs ml-2.5">Electronic / Detroit / Berlin</span>
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#f97316;"></div>
+          <span class="text-sm font-medium flex-1">Techno</span>
+          <span class="text-xs mr-8" style="color:#f97316;">140 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="text-[#555] text-xs font-mono">130–150</div>
-        <div class="text-[#555] text-xs">Atonal / Minor</div>
-        <svg class="arrow-icon w-4 h-4 text-[#444]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </div>
-      <div class="divider"></div>
 
-      <!-- UK Garage -->
-      <div class="genre-row grid grid-cols-[24px_1fr_80px_80px_32px] gap-4 items-center px-4 py-4 cursor-pointer transition-colors rounded-sm">
-        <div class="w-2.5 h-2.5 rounded-full bg-emerald-400 flex-shrink-0"></div>
-        <div>
-          <span class="text-white font-medium text-sm">UK Garage</span>
-          <span class="text-[#3a3a3a] text-xs ml-2.5">Electronic / UK</span>
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#ec4899;"></div>
+          <span class="text-sm font-medium flex-1">UK Garage</span>
+          <span class="text-xs mr-8" style="color:#ec4899;">130 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="text-[#555] text-xs font-mono">125–135</div>
-        <div class="text-[#555] text-xs">Major</div>
-        <svg class="arrow-icon w-4 h-4 text-[#444]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </div>
-      <div class="divider"></div>
 
-      <!-- Lofi Hip-Hop -->
-      <div class="genre-row grid grid-cols-[24px_1fr_80px_80px_32px] gap-4 items-center px-4 py-4 cursor-pointer transition-colors rounded-sm">
-        <div class="w-2.5 h-2.5 rounded-full bg-indigo-400 flex-shrink-0"></div>
-        <div>
-          <span class="text-white font-medium text-sm">Lofi Hip-Hop</span>
-          <span class="text-[#3a3a3a] text-xs ml-2.5">Hip-Hop / Chill</span>
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#6366f1;"></div>
+          <span class="text-sm font-medium flex-1">Lofi Hip-Hop</span>
+          <span class="text-xs mr-8" style="color:#6366f1;">75 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="text-[#555] text-xs font-mono">65–85</div>
-        <div class="text-[#555] text-xs">Minor / Dorian</div>
-        <svg class="arrow-icon w-4 h-4 text-[#444]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </div>
-      <div class="divider"></div>
 
-      <!-- Ambient -->
-      <div class="genre-row grid grid-cols-[24px_1fr_80px_80px_32px] gap-4 items-center px-4 py-4 cursor-pointer transition-colors rounded-sm">
-        <div class="w-2.5 h-2.5 rounded-full bg-sky-300 flex-shrink-0"></div>
-        <div>
-          <span class="text-white font-medium text-sm">Ambient</span>
-          <span class="text-[#3a3a3a] text-xs ml-2.5">Electronic / Atmospheric</span>
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#22d3ee;"></div>
+          <span class="text-sm font-medium flex-1">Ambient</span>
+          <span class="text-xs mr-8" style="color:#22d3ee;">90 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="text-[#555] text-xs font-mono">60–100</div>
-        <div class="text-[#555] text-xs">Modal / Pad</div>
-        <svg class="arrow-icon w-4 h-4 text-[#444]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </div>
-      <div class="divider"></div>
 
-      <!-- Afrobeats -->
-      <div class="genre-row grid grid-cols-[24px_1fr_80px_80px_32px] gap-4 items-center px-4 py-4 cursor-pointer transition-colors rounded-sm">
-        <div class="w-2.5 h-2.5 rounded-full bg-orange-400 flex-shrink-0"></div>
-        <div>
-          <span class="text-white font-medium text-sm">Afrobeats</span>
-          <span class="text-[#3a3a3a] text-xs ml-2.5">West African / Global</span>
+        <div class="genre-row flex items-center px-5 py-4 cursor-pointer transition-colors">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#84cc16;"></div>
+          <span class="text-sm font-medium flex-1">Afrobeats</span>
+          <span class="text-xs mr-8" style="color:#84cc16;">100 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
         </div>
-        <div class="text-[#555] text-xs font-mono">95–115</div>
-        <div class="text-[#555] text-xs">Major / Pentatonic</div>
-        <svg class="arrow-icon w-4 h-4 text-[#444]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-        </svg>
-      </div>
-      <div class="divider"></div>
-    </section>
 
-    <!-- Footer hint -->
-    <div class="mt-16 pb-8 flex items-center justify-between text-xs text-[#252525]">
-      <span>LoopLab reference v2.4</span>
-      <span>8 genres · Updated June 2026</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex items-center justify-between pt-8" style="border-top: 1px solid #141414;">
+      <p class="text-xs" style="color:#444;">Last updated June 2026 · 48 genre guides</p>
+      <p class="text-xs" style="color:#444;">Built for producers</p>
     </div>
 
   </main>
