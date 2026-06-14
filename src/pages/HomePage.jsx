@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import genres from '../data/genres.json'
+import { accentFromColor } from '../utils/accentColor'
 
 export default function HomePage() {
   const [search, setSearch] = useState('')
@@ -15,8 +16,14 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
-        <header className="text-center mb-12">
-          <div className="flex justify-end mb-2">
+        <header className="relative text-center mb-12">
+          {/* Soft brand glow behind the hero logo */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-56 w-56 rounded-full blur-3xl opacity-20"
+            style={{ background: 'radial-gradient(circle, #d946ef 0%, #f97316 60%, transparent 70%)' }}
+          />
+          <div className="relative flex justify-end mb-2">
             <button
               onClick={() => navigate('/suggest')}
               className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-amber-400 border border-white/10 hover:border-amber-400/40 rounded-lg px-3 py-1.5 transition"
@@ -24,10 +31,15 @@ export default function HomePage() {
               Suggest an improvement
             </button>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
-            LoopLab
-          </h1>
-          <p className="text-xs uppercase tracking-widest text-gray-500 mb-4">
+          <img
+            src={`${import.meta.env.BASE_URL}logo.png`}
+            alt="LoopLab"
+            width={104}
+            height={104}
+            className="mx-auto mb-4 h-24 w-24 sm:h-26 sm:w-26 rounded-[1.4rem] ring-1 ring-white/10 shadow-xl shadow-fuchsia-500/10"
+          />
+          <h1 className="sr-only">LoopLab</h1>
+          <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-4">
             FL Studio Production Reference
           </p>
           <p className="text-gray-400 text-base max-w-xl mx-auto">
@@ -94,20 +106,24 @@ export default function HomePage() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {filtered.length > 0 ? (
-            filtered.map(genre => (
+            filtered.map(genre => {
+              const accent = accentFromColor(genre.color)
+              return (
               <button
                 key={genre.id}
                 onClick={() => navigate(`/genre/${genre.id}`)}
-                className="text-left rounded-lg border border-white/[0.08] bg-[#0a0a0f] hover:border-white/20 hover:bg-white/[0.04] transition-all duration-200 p-4 group"
+                style={{ borderLeftColor: accent }}
+                className="text-left rounded-lg border border-white/[0.08] border-l-[3px] bg-[#0a0a0f] hover:border-white/20 hover:bg-white/[0.04] transition-all duration-200 p-4 group"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-sm">{genre.emoji}</span>
-                  <h2 className="text-base font-semibold text-white group-hover:text-purple-300 transition-colors truncate flex-1">{genre.name}</h2>
+                  <h2 className="text-base font-semibold text-white truncate flex-1">{genre.name}</h2>
                 </div>
-                <p className="text-xs text-gray-500 mb-2">{genre.bpm} BPM</p>
+                <p className="text-xs font-medium mb-2" style={{ color: accent }}>{genre.bpm} BPM</p>
                 <p className="text-sm text-gray-400 line-clamp-2 leading-relaxed">{genre.description}</p>
               </button>
-            ))
+              )
+            })
           ) : (
             <div className="col-span-full text-center py-16 text-gray-600">
               No genres match &ldquo;{search}&rdquo;
@@ -115,8 +131,15 @@ export default function HomePage() {
           )}
         </div>
 
-        <footer className="text-center mt-16 text-xs text-gray-700">
-          LoopLab — FL Studio production reference
+        <footer className="flex flex-col items-center gap-2 mt-16 pt-8 border-t border-white/[0.06]">
+          <img
+            src={`${import.meta.env.BASE_URL}logo.png`}
+            alt=""
+            width={28}
+            height={28}
+            className="h-7 w-7 rounded-md opacity-60"
+          />
+          <p className="text-xs text-gray-600">LoopLab — FL Studio production reference</p>
         </footer>
       </div>
     </div>

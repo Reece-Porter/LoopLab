@@ -63,6 +63,19 @@ export default function GenrePage() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate('/')}
+              className="shrink-0 transition-opacity hover:opacity-80"
+              aria-label="Home"
+            >
+              <img
+                src={`${import.meta.env.BASE_URL}logo.png`}
+                alt="LoopLab"
+                width={32}
+                height={32}
+                className="h-8 w-8 rounded-lg ring-1 ring-white/10"
+              />
+            </button>
+            <button
+              onClick={() => navigate('/')}
               className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors shrink-0"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
