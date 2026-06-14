@@ -297,12 +297,6 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
         </button>
 
         <button
-          onClick={() => exportClipsMidi(gridRef.current, bpm, tracks.map(t => t.name))}
-          className="text-xs px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
-          title="Download custom arrangement as a MIDI file"
-        >⬇ MIDI</button>
-
-        <button
           onClick={() => { setGrid({}); setVocalGrid({}); setSampleGrid({}); setArmed(null); setArmedVocal(null); setArmedSample(null) }}
           className="text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
         >Clear</button>
