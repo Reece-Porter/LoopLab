@@ -14,133 +14,103 @@ export default function HomePage() {
     ), [search])
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-8 sm:py-12">
-        <header className="relative text-center mb-12">
-          {/* Soft brand glow behind the hero logo */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-56 w-56 rounded-full blur-3xl opacity-20"
-            style={{ background: 'radial-gradient(circle, #d946ef 0%, #f97316 60%, transparent 70%)' }}
-          />
-          <div className="relative flex justify-end mb-2">
-            <button
-              onClick={() => navigate('/suggest')}
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-amber-400 border border-white/10 hover:border-amber-400/40 rounded-lg px-3 py-1.5 transition"
-            >
-              Suggest an improvement
-            </button>
+    <div className="min-h-screen bg-[#080c10] text-white">
+      <div className="w-full max-w-6xl mx-auto px-6 lg:px-10 py-10">
+
+        {/* Top bar */}
+        <header className="flex items-center justify-between mb-10">
+          <div className="flex items-center gap-3">
+            <img
+              src={`${import.meta.env.BASE_URL}logo.png`}
+              alt="LoopLab"
+              width={32}
+              height={32}
+              className="h-8 w-8 rounded"
+            />
+            <span className="font-bold text-white tracking-tight">LoopLab</span>
+            <span className="text-[10px] uppercase tracking-widest text-gray-600 ml-1 hidden sm:inline">FL Studio Reference</span>
           </div>
-          <img
-            src={`${import.meta.env.BASE_URL}logo.png`}
-            alt="LoopLab"
-            width={104}
-            height={104}
-            className="mx-auto mb-4 h-24 w-24 sm:h-26 sm:w-26 rounded-[1.4rem] ring-1 ring-white/10 shadow-xl shadow-fuchsia-500/10"
-          />
-          <h1 className="sr-only">LoopLab</h1>
-          <p className="text-xs uppercase tracking-[0.2em] text-gray-500 mb-4">
-            FL Studio Production Reference
-          </p>
-          <p className="text-gray-400 text-base max-w-xl mx-auto">
-            Genre guides — pick a style to get a full breakdown of every track element with example patterns.
-          </p>
+          <button
+            onClick={() => navigate('/suggest')}
+            className="text-[11px] text-gray-600 hover:text-gray-400 transition-colors"
+          >
+            Suggest improvement →
+          </button>
         </header>
 
-        {/* Quick links to the reference areas */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-          <button
-            onClick={() => navigate('/tips')}
-            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group border-l-[3px] border-l-amber-500"
-          >
-            <span className="flex-1">
-              <span className="block font-semibold text-white text-sm">FL Studio Tips &amp; Shortcuts</span>
-              <span className="block text-xs text-gray-500 mt-0.5">Keyboard shortcuts and workflow tricks</span>
-            </span>
-            <span className="text-gray-600 group-hover:text-gray-400 group-hover:translate-x-1 transition-all text-sm">→</span>
-          </button>
-          <button
-            onClick={() => navigate('/tools')}
-            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group border-l-[3px] border-l-emerald-500"
-          >
-            <span className="flex-1">
-              <span className="block font-semibold text-white text-sm">Production Tools &amp; Resources</span>
-              <span className="block text-xs text-gray-500 mt-0.5">Free samples, vocals, plugins and where to find tracks</span>
-            </span>
-            <span className="text-gray-600 group-hover:text-gray-400 group-hover:translate-x-1 transition-all text-sm">→</span>
-          </button>
-          <button
-            onClick={() => navigate('/player')}
-            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group border-l-[3px] border-l-purple-500"
-          >
-            <span className="flex-1">
-              <span className="block font-semibold text-white text-sm">Player &amp; Downloader</span>
-              <span className="block text-xs text-gray-500 mt-0.5">Load or download a track and mix it with 3-band EQ</span>
-            </span>
-            <span className="text-gray-600 group-hover:text-gray-400 group-hover:translate-x-1 transition-all text-sm">→</span>
-          </button>
-          <button
-            onClick={() => navigate('/dj')}
-            className="text-left rounded-lg border border-white/[0.08] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/20 transition p-4 flex items-center gap-3 group border-l-[3px] border-l-cyan-500"
-          >
-            <span className="flex-1">
-              <span className="block font-semibold text-white text-sm">DJ Deck</span>
-              <span className="block text-xs text-gray-500 mt-0.5">Two decks — mix &amp; beat-match two tracks together</span>
-            </span>
-            <span className="text-gray-600 group-hover:text-gray-400 group-hover:translate-x-1 transition-all text-sm">→</span>
-          </button>
+        {/* Tool nav */}
+        <nav className="flex flex-wrap gap-x-8 gap-y-2 mb-10 pb-6 border-b border-white/[0.06]">
+          {[
+            { label: 'Tips & Shortcuts', path: '/tips' },
+            { label: 'Production Tools', path: '/tools' },
+            { label: 'Player', path: '/player' },
+            { label: 'DJ Deck', path: '/dj' },
+          ].map(({ label, path }) => (
+            <button
+              key={path}
+              onClick={() => navigate(path)}
+              className="text-sm text-gray-500 hover:text-white transition-colors"
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Section header + search */}
+        <div className="flex items-center gap-4 mb-4">
+          <p className="text-[10px] uppercase tracking-[0.15em] text-gray-600 shrink-0">Genre Reference</p>
+          <div className="relative max-w-xs w-full">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="filter genres..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full bg-[#0d1117] border border-white/[0.08] rounded pl-9 pr-3 py-1.5 text-[13px] text-white placeholder-gray-700 focus:outline-none focus:border-[#7c5cfc]/50 transition"
+            />
+          </div>
         </div>
 
-        <div className="relative mb-8">
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" />
-          </svg>
-          <input
-            type="text"
-            placeholder="Search genres..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition"
-          />
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {/* Genre grid — gap-px gives 1px grid lines via background bleed */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-px bg-white/[0.04]">
           {filtered.length > 0 ? (
             filtered.map(genre => {
               const accent = accentFromColor(genre.color)
               return (
-              <button
-                key={genre.id}
-                onClick={() => navigate(`/genre/${genre.id}`)}
-                style={{ borderLeftColor: accent }}
-                className="text-left rounded-lg border border-white/[0.08] border-l-[3px] bg-[#0a0a0f] hover:border-white/20 hover:bg-white/[0.04] transition-all duration-200 p-4 group"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-sm">{genre.emoji}</span>
-                  <h2 className="text-base font-semibold text-white truncate flex-1">{genre.name}</h2>
-                </div>
-                <p className="text-xs font-medium mb-2" style={{ color: accent }}>{genre.bpm} BPM</p>
-                <p className="text-sm text-gray-400 line-clamp-2 leading-relaxed">{genre.description}</p>
-              </button>
+                <button
+                  key={genre.id}
+                  onClick={() => navigate(`/genre/${genre.id}`)}
+                  className="text-left bg-[#080c10] hover:bg-[#0d1117] transition-colors duration-150 p-4 group"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h2 className="text-sm font-semibold text-white leading-tight">{genre.name}</h2>
+                    <span className="text-base opacity-25 shrink-0 group-hover:opacity-50 transition-opacity">{genre.emoji}</span>
+                  </div>
+                  <p className="font-mono text-[11px] mb-2" style={{ color: accent }}>{genre.bpm} BPM</p>
+                  <p className="text-[12px] text-gray-600 line-clamp-2 leading-relaxed group-hover:text-gray-400 transition-colors">{genre.description}</p>
+                </button>
               )
             })
           ) : (
-            <div className="col-span-full text-center py-16 text-gray-600">
+            <div className="col-span-full text-center py-16 text-gray-700 text-sm bg-[#080c10]">
               No genres match &ldquo;{search}&rdquo;
             </div>
           )}
         </div>
 
-        <footer className="flex flex-col items-center gap-2 mt-16 pt-8 border-t border-white/[0.06]">
+        <footer className="flex items-center gap-3 mt-12 pt-6 border-t border-white/[0.04]">
           <img
             src={`${import.meta.env.BASE_URL}logo.png`}
             alt=""
-            width={28}
-            height={28}
-            className="h-7 w-7 rounded-md opacity-60"
+            width={18}
+            height={18}
+            className="h-[18px] w-[18px] rounded opacity-30"
           />
-          <p className="text-xs text-gray-600">LoopLab — FL Studio production reference</p>
+          <p className="text-[11px] text-gray-700">LoopLab — FL Studio production reference</p>
         </footer>
+
       </div>
     </div>
   )
