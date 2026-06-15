@@ -517,30 +517,25 @@ export default function DJDeckPage() {
         {/* How-to banner */}
         {!backendUrl && (
           <div className="rounded-2xl border border-purple-500/20 bg-purple-900/10 p-5 mb-6">
-            <h2 className="text-sm font-bold text-purple-300 mb-3">How to download SoundCloud / YouTube tracks</h2>
+            <h2 className="text-sm font-bold text-purple-300 mb-3">Load SoundCloud &amp; YouTube tracks</h2>
+            <p className="text-xs text-gray-400 leading-relaxed mb-3">
+              This uses the LoopLab audio backend — a free service that's already set up and ready.
+              You just need to connect it once:
+            </p>
             <ol className="space-y-2.5 text-xs text-gray-300 leading-relaxed">
               <li className="flex gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">1</span>
-                <span>Go to <a href="https://dashboard.render.com" target="_blank" rel="noreferrer" className="text-purple-300 underline hover:text-purple-200">dashboard.render.com</a> and sign in with GitHub.</span>
+                <span>Click the <strong className="text-white">⚙ Backend</strong> button above.</span>
               </li>
               <li className="flex gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">2</span>
-                <span>Click <strong className="text-white">New +</strong> → <strong className="text-white">Blueprint</strong> → select your LoopLab repo. Render finds the config automatically — click <strong className="text-white">Apply</strong>.</span>
+                <span>Paste your backend URL and hit <strong className="text-white">Save &amp; Wake</strong> — it may take ~30s to spin up on first use.</span>
               </li>
               <li className="flex gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">3</span>
-                <span>Wait a few minutes for the first build. You'll get a URL like <code className="text-purple-300">https://looplab-audio.onrender.com</code></span>
-              </li>
-              <li className="flex gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">4</span>
-                <span>Click the <strong className="text-white">⚙ Backend</strong> button (top right), paste the URL, and hit <strong className="text-white">Save &amp; Wake</strong>.</span>
-              </li>
-              <li className="flex gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">5</span>
-                <span>Paste any SoundCloud or YouTube link into the Load box below — it downloads into the deck, EQ works, and you can re-download the processed file.</span>
+                <span>Paste any SoundCloud or YouTube link below — the track loads straight into the deck with full EQ and download.</span>
               </li>
             </ol>
-            <p className="text-xs text-gray-600 mt-3">Already deployed? Click <strong className="text-gray-400">⚙ Backend</strong> above to paste your URL and get started.</p>
           </div>
         )}
 
