@@ -13,9 +13,9 @@ export default function AuthPage() {
   const [notice, setNotice] = useState('')
   const [busy, setBusy] = useState(false)
 
-  // Already signed in → bounce to community
+  // Already signed in → bounce to home
   if (user) {
-    navigate('/community')
+    navigate('/')
     return null
   }
 
@@ -29,7 +29,7 @@ export default function AuthPage() {
         setMode('signin')
       } else {
         await signIn(email, password)
-        navigate('/community')
+        navigate('/')
       }
     } catch (err) {
       setError(err.message || 'Something went wrong')
