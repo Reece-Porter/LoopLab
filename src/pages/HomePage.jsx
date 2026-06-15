@@ -25,7 +25,7 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-6">
             {[['Tips', '/tips'], ['Tools', '/tools'], ['Player', '/player'], ['DJ Deck', '/dj']].map(([l, p]) => (
-              <button key={p} onClick={() => navigate(p)} className="text-[13px] text-gray-500 hover:text-gray-200 transition-colors hidden sm:block">{l}</button>
+              <button key={p} onClick={() => navigate(p)} className="text-[13px] text-gray-300 hover:text-white border border-white/[0.1] hover:border-white/25 rounded-lg px-3 py-1.5 transition-all hidden sm:block">{l}</button>
             ))}
             <button onClick={() => navigate('/suggest')} className="text-[12px] text-gray-600 hover:text-gray-400 transition-colors">Suggest →</button>
           </div>
@@ -59,7 +59,7 @@ export default function HomePage() {
         {/* Tool links */}
         <div className="flex flex-wrap gap-2 mb-8 sm:hidden">
           {[['Tips & Shortcuts', '/tips'], ['Production Tools', '/tools'], ['Player', '/player'], ['DJ Deck', '/dj']].map(([l, p]) => (
-            <button key={p} onClick={() => navigate(p)} className="text-[12px] text-gray-500 border border-white/[0.08] rounded-full px-3 py-1.5 hover:border-white/20 hover:text-gray-300 transition">{l}</button>
+            <button key={p} onClick={() => navigate(p)} className="text-[12px] text-gray-300 border border-white/[0.12] rounded-full px-3 py-1.5 hover:border-white/30 hover:text-white transition">{l}</button>
           ))}
         </div>
 
