@@ -7,6 +7,8 @@ import ToolsPage from './pages/ToolsPage'
 import DJDeckPage from './pages/DJDeckPage'
 import DJDecksPage from './pages/DJDecksPage'
 import SuggestPage from './pages/SuggestPage'
+import CommunityPage from './pages/CommunityPage'
+import AuthPage from './pages/AuthPage'
 import { stopAllPlayback } from './audio/usePlayer'
 
 export default function App() {
@@ -41,6 +43,8 @@ export default function App() {
       <Route path="/player" element={<DJDeckPage />} />
       <Route path="/dj" element={<DJDecksPage />} />
       <Route path="/suggest" element={<SuggestPage />} />
+      <Route path="/community" element={<CommunityPage />} />
+      <Route path="/login" element={<AuthPage />} />
     </Routes>
   )
 }

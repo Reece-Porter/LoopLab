@@ -8,6 +8,8 @@ import { getContext } from '../audio/synth'
 import { SAMPLE_PRESETS } from '../audio/samplePresets'
 import { loadSample } from '../audio/sampleLoader'
 import PlayButton from './PlayButton'
+import PublishModal from './PublishModal'
+import { serialiseArrangement, takeStagedArrangement } from '../lib/arrangements'
 
 const LABEL_W = 220
 const BAR_W   = 60       // px per bar — wide enough to read pattern names
@@ -74,6 +76,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
   const [armed,  setArmed]  = useState(null)
   const [frac,   setFrac]   = useState(null)
   const [follow, setFollow] = useState(true)
+  const [showPublish, setShowPublish] = useState(false)
 
   const scrollRef       = useRef(null)
   const gridRef         = useRef({})
@@ -116,6 +119,16 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
       })
     })
   }, [])
+
+  // If the user opened a saved/community arrangement, load it into the grid.
+  useEffect(() => {
+    const staged = takeStagedArrangement(genreId)
+    if (!staged) return
+    if (staged.bars) setBars(staged.bars)
+    if (staged.grid) setGrid(staged.grid)
+    if (staged.sampleGrid) setSampleGrid(staged.sampleGrid)
+    if (staged.volumes) setVolumes(staged.volumes)
+  }, [genreId])
 
   // ---- compile grid → live clips read by the audio engine every step ----
   useEffect(() => {
@@ -308,8 +321,21 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
           title="Download arrangement as MIDI — drag into FL Studio"
         >↓ MIDI</button>
 
+        <button
+          onClick={() => setShowPublish(true)}
+          className="text-xs px-3 py-1.5 rounded-lg border border-[#7c5cfc]/50 bg-[#7c5cfc]/15 text-[#c4b5fd] hover:bg-[#7c5cfc]/25 transition-colors"
+          title="Save your arrangement or publish it to the community"
+        >↑ Publish</button>
+
         <PlayButton playing={playing} onClick={onPlay} accentClass={accentClass} label="Play mine" />
       </div>
+
+      <PublishModal
+        open={showPublish}
+        onClose={() => setShowPublish(false)}
+        genreId={genreId}
+        getData={() => serialiseArrangement({ genreId, bars, grid, sampleGrid, volumes })}
+      />
 
       {/* ---- Timeline ---- */}
       <div ref={scrollRef} className="overflow-x-auto looplab-scroll">

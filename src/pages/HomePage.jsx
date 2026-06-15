@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import genres from '../data/genres.json'
 import { accentFromColor } from '../utils/accentColor'
 import { useSeo } from '../utils/useSeo'
+import { useAuth } from '../context/AuthContext'
 
 export default function HomePage() {
   const [search, setSearch] = useState('')
   const navigate = useNavigate()
+  const { user, displayName } = useAuth()
 
   useSeo()
 
@@ -26,11 +28,15 @@ export default function HomePage() {
             <img src={`${import.meta.env.BASE_URL}logo.png`} alt="LoopLab" width={28} height={28} className="h-7 w-7 rounded-md" />
             <span className="font-semibold text-white text-sm tracking-tight">LoopLab</span>
           </div>
-          <div className="flex items-center gap-6">
-            {[['Tips', '/tips'], ['Tools', '/tools'], ['Player', '/player'], ['DJ Deck', '/dj']].map(([l, p]) => (
+          <div className="flex items-center gap-2 sm:gap-3">
+            {[['Community', '/community'], ['Tips', '/tips'], ['Tools', '/tools'], ['Player', '/player'], ['DJ Deck', '/dj']].map(([l, p]) => (
               <button key={p} onClick={() => navigate(p)} className="text-[13px] text-gray-300 hover:text-white border border-white/[0.1] hover:border-white/25 rounded-lg px-3 py-1.5 transition-all hidden sm:block">{l}</button>
             ))}
-            <button onClick={() => navigate('/suggest')} className="text-[12px] text-gray-600 hover:text-gray-400 transition-colors">Suggest →</button>
+            {user ? (
+              <button onClick={() => navigate('/community')} className="text-[13px] text-white bg-[#7c5cfc]/15 border border-[#7c5cfc]/50 hover:bg-[#7c5cfc]/25 rounded-lg px-3 py-1.5 transition" title="Your account">{displayName}</button>
+            ) : (
+              <button onClick={() => navigate('/login')} className="text-[13px] text-white border border-white/[0.1] hover:border-white/25 rounded-lg px-3 py-1.5 transition">Sign in</button>
+            )}
           </div>
         </nav>
 
