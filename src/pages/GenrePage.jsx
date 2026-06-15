@@ -7,6 +7,7 @@ import PartPanel from '../components/PartPanel'
 import ArrangementView from '../components/ArrangementView'
 import CustomArrangement from '../components/CustomArrangement'
 import VocalRecorder from '../components/VocalRecorder'
+import GenreTutorial from '../components/GenreTutorial'
 
 export default function GenrePage() {
   const { id } = useParams()
@@ -168,6 +169,7 @@ export default function GenrePage() {
           <VocalRecorder onClipsChange={setSavedVocalClips} />
         </div>
       </div>
+      <GenreTutorial />
     </div>
   )
 }
