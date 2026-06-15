@@ -80,7 +80,7 @@ export default function GenrePage() {
               <div className="text-sm font-bold font-mono text-white leading-none">{bpm}<span className="text-[9px] text-gray-600 ml-0.5">BPM</span></div>
             </div>
           </div>
-          <div className="flex items-center gap-2 mt-2">
+          <div data-tutorial="bpm-slider" className="flex items-center gap-2 mt-2">
             <input type="range" min={60} max={250} value={bpm} onChange={e => setBpm(Number(e.target.value))}
               className="flex-1 accent-[#7c5cfc] cursor-pointer" aria-label="Tempo in BPM" />
             <button onClick={() => setBpm(parseBpm(genre.bpm))} className="text-[10px] text-gray-600 hover:text-gray-400 transition-colors shrink-0">reset</button>

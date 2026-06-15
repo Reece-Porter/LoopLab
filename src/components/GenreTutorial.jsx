@@ -2,6 +2,12 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 
 const STEPS = [
   {
+    target: 'bpm-slider',
+    title: 'Tempo control',
+    desc: 'Drag the slider to change the BPM of the arrangement and patterns in real time. Hit reset to snap back to the genre's typical tempo.',
+    position: 'below',
+  },
+  {
     target: 'sample-toggle',
     title: 'Switch to real vocal samples',
     desc: 'Toggle between synthesised vocals and real recorded samples. Lights up green when a sample is loaded.',
