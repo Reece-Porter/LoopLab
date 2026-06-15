@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <script>
+    // GitHub Pages SPA redirect — preserves the full path so BrowserRouter
+    // can handle it. Converts e.g. /genre/house → /?p=/genre/house then
+    // index.html picks it up via the script below.
+    var l = window.location;
+    l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+      '/?p=' + encodeURIComponent(l.pathname + l.search) + l.hash);
+  </script>
+</head>
+</html>
