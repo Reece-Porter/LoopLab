@@ -19,7 +19,8 @@ export const SUPABASE_URL =
   import.meta.env.VITE_SUPABASE_URL || 'https://nnvmfwflflrhycyvyukg.supabase.co'
 
 export const SUPABASE_ANON_KEY =
-  import.meta.env.VITE_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY'
+  import.meta.env.VITE_SUPABASE_ANON_KEY ||
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5udm1md2ZsZmxyaHljeXZ5dWtnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1MjIwMDUsImV4cCI6MjA5NzA5ODAwNX0.-jkqQ04CSF_RWWqVbOS_6FgnVRiS5xvS2KTpHVOVRhk'
 
 // True once real values have been filled in.
 export const isSupabaseConfigured =
