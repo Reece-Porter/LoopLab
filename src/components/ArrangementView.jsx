@@ -254,6 +254,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
         <div className="flex items-center gap-2">
           {hasVocalTrack && (
             <button
+              data-tutorial="sample-toggle"
               onClick={() => setUseSampleVox(v => !v)}
               disabled={!vocalBuf}
               className={`text-xs px-2.5 py-1.5 rounded-lg border transition-colors ${
@@ -273,6 +274,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
             </button>
           )}
           <button
+            data-tutorial="follow-toggle"
             onClick={() => setFollow(f => !f)}
             className={`text-xs px-2.5 py-1.5 rounded-lg border transition-colors ${
               follow
@@ -284,6 +286,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
             {follow ? '🔒' : '🔓'}<span className="hidden sm:inline ml-1">{follow ? 'Following' : 'Free scroll'}</span>
           </button>
           <button
+            data-tutorial="midi-export"
             onClick={() => exportGrooveMidi(genreId)}
             className="text-xs px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
             title="Download groove as MIDI — drag into FL Studio"

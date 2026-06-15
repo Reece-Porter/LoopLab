@@ -163,10 +163,10 @@ export default function GenrePage() {
         </div>
 
         {/* Custom arrangement builder */}
-        <div className="mt-12">
+        <div data-tutorial="custom-section" className="mt-12">
           <p className="text-[10px] text-gray-600 uppercase tracking-[0.15em] mb-3">Build Your Own Arrangement</p>
           <CustomArrangement parts={genre.parts} genreId={genre.id} accentClass={genre.color} bpm={bpm} savedVocalClips={savedVocalClips} />
-          <VocalRecorder onClipsChange={setSavedVocalClips} />
+          <div data-tutorial="vocal-recorder"><VocalRecorder onClipsChange={setSavedVocalClips} /></div>
         </div>
       </div>
       <GenreTutorial />
