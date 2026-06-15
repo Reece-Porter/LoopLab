@@ -55,71 +55,40 @@ export default function GenrePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#080c10] text-white">
+    <div className="min-h-screen bg-[#0f0f13] text-white">
       {/* Sticky header bar */}
-      <div className="sticky top-0 z-10 backdrop-blur-md bg-[#080c10]/90 border-b border-white/[0.06]">
+      <div className="sticky top-0 z-10 backdrop-blur-md bg-[#0f0f13]/90 border-b border-white/[0.06]">
         <div className="w-full px-4 sm:px-6 lg:px-10 py-3">
-          {/* Top row: back + genre identity */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate('/')}
-              className="shrink-0 transition-opacity hover:opacity-70"
-              aria-label="Home"
-            >
-              <img
-                src={`${import.meta.env.BASE_URL}logo.png`}
-                alt="LoopLab"
-                width={28}
-                height={28}
-                className="h-7 w-7 rounded"
-              />
+            <button onClick={() => navigate('/')} className="shrink-0 hover:opacity-70 transition-opacity" aria-label="Home">
+              <img src={`${import.meta.env.BASE_URL}logo.png`} alt="LoopLab" width={28} height={28} className="h-7 w-7 rounded-md" />
             </button>
-            <button
-              onClick={() => navigate('/')}
-              className="flex items-center gap-1 text-[12px] text-gray-600 hover:text-gray-300 transition-colors shrink-0"
-            >
+            <button onClick={() => navigate('/')} className="flex items-center gap-1 text-[12px] text-gray-600 hover:text-gray-300 transition-colors shrink-0">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               <span className="hidden xs:inline">Genres</span>
             </button>
-            <span className="text-gray-700 text-sm shrink-0">{genre.emoji}</span>
+            <span className="opacity-50 text-sm shrink-0">{genre.emoji}</span>
             <div className="min-w-0 flex-1">
-              <h1 className="text-sm font-bold tracking-tight text-white truncate">{genre.name}</h1>
-              <div className="flex gap-2">
-                <span className="text-[11px] text-gray-600 hidden sm:inline font-mono">{genre.bpm} BPM · {genre.key}</span>
-              </div>
+              <h1 className="text-sm font-semibold text-white truncate">{genre.name}</h1>
+              <span className="text-[11px] text-gray-600 font-mono hidden sm:inline">{genre.bpm} BPM · {genre.key}</span>
             </div>
-            {/* BPM display */}
             <div className="shrink-0 text-right">
-              <div className="text-[9px] uppercase tracking-widest text-gray-600">Tempo</div>
+              <div className="text-[9px] uppercase tracking-widest text-gray-600 mb-0.5">Tempo</div>
               <div className="text-sm font-bold font-mono text-white leading-none">{bpm}<span className="text-[9px] text-gray-600 ml-0.5">BPM</span></div>
             </div>
           </div>
-          {/* BPM slider */}
           <div className="flex items-center gap-2 mt-2">
-            <input
-              type="range"
-              min={60}
-              max={250}
-              value={bpm}
-              onChange={e => setBpm(Number(e.target.value))}
-              className="flex-1 accent-[#7c5cfc] cursor-pointer"
-              aria-label="Tempo in BPM"
-            />
-            <button
-              onClick={() => setBpm(parseBpm(genre.bpm))}
-              className="text-[10px] text-gray-600 hover:text-gray-400 transition-colors shrink-0"
-              title="Reset to the genre's typical tempo"
-            >
-              reset
-            </button>
+            <input type="range" min={60} max={250} value={bpm} onChange={e => setBpm(Number(e.target.value))}
+              className="flex-1 accent-[#7c5cfc] cursor-pointer" aria-label="Tempo in BPM" />
+            <button onClick={() => setBpm(parseBpm(genre.bpm))} className="text-[10px] text-gray-600 hover:text-gray-400 transition-colors shrink-0">reset</button>
           </div>
         </div>
       </div>
 
       <div className="w-full px-4 sm:px-6 lg:px-10 py-6 sm:py-8">
-        <p className="text-gray-500 mb-8 max-w-3xl text-sm leading-relaxed">{genre.description}</p>
+        <p className="text-gray-500 mb-8 max-w-3xl text-[14px] leading-relaxed">{genre.description}</p>
 
         {/* Part selector */}
         <p className="text-[10px] text-gray-600 uppercase tracking-[0.15em] mb-3">Select a track element</p>

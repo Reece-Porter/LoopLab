@@ -7,20 +7,22 @@ export default function GenreCard({ genre }) {
   const accent = accentFromColor(genre.color)
 
   return (
-    <div
-      className="bg-[#0d1117] border border-white/[0.06] rounded hover:border-white/[0.12] transition-colors duration-150"
-      style={{ borderLeft: `2px solid ${accent}` }}
-    >
+    <div className="bg-[#16161e] border border-white/[0.06] rounded-xl overflow-hidden hover:border-white/[0.12] transition-colors duration-150">
       <button
         onClick={() => setOpen(!open)}
         className="w-full text-left p-4 flex items-start gap-3"
       >
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h2 className="text-sm font-semibold text-white truncate">{genre.name}</h2>
-            <span className="font-mono text-[11px] shrink-0" style={{ color: accent }}>{genre.bpm} BPM</span>
+          <div className="flex items-center gap-2 mb-1.5">
+            <h2 className="text-[13px] font-semibold text-white truncate">{genre.name}</h2>
+            <span
+              className="text-[10px] font-mono px-1.5 py-0.5 rounded shrink-0"
+              style={{ color: accent, background: `${accent}18` }}
+            >
+              {genre.bpm}
+            </span>
           </div>
-          <p className="text-[12px] text-gray-600 leading-relaxed line-clamp-2">{genre.description}</p>
+          <p className="text-[11px] text-gray-600 leading-relaxed line-clamp-2">{genre.description}</p>
         </div>
         <svg
           className={`w-4 h-4 text-gray-600 transition-transform duration-300 shrink-0 mt-0.5 ${open ? 'rotate-180' : ''}`}
@@ -32,9 +34,9 @@ export default function GenreCard({ genre }) {
 
       {open && (
         <div className="border-t border-white/[0.06] px-4 pb-4 pt-3">
-          <div className="flex flex-wrap gap-3 mb-4">
-            <InfoPill label="BPM" value={genre.bpm} />
-            <InfoPill label="Key" value={genre.key} />
+          <div className="flex flex-wrap gap-2 mb-4">
+            <InfoPill label="BPM" value={genre.bpm} accent={accent} />
+            <InfoPill label="Key" value={genre.key} accent={accent} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {genre.parts.map(part => (
@@ -47,10 +49,10 @@ export default function GenreCard({ genre }) {
   )
 }
 
-function InfoPill({ label, value }) {
+function InfoPill({ label, value, accent }) {
   return (
-    <span className="text-[11px] text-gray-400 bg-white/[0.06] px-2.5 py-1 rounded font-mono">
-      <span className="text-gray-600 mr-1">{label}:</span>{value}
+    <span className="text-[11px] font-mono px-2.5 py-1 rounded-md" style={{ color: accent, background: `${accent}15` }}>
+      <span className="opacity-50 mr-1">{label}:</span>{value}
     </span>
   )
 }
