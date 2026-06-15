@@ -16,7 +16,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const SUPABASE_URL =
-  import.meta.env.VITE_SUPABASE_URL || 'YOUR_SUPABASE_PROJECT_URL'
+  import.meta.env.VITE_SUPABASE_URL || 'https://nnvmfwflflrhycyvyukg.supabase.co'
 
 export const SUPABASE_ANON_KEY =
   import.meta.env.VITE_SUPABASE_ANON_KEY || 'YOUR_SUPABASE_ANON_KEY'
