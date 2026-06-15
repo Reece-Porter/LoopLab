@@ -326,6 +326,8 @@ export function pluck(context, time, out, freq, gain = 0.35, dur = 0.3) {
 }
 
 export function chordStab(context, time, out, freqs, gain = 0.25, dur = 0.5, soft = false) {
+  // Stabs sit 30% lower in the mix so they don't overpower the groove.
+  gain *= 0.7
   freqs.forEach(freq => {
     const osc = context.createOscillator()
     osc.type = soft ? 'triangle' : 'sawtooth'
