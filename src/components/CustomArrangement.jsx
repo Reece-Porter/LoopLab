@@ -312,11 +312,11 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
       </div>
 
       {/* ---- Timeline ---- */}
-      <div data-tutorial="bar-grid" ref={scrollRef} className="overflow-x-auto looplab-scroll">
+      <div ref={scrollRef} className="overflow-x-auto looplab-scroll">
         <div className="relative" style={{ minWidth: LABEL_W + timelineWidth }}>
 
           {/* Bar ruler */}
-          <div className="flex border-b border-white/10 bg-white/[0.04]">
+          <div data-tutorial="bar-grid" className="flex border-b border-white/10 bg-white/[0.04]">
             <div
               className="shrink-0 px-4 py-2 text-xs text-gray-500 border-r border-white/10 font-semibold uppercase tracking-wider"
               style={{ width: LABEL_W }}
