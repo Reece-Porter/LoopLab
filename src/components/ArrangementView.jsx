@@ -98,14 +98,14 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
 
   const [frac, setFrac] = useState(null) // smooth playhead 0..1
   const [startBar, setStartBar] = useState(0) // where playback begins
-  const [follow, setFollow] = useState(true) // auto-scroll to track the playhead
+  const [follow, setFollow] = useState(false) // auto-scroll to track the playhead
   const [labelW, setLabelW] = useState(LABEL_W_DESKTOP)
 
   // Real vocal sample for this genre — plays on the Vocals track instead of the
   // synth voice when enabled (default on). Falls back to the synth if not loaded.
   const vocalPreset = useMemo(() => vocalPresetFor(genreId), [genreId])
   const [vocalSample, setVocalSample] = useState({ src: null, buf: null })
-  const [useSampleVox, setUseSampleVox] = useState(true)
+  const [useSampleVox, setUseSampleVox] = useState(false)
   useEffect(() => {
     let live = true
     loadSample(getContext(), vocalPreset.src).then(buf => {
