@@ -2,10 +2,13 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import genres from '../data/genres.json'
 import { accentFromColor } from '../utils/accentColor'
+import { useSeo } from '../utils/useSeo'
 
 export default function HomePage() {
   const [search, setSearch] = useState('')
   const navigate = useNavigate()
+
+  useSeo()
 
   const filtered = useMemo(() =>
     genres.filter(g =>

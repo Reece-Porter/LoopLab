@@ -8,6 +8,7 @@ import ArrangementView from '../components/ArrangementView'
 import CustomArrangement from '../components/CustomArrangement'
 import VocalRecorder from '../components/VocalRecorder'
 import GenreTutorial from '../components/GenreTutorial'
+import { useSeo } from '../utils/useSeo'
 
 export default function GenrePage() {
   const { id } = useParams()
@@ -17,6 +18,11 @@ export default function GenrePage() {
   const [bpm, setBpm] = useState(() => (genre ? parseBpm(genre.bpm) : 120))
   const [selectedSong, setSelectedSong] = useState(null)
   const [savedVocalClips, setSavedVocalClips] = useState([])
+
+  useSeo(
+    genre ? `${genre.name} in FL Studio — ${genre.bpm} BPM Breakdown | LoopLab` : 'Genre — LoopLab',
+    genre ? `How to make ${genre.name} in FL Studio: typical ${genre.bpm} BPM, key ${genre.key}, drum patterns, bassline, arrangement template and MIDI export. ${genre.description}` : undefined
+  )
 
   const songs = (genre && GENRE_SONGS[genre.id]) || []
 
