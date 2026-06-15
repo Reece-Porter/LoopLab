@@ -591,8 +591,9 @@ export const GENRE_GROOVES = {
         ],
         sub: true,
       },
-      // Dark atmospheric pad — minimal, held chords evolving Am–Gm–Am–F over 4 bars
-      supersaw: { steps: on4(2, 18, 34, 50), chords: ['Am','Gm','Am','F'], pad: true },
+      // Dark atmospheric pad — minimal, held chords evolving Am–Gm–Am–F over 4 bars.
+      // gain trimmed to 70% so the stabs sit back under the kick/bass groove.
+      supersaw: { steps: on4(2, 18, 34, 50), chords: ['Am','Gm','Am','F'], pad: true, gain: 0.7 },
       // Jeff Mills "The Bells" — 4 notes then 3 bars silence, 4-bar loop
       bell:    { steps: on(0,2,4,6,8,10,12,14), notes: ['A3','C4','E4','D4'], bell: true },
       // Sparse melodic keys in Am, developing over 4 bars
