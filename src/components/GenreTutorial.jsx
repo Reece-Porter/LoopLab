@@ -20,12 +20,6 @@ const STEPS = [
     position: 'below',
   },
   {
-    target: 'custom-section',
-    title: 'Build your own arrangement',
-    desc: 'Paint your own structure here. Choose which parts play in each bar — layer them up to build a full track.',
-    position: 'above',
-  },
-  {
     target: 'bar-grid',
     title: 'Click and drag to paint bars',
     desc: 'Click a bar to place a pattern, drag across multiple bars to fill them all at once. Right-click to erase.',
@@ -143,7 +137,7 @@ export default function GenreTutorial() {
       {/* Dark overlay with spotlight hole */}
       <div
         className="fixed inset-0 z-40 pointer-events-none"
-        style={{ background: 'rgba(0,0,0,0.72)' }}
+        style={{ background: 'rgba(0,0,0,0.45)' }}
       />
 
       {/* Spotlight cutout */}
@@ -155,7 +149,7 @@ export default function GenreTutorial() {
             left: rect.vleft - PAD,
             width: rect.vwidth + PAD * 2,
             height: rect.vheight + PAD * 2,
-            boxShadow: '0 0 0 9999px rgba(0,0,0,0.72)',
+            boxShadow: '0 0 0 9999px rgba(0,0,0,0.45)',
             border: '1.5px solid rgba(124,92,252,0.7)',
             background: 'transparent',
           }}
