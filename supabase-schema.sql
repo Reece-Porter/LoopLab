@@ -124,3 +124,74 @@ drop policy if exists "delete own comment" on public.comments;
 create policy "delete own comment"
   on public.comments for delete
   using ( auth.uid() = user_id );
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Likes table
+-- ─────────────────────────────────────────────────────────────────────────────
+create table if not exists public.likes (
+  user_id        uuid not null references auth.users (id) on delete cascade,
+  arrangement_id uuid not null references public.arrangements (id) on delete cascade,
+  created_at     timestamptz not null default now(),
+  primary key (user_id, arrangement_id)
+);
+
+create index if not exists likes_arrangement_idx on public.likes (arrangement_id);
+
+alter table public.likes enable row level security;
+
+drop policy if exists "read likes" on public.likes;
+create policy "read likes"
+  on public.likes for select
+  using ( true );
+
+drop policy if exists "insert own like" on public.likes;
+create policy "insert own like"
+  on public.likes for insert
+  with check ( auth.uid() = user_id );
+
+drop policy if exists "delete own like" on public.likes;
+create policy "delete own like"
+  on public.likes for delete
+  using ( auth.uid() = user_id );
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Comments table
+-- ─────────────────────────────────────────────────────────────────────────────
+create table if not exists public.comments (
+  id             uuid primary key default gen_random_uuid(),
+  arrangement_id uuid not null references public.arrangements (id) on delete cascade,
+  user_id        uuid not null references auth.users (id) on delete cascade,
+  author_name    text not null default 'Producer',
+  body           text not null,
+  created_at     timestamptz not null default now()
+);
+
+create index if not exists comments_arrangement_idx on public.comments (arrangement_id, created_at asc);
+
+alter table public.comments enable row level security;
+
+drop policy if exists "read comments" on public.comments;
+create policy "read comments"
+  on public.comments for select
+  using ( true );
+
+drop policy if exists "insert own comment" on public.comments;
+create policy "insert own comment"
+  on public.comments for insert
+  with check ( auth.uid() = user_id );
+
+drop policy if exists "delete own comment" on public.comments;
+create policy "delete own comment"
+  on public.comments for delete
+  using ( auth.uid() = user_id );
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Extend arrangements table for MIDI uploads
+-- ─────────────────────────────────────────────────────────────────────────────
+alter table public.arrangements
+  add column if not exists source_type text not null default 'builder',
+  add column if not exists midi_url    text;
+
+-- Storage bucket for MIDI files (run once; safe to re-run due to on conflict do nothing)
+-- NOTE: Create the bucket named 'midi' in Supabase Storage dashboard with public access,
+-- or run: insert into storage.buckets (id, name, public) values ('midi', 'midi', true) on conflict do nothing;
