@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
-  base: '/',
+  base: '/LoopLab/',
   build: {
     target: 'es2019',
     // Stable, un-hashed filenames so a proxy-cached index.html always resolves
