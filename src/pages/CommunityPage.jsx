@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import genres from '../data/genres.json'
@@ -40,6 +40,8 @@ export default function CommunityPage() {
   const [commentCounts, setCommentCounts] = useState({})
   const [commentsFor, setCommentsFor] = useState(null)
   const [showUpload, setShowUpload] = useState(false)
+  const [sort, setSort] = useState('newest')    // newest | oldest | liked
+  const [genreFilter, setGenreFilter] = useState('all')
 
   const load = useCallback(async () => {
     setLoading(true); setError('')
@@ -84,6 +86,102 @@ export default function CommunityPage() {
   function handleUploaded(rec) {
     setShowUpload(false)
     if (tab === 'mine' || tab === 'community') load()
+  }
+
+  // Genres that actually appear in the current list, for the filter dropdown.
+  const availableGenres = useMemo(() => {
+    const ids = new Set()
+    items.forEach(r => {
+      const gid = r.data?.genreId || r.genre_id
+      if (gid) ids.add(gid)
+    })
+    return genres.filter(g => ids.has(g.id))
+  }, [items])
+
+  // Apply genre filter + chosen sort order.
+  const visibleItems = useMemo(() => {
+    let list = items
+    if (genreFilter !== 'all') {
+      list = list.filter(r => (r.data?.genreId || r.genre_id) === genreFilter)
+    }
+    const withCount = list.map(r => ({ ...r, _likes: likes[r.id]?.count || 0 }))
+    if (sort === 'liked') {
+      withCount.sort((a, b) => b._likes - a._likes || new Date(b.created_at) - new Date(a.created_at))
+    } else if (sort === 'oldest') {
+      withCount.sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+    } else {
+      withCount.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+    }
+    return withCount
+  }, [items, genreFilter, sort, likes])
+
+  // Top 3 most-liked public arrangements (community tab only, needs ≥1 like).
+  const topArrangements = useMemo(() => {
+    if (tab !== 'community') return []
+    return [...items]
+      .map(r => ({ ...r, _likes: likes[r.id]?.count || 0 }))
+      .filter(r => r._likes > 0)
+      .sort((a, b) => b._likes - a._likes)
+      .slice(0, 3)
+  }, [items, likes, tab])
+
+  function renderCard(rec, rank) {
+    const lk = likes[rec.id] || { count: 0, liked: false }
+    const cc = commentCounts[rec.id] || 0
+    const isMidi = rec.source_type === 'midi_upload'
+    return (
+      <div key={rec.id} className="relative bg-[#16161e] border border-white/[0.06] rounded-xl p-4 flex flex-col hover:border-white/[0.14] transition">
+        {rank != null && (
+          <span className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-gradient-to-br from-[#7c5cfc] to-[#a78bfa] text-white text-[12px] font-bold flex items-center justify-center shadow-lg">
+            {rank}
+          </span>
+        )}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="text-[10px] font-mono uppercase tracking-wide px-2 py-0.5 rounded text-[#a78bfa] bg-[#7c5cfc]/15">
+            {isMidi ? 'MIDI file' : genreName(rec.data?.genreId || rec.genre_id)}
+          </span>
+          {!rec.is_public && tab === 'mine' && (
+            <span className="text-[10px] text-gray-500 border border-white/10 rounded px-1.5 py-0.5">Private</span>
+          )}
+        </div>
+        <h3 className="text-[15px] font-semibold text-white mb-1 leading-snug">{rec.title}</h3>
+        {rec.description && <p className="text-[12px] text-gray-500 leading-relaxed line-clamp-2 mb-2">{rec.description}</p>}
+
+        <div className="mt-auto">
+          <div className="flex items-center justify-between pt-2 mb-3">
+            <span className="text-[11px] text-gray-600">by {rec.author_name} · {timeAgo(rec.created_at)}</span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleLike(rec.id)}
+                className={`flex items-center gap-1 text-[12px] transition ${lk.liked ? 'text-rose-400' : 'text-gray-600 hover:text-rose-400'}`}
+                title={user ? (lk.liked ? 'Unlike' : 'Like') : 'Sign in to like'}
+              >
+                <HeartIcon filled={lk.liked} />
+                {lk.count > 0 && <span>{lk.count}</span>}
+              </button>
+              <button
+                onClick={() => setCommentsFor(rec)}
+                className="flex items-center gap-1 text-[12px] text-gray-600 hover:text-white transition"
+              >
+                <CommentIcon />
+                {cc > 0 && <span>{cc}</span>}
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {isMidi ? (
+              <a href={rec.midi_url} download className="flex-1 text-center text-[12px] bg-[#7c5cfc] hover:bg-[#6d4ef0] text-white rounded-lg py-1.5 transition">Download MIDI</a>
+            ) : (
+              <button onClick={() => open(rec)} className="flex-1 text-[12px] bg-[#7c5cfc] hover:bg-[#6d4ef0] text-white rounded-lg py-1.5 transition">Open in builder</button>
+            )}
+            {tab === 'mine' && (
+              <button onClick={() => remove(rec)} className="text-[12px] text-gray-500 hover:text-red-400 border border-white/[0.08] hover:border-red-500/30 rounded-lg px-3 py-1.5 transition">Delete</button>
+            )}
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -160,66 +258,55 @@ export default function CommunityPage() {
                 {tab === 'mine' ? "You haven't saved any arrangements yet." : 'No arrangements have been shared yet — be the first!'}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-16">
-                {items.map(rec => {
-                  const lk = likes[rec.id] || { count: 0, liked: false }
-                  const cc = commentCounts[rec.id] || 0
-                  const isMidi = rec.source_type === 'midi_upload'
-                  return (
-                    <div key={rec.id} className="bg-[#16161e] border border-white/[0.06] rounded-xl p-4 flex flex-col hover:border-white/[0.14] transition">
-                      <div className="flex items-center justify-between gap-2 mb-2">
-                        <span className="text-[10px] font-mono uppercase tracking-wide px-2 py-0.5 rounded text-[#a78bfa] bg-[#7c5cfc]/15">
-                          {isMidi ? 'MIDI file' : genreName(rec.data?.genreId || rec.genre_id)}
-                        </span>
-                        {!rec.is_public && tab === 'mine' && (
-                          <span className="text-[10px] text-gray-500 border border-white/10 rounded px-1.5 py-0.5">Private</span>
-                        )}
-                      </div>
-                      <h3 className="text-[15px] font-semibold text-white mb-1 leading-snug">{rec.title}</h3>
-                      {rec.description && <p className="text-[12px] text-gray-500 leading-relaxed line-clamp-2 mb-2">{rec.description}</p>}
-
-                      <div className="mt-auto">
-                        <div className="flex items-center justify-between pt-2 mb-3">
-                          <span className="text-[11px] text-gray-600">by {rec.author_name} · {timeAgo(rec.created_at)}</span>
-                          {/* Like + comment counts */}
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => handleLike(rec.id)}
-                              className={`flex items-center gap-1 text-[12px] transition ${lk.liked ? 'text-rose-400' : 'text-gray-600 hover:text-rose-400'}`}
-                              title={user ? (lk.liked ? 'Unlike' : 'Like') : 'Sign in to like'}
-                            >
-                              <HeartIcon filled={lk.liked} />
-                              {lk.count > 0 && <span>{lk.count}</span>}
-                            </button>
-                            <button
-                              onClick={() => setCommentsFor(rec)}
-                              className="flex items-center gap-1 text-[12px] text-gray-600 hover:text-white transition"
-                            >
-                              <CommentIcon />
-                              {cc > 0 && <span>{cc}</span>}
-                            </button>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          {isMidi ? (
-                            <a
-                              href={rec.midi_url}
-                              download
-                              className="flex-1 text-center text-[12px] bg-[#7c5cfc] hover:bg-[#6d4ef0] text-white rounded-lg py-1.5 transition"
-                            >Download MIDI</a>
-                          ) : (
-                            <button onClick={() => open(rec)} className="flex-1 text-[12px] bg-[#7c5cfc] hover:bg-[#6d4ef0] text-white rounded-lg py-1.5 transition">Open in builder</button>
-                          )}
-                          {tab === 'mine' && (
-                            <button onClick={() => remove(rec)} className="text-[12px] text-gray-500 hover:text-red-400 border border-white/[0.08] hover:border-red-500/30 rounded-lg px-3 py-1.5 transition">Delete</button>
-                          )}
-                        </div>
-                      </div>
+              <>
+                {/* Top arrangements */}
+                {topArrangements.length > 0 && (
+                  <div className="mb-10">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-lg">🏆</span>
+                      <h2 className="text-[15px] font-semibold text-white">Top Arrangements</h2>
+                      <span className="text-[11px] text-gray-600">most liked by the community</span>
                     </div>
-                  )
-                })}
-              </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {topArrangements.map((rec, i) => renderCard(rec, i + 1))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Controls: sort + genre filter */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-gray-600 uppercase tracking-wide mr-1">Sort</span>
+                    {[['newest', 'Newest'], ['oldest', 'Oldest'], ['liked', 'Most liked']].map(([v, label]) => (
+                      <button key={v} onClick={() => setSort(v)}
+                        className={`text-[12px] px-3 py-1.5 rounded-lg border transition ${sort === v ? 'border-[#7c5cfc]/60 bg-[#7c5cfc]/15 text-white' : 'border-white/[0.08] text-gray-400 hover:text-white'}`}
+                      >{label}</button>
+                    ))}
+                  </div>
+                  <div className="sm:ml-auto flex items-center gap-1.5">
+                    <span className="text-[11px] text-gray-600 uppercase tracking-wide mr-1">Genre</span>
+                    <select
+                      value={genreFilter}
+                      onChange={e => setGenreFilter(e.target.value)}
+                      className="text-[12px] bg-[#16161e] border border-white/[0.08] rounded-lg px-3 py-1.5 text-gray-300 focus:outline-none focus:border-[#7c5cfc]/50 transition cursor-pointer"
+                    >
+                      <option value="all">All genres</option>
+                      {availableGenres.map(g => (
+                        <option key={g.id} value={g.id}>{g.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Full list */}
+                {visibleItems.length === 0 ? (
+                  <div className="text-center py-16 text-gray-600 text-sm">No arrangements match this filter.</div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-16">
+                    {visibleItems.map(rec => renderCard(rec))}
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
