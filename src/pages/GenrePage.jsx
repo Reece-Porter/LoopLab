@@ -148,9 +148,16 @@ export default function GenrePage() {
                   {song.artist} — {song.title}
                   <span className="opacity-60 hidden sm:inline"> ({song.year} · {song.bpm} BPM · {song.key})</span>
                   <span className="opacity-60 sm:hidden"> {song.bpm}</span>
+                  <span className="ml-1.5 text-[9px] font-medium uppercase tracking-wide opacity-60">WIP</span>
                 </button>
               ))}
             </div>
+          )}
+          {selectedSong && (
+            <p className="text-[11px] text-amber-500/70 mb-3 flex items-center gap-1.5">
+              <span>⚠</span>
+              <span>Song references are a work in progress — patterns are approximate and will be improved over time.</span>
+            </p>
           )}
           <ArrangementView
             arrangement={activeArrangement}
