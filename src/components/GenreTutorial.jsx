@@ -4,7 +4,7 @@ const STEPS = [
   {
     target: 'bpm-slider',
     title: 'Tempo control',
-    desc: 'Drag the slider to change the BPM of the arrangement and patterns in real time. Hit reset to snap back to the genre's typical tempo.',
+    desc: "Drag the slider to change the BPM in real time. Hit reset to snap back to the genre's typical tempo.",
     position: 'below',
   },
   {
