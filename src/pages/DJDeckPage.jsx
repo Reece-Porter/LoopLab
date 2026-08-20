@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import PlaylistDownloader from '../components/PlaylistDownloader'
 
 // ─── Web Audio chain: source → low → mid → high → gain → destination ─────────
 function buildEQChain(ctx) {
@@ -646,6 +647,9 @@ export default function DJDeckPage() {
             </div>
           )}
         </div>
+
+        {/* Playlist downloader */}
+        <PlaylistDownloader backendUrl={backendUrl} />
 
         {/* SoundCloud embedded player */}
         {status === 'soundcloud' && scUrl && (
