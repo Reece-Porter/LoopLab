@@ -133,10 +133,19 @@ app.get('/api/track', async (req, res) => {
 
   // Embedding a thumbnail (cover art) requires writing to a real file rather
   // than stdout, so we download to a temp path then stream it back.
+  //
+  // SoundCloud often serves artwork as WebP, which cannot be written into an
+  // MP3 cover-art (APIC) frame — so we force the thumbnail to JPEG first, else
+  // the art silently fails to embed. --embed-metadata writes the ID3 title +
+  // artist tags (so Rekordbox shows the real track name and artist), and
+  // --parse-metadata maps the SoundCloud uploader into the artist field when
+  // yt-dlp hasn't already set one.
   const args = [
     '--no-playlist',
     '-x', '--audio-format', 'mp3', '--audio-quality', quality,
-    '--embed-metadata', '--embed-thumbnail',
+    '--embed-metadata',
+    '--embed-thumbnail', '--convert-thumbnails', 'jpg',
+    '--parse-metadata', '%(uploader)s:%(artist)s',
     '--no-progress',
     '-o', `${tmpBase}.%(ext)s`,
     url,
