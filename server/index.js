@@ -82,38 +82,42 @@ app.get('/api/playlist', (req, res) => {
     return res.status(400).json({ error: 'Provide a valid SoundCloud or YouTube playlist url.' })
   }
 
-  // --flat-playlist is fast: it lists entries without resolving each track.
-  const dl = spawn('yt-dlp', ['--flat-playlist', '--dump-single-json', url])
+  // We resolve FULL metadata for each entry (not --flat-playlist), because on
+  // SoundCloud a flat listing has no real track title, no per-track artist and
+  // no artwork — it just echoes the set owner. Resolving is slower but gives us
+  // the real track name, artist (uploader) and thumbnail for every track.
+  // --dump-json prints one JSON object per line (per track) as it resolves them.
+  const dl = spawn('yt-dlp', ['--dump-json', '--ignore-errors', url])
   let out = '', err = ''
   dl.stdout.on('data', d => { out += d })
   dl.stderr.on('data', d => { err += d })
   dl.on('close', code => {
-    if (code !== 0) return res.status(500).json({ error: 'yt-dlp failed', detail: err.slice(-500) })
-    try {
-      const j = JSON.parse(out)
-      const entries = Array.isArray(j.entries) ? j.entries : []
-      if (!entries.length) {
-        return res.status(422).json({ error: 'No tracks found. Is this a public playlist/set URL?' })
-      }
-      const tracks = entries
-        .filter(e => e && (e.url || e.id))
-        .map(e => ({
-          // For flat playlists, `url` is usually the full webpage URL. Fall back
-          // to webpage_url or the id if needed.
-          url: e.url || e.webpage_url || e.id,
-          title: e.title || 'Untitled',
-          uploader: e.uploader || e.channel || j.uploader || '',
-          duration: e.duration || null,
-        }))
-      res.json({
-        playlistTitle: j.title || 'Playlist',
-        uploader: j.uploader || '',
-        count: tracks.length,
-        tracks,
-      })
-    } catch {
-      res.status(500).json({ error: 'Could not parse playlist' })
+    // With --ignore-errors yt-dlp may exit non-zero even when most tracks
+    // resolved, so parse whatever we got before treating it as a failure.
+    const lines = out.split('\n').map(l => l.trim()).filter(Boolean)
+    const entries = []
+    for (const line of lines) {
+      try { entries.push(JSON.parse(line)) } catch { /* skip partial line */ }
     }
+    if (!entries.length) {
+      if (code !== 0) return res.status(500).json({ error: 'yt-dlp failed', detail: err.slice(-500) })
+      return res.status(422).json({ error: 'No tracks found. Is this a public playlist/set URL?' })
+    }
+    const tracks = entries
+      .filter(e => e && (e.webpage_url || e.url || e.id))
+      .map(e => ({
+        url: e.webpage_url || e.url || e.id,
+        title: e.track || e.title || 'Untitled',
+        // Prefer real artist tags; fall back to the track's own uploader.
+        uploader: e.artist || e.uploader || e.creator || e.channel || '',
+        thumbnail: e.thumbnail || (Array.isArray(e.thumbnails) && e.thumbnails.length ? e.thumbnails[e.thumbnails.length - 1].url : null),
+        duration: e.duration || null,
+      }))
+    res.json({
+      playlistTitle: (entries[0] && (entries[0].playlist_title || entries[0].playlist)) || 'Playlist',
+      count: tracks.length,
+      tracks,
+    })
   })
 })
 

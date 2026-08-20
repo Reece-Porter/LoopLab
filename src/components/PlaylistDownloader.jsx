@@ -141,6 +141,12 @@ export default function PlaylistDownloader({ backendUrl }) {
             </label>
           </div>
 
+          {phase === 'listing' && (
+            <p className="text-xs text-cyan-400/80 animate-pulse mb-3">
+              Reading the playlist and fetching each track's name + artwork… big sets can take up to a minute.
+            </p>
+          )}
+
           {error && (
             <div className="rounded-xl bg-red-900/20 border border-red-500/20 p-3 text-xs text-red-300 leading-relaxed mb-3">{error}</div>
           )}
@@ -157,14 +163,19 @@ export default function PlaylistDownloader({ backendUrl }) {
                   const st = progress[i]
                   return (
                     <div key={i} className="flex items-center gap-3 px-4 py-2 text-xs">
-                      <span className="text-gray-600 w-6 text-right">{i + 1}</span>
+                      <span className="text-gray-600 w-5 text-right shrink-0">{i + 1}</span>
+                      {t.thumbnail ? (
+                        <img src={t.thumbnail} alt="" loading="lazy" className="w-9 h-9 rounded object-cover shrink-0 bg-white/5" />
+                      ) : (
+                        <div className="w-9 h-9 rounded shrink-0 bg-white/5 flex items-center justify-center text-gray-600">♪</div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <p className="text-gray-200 truncate">{t.title}</p>
                         {t.uploader && <p className="text-gray-600 truncate">{t.uploader}</p>}
                       </div>
-                      {st === 'done' && <span className="text-emerald-400">✓</span>}
-                      {st === 'failed' && <span className="text-red-400">✗</span>}
-                      {st === 'pending' && phase === 'downloading' && <span className="text-cyan-400 animate-pulse">…</span>}
+                      {st === 'done' && <span className="text-emerald-400 shrink-0">✓</span>}
+                      {st === 'failed' && <span className="text-red-400 shrink-0">✗</span>}
+                      {st === 'pending' && phase === 'downloading' && <span className="text-cyan-400 animate-pulse shrink-0">…</span>}
                     </div>
                   )
                 })}
