@@ -202,8 +202,11 @@ export default function DJDeckPage() {
   const [backendUrl, setBackendUrl] = useState(() => localStorage.getItem('looplab-backend') || '')
   const [showBackend, setShowBackend] = useState(false)
   const [backendStatus, setBackendStatus] = useState('unknown') // unknown | waking | ok | error
+  const [wakeElapsed, setWakeElapsed] = useState(0) // seconds spent waking
   const [copied, setCopied]         = useState(false)
   const [streamUrl, setStreamUrl] = useState('') // SC/YT url loaded via backend
+  const wakeIntervalRef = useRef(null)
+  const wakePollRef     = useRef(null)
 
   const audioCtxRef  = useRef(null)
   const eqRef        = useRef(null)
@@ -440,17 +443,41 @@ export default function DJDeckPage() {
   }
 
   // ── Wake + ping the backend ───────────────────────────────────────────────
-  async function wakeBackend(url) {
+  // Render's free tier cold-starts in ~30–60s. Rather than one long fetch that
+  // just fails, we poll /health every few seconds while a timer counts up, and
+  // flip to green the instant it responds. Gives the user live feedback.
+  function clearWakeTimers() {
+    if (wakeIntervalRef.current) { clearInterval(wakeIntervalRef.current); wakeIntervalRef.current = null }
+    if (wakePollRef.current)     { clearTimeout(wakePollRef.current);       wakePollRef.current = null }
+  }
+
+  function wakeBackend(url) {
     if (!url) return
     const base = url.replace(/\/$/, '')
+    clearWakeTimers()
     setBackendStatus('waking')
-    try {
-      const res = await fetch(`${base}/health`, { signal: AbortSignal.timeout(60000) })
-      setBackendStatus(res.ok ? 'ok' : 'error')
-    } catch {
-      setBackendStatus('error')
+    setWakeElapsed(0)
+
+    const started = Date.now()
+    const MAX_MS  = 120000 // give Render up to 2 min to cold-start
+
+    wakeIntervalRef.current = setInterval(() => {
+      setWakeElapsed(Math.floor((Date.now() - started) / 1000))
+    }, 1000)
+
+    const attempt = async () => {
+      try {
+        const res = await fetch(`${base}/health`, { signal: AbortSignal.timeout(8000) })
+        if (res.ok) { clearWakeTimers(); setBackendStatus('ok'); return }
+      } catch { /* still waking — keep polling */ }
+      if (Date.now() - started > MAX_MS) { clearWakeTimers(); setBackendStatus('error'); return }
+      wakePollRef.current = setTimeout(attempt, 3000)
     }
+    attempt()
   }
+
+  // Stop polling when the page unmounts.
+  useEffect(() => () => clearWakeTimers(), [])
 
   function copyBackendUrl() {
     if (!backendUrl) return
@@ -508,9 +535,9 @@ export default function DJDeckPage() {
               className={`text-xs px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 ${backendUrl ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-white/10 text-gray-400 hover:text-white'}`}
             >
               ⚙ Backend
-              {backendUrl && backendStatus === 'ok'    && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />}
-              {backendUrl && backendStatus === 'waking' && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0" />}
-              {backendUrl && backendStatus === 'error'  && <span className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />}
+              {backendUrl && backendStatus === 'ok'      && <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_1px_rgba(52,211,153,0.7)] shrink-0" />}
+              {backendUrl && backendStatus === 'waking'  && <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />}
+              {backendUrl && (backendStatus === 'error' || backendStatus === 'unknown') && <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />}
             </button>
           </div>
         </div>
@@ -546,18 +573,39 @@ export default function DJDeckPage() {
             <h2 className="text-sm font-semibold text-emerald-300 uppercase tracking-widest mb-3">Downloader Backend</h2>
 
             {/* Status row */}
-            <div className="flex items-center gap-2 mb-4">
-              {backendStatus === 'unknown' && <span className="text-xs text-gray-500">Not yet checked</span>}
-              {backendStatus === 'waking'  && <span className="text-xs text-amber-400 animate-pulse">⏳ Waking up Render… (can take ~40s on free tier)</span>}
-              {backendStatus === 'ok'      && <span className="text-xs text-emerald-400">✓ Backend is live and responding</span>}
-              {backendStatus === 'error'   && <span className="text-xs text-red-400">✗ Backend not reachable — check the URL or wait for Render to wake</span>}
+            <div className="flex items-center gap-2.5 mb-4">
+              {/* Status light: red (off/error) · amber pulse (waking) · green (live) */}
+              <span className="relative flex h-3 w-3 shrink-0">
+                {backendStatus === 'waking' && (
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-60" />
+                )}
+                <span className={`relative inline-flex rounded-full h-3 w-3 ${
+                  backendStatus === 'ok' ? 'bg-emerald-400 shadow-[0_0_8px_2px_rgba(52,211,153,0.6)]'
+                  : backendStatus === 'waking' ? 'bg-amber-400'
+                  : 'bg-red-500'
+                }`} />
+              </span>
+
+              {backendStatus === 'unknown' && <span className="text-xs text-gray-400">Offline — hit <strong className="text-white">Wake now</strong> to start the backend</span>}
+              {backendStatus === 'waking'  && (
+                <span className="text-xs text-amber-300 font-mono tabular-nums">
+                  Waking up Render… <strong className="text-amber-200">{wakeElapsed}s</strong>
+                  <span className="text-amber-400/60"> (usually 30–60s on free tier)</span>
+                </span>
+              )}
+              {backendStatus === 'ok'      && <span className="text-xs text-emerald-400 font-semibold">● Live — backend is awake and responding</span>}
+              {backendStatus === 'error'   && <span className="text-xs text-red-400">Not reachable after 2 min — check the URL, or the service may be asleep/down</span>}
+
               {backendUrl && backendStatus !== 'waking' && (
                 <button
                   onClick={() => wakeBackend(backendUrl)}
-                  className="ml-auto text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition"
+                  className="ml-auto text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition shrink-0"
                 >
                   Wake now
                 </button>
+              )}
+              {backendStatus === 'waking' && (
+                <span className="ml-auto text-xs text-gray-500 shrink-0">checking…</span>
               )}
             </div>
 
