@@ -49,7 +49,7 @@ export default function AuthPage() {
       {/* Header */}
       <div className="w-full max-w-6xl mx-auto px-6 lg:px-10 py-5 flex items-center gap-3">
         <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity duration-150">
-          <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-8 w-auto" />
+          <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-7 w-auto" />
         </button>
       </div>
 

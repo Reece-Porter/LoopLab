@@ -24,7 +24,7 @@ export default function HomePage() {
         {/* Nav */}
         <nav className="flex items-center justify-between py-5 border-b border-hairline">
           <div className="flex items-center">
-            <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-8 sm:h-9 w-auto" />
+            <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-7 sm:h-8 w-auto" />
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
             {[['Community', '/community'], ['Tips', '/tips'], ['Tools', '/tools'], ['Player', '/player'], ['DJ Deck', '/dj']].map(([l, p]) => (

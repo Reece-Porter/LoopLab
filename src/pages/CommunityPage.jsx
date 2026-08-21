@@ -191,7 +191,7 @@ export default function CommunityPage() {
         {/* Nav */}
         <nav className="flex items-center justify-between py-5 border-b border-hairline">
           <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity duration-150">
-            <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-8 w-auto" />
+            <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-7 sm:h-8 w-auto" />
           </button>
           <div className="flex items-center gap-4">
             {user ? (
