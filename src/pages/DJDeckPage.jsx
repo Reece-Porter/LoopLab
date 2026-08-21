@@ -501,12 +501,12 @@ export default function DJDeckPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" onDrop={onDrop} onDragOver={e => e.preventDefault()}>
+    <div className="min-h-screen bg-base text-ink" onDrop={onDrop} onDragOver={e => e.preventDefault()}>
       <div className="w-full max-w-3xl mx-auto px-4 py-8">
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <button onClick={() => navigate('/')} className="text-dim hover:text-white transition text-sm flex items-center gap-1">
+          <button onClick={() => navigate('/')} className="text-dim hover:text-ink transition text-sm flex items-center gap-1">
             ← Back
           </button>
           <div className="flex items-center gap-2 ml-2">
@@ -532,7 +532,7 @@ export default function DJDeckPage() {
                 setShowBackend(next)
                 if (next && backendUrl) wakeBackend(backendUrl)
               }}
-              className={`text-xs px-3 py-1.5  border transition flex items-center gap-1.5 ${backendUrl ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-hairline text-dim hover:text-white'}`}
+              className={`text-xs px-3 py-1.5  border transition flex items-center gap-1.5 ${backendUrl ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-hairline text-dim hover:text-ink'}`}
             >
               ⚙ Backend
               {backendUrl && backendStatus === 'ok'      && <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_1px_rgba(52,211,153,0.7)] shrink-0" />}
@@ -553,11 +553,11 @@ export default function DJDeckPage() {
             <ol className="space-y-2.5 text-xs text-dim leading-relaxed">
               <li className="flex gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-acid/50 text-acid flex items-center justify-center shrink-0 font-bold text-[10px]">1</span>
-                <span>Click the <strong className="text-white">⚙ Backend</strong> button above.</span>
+                <span>Click the <strong className="text-ink">⚙ Backend</strong> button above.</span>
               </li>
               <li className="flex gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-acid/50 text-acid flex items-center justify-center shrink-0 font-bold text-[10px]">2</span>
-                <span>Paste your backend URL and hit <strong className="text-white">Save &amp; Wake</strong> — it may take ~30s to spin up on first use.</span>
+                <span>Paste your backend URL and hit <strong className="text-ink">Save &amp; Wake</strong> — it may take ~30s to spin up on first use.</span>
               </li>
               <li className="flex gap-2.5">
                 <span className="w-5 h-5 rounded-full bg-acid/50 text-acid flex items-center justify-center shrink-0 font-bold text-[10px]">3</span>
@@ -586,7 +586,7 @@ export default function DJDeckPage() {
                 }`} />
               </span>
 
-              {backendStatus === 'unknown' && <span className="text-xs text-dim">Offline — hit <strong className="text-white">Wake now</strong> to start the backend</span>}
+              {backendStatus === 'unknown' && <span className="text-xs text-dim">Offline — hit <strong className="text-ink">Wake now</strong> to start the backend</span>}
               {backendStatus === 'waking'  && (
                 <span className="text-xs text-amber-300 font-mono tabular-nums">
                   Waking up Render… <strong className="text-amber-200">{wakeElapsed}s</strong>
@@ -615,7 +615,7 @@ export default function DJDeckPage() {
                 value={backendUrl}
                 onChange={e => setBackendUrl(e.target.value)}
                 placeholder="https://looplab-audio.onrender.com"
-                className="flex-1 bg-black/30 border border-hairline  px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 transition font-mono"
+                className="flex-1 bg-surface-2 border border-hairline px-4 py-2.5 text-sm text-ink placeholder-faint focus:outline-none focus:border-acid transition-colors duration-150 font-mono"
               />
               <button
                 onClick={() => {
@@ -673,7 +673,7 @@ export default function DJDeckPage() {
               onChange={e => setUrl(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && loadUrl()}
               placeholder="Paste a direct audio URL (MP3, SoundCloud stream…)"
-              className="flex-1 bg-black/30 border border-hairline  px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-acid transition"
+              className="flex-1 bg-surface-2 border border-hairline px-4 py-2.5 text-sm text-ink placeholder-faint focus:outline-none focus:border-acid transition-colors duration-150"
             />
             <button
               onClick={loadUrl}
@@ -769,7 +769,7 @@ export default function DJDeckPage() {
             {/* Rewind */}
             <button
               onClick={() => { stopSource(); offsetRef.current = 0; setCurrent(0); setProgress(0); setPlaying(false) }}
-              className="w-10 h-10 rounded-full bg-surface hover:bg-surface-2 flex items-center justify-center transition text-dim hover:text-white"
+              className="w-10 h-10 rounded-full bg-surface hover:bg-surface-2 flex items-center justify-center transition text-dim hover:text-ink"
             >
               ⏮
             </button>
@@ -783,7 +783,7 @@ export default function DJDeckPage() {
             {/* Stop */}
             <button
               onClick={() => { stopSource(); offsetRef.current = 0; setCurrent(0); setProgress(0); setPlaying(false) }}
-              className="w-10 h-10 rounded-full bg-surface hover:bg-surface-2 flex items-center justify-center transition text-dim hover:text-white"
+              className="w-10 h-10 rounded-full bg-surface hover:bg-surface-2 flex items-center justify-center transition text-dim hover:text-ink"
             >
               ⏹
             </button>
