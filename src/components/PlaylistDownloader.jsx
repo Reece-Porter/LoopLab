@@ -54,29 +54,54 @@ export default function PlaylistDownloader({ backendUrl }) {
 
     // Sequential download — keeps the Render free tier from being hammered and
     // gives clear per-track progress. yt-dlp transcodes each track server-side.
+    // Each track is retried a couple of times (transient timeouts / rate-limits
+    // are common on the free tier), with a short pause between requests.
     let anySuccess = false
+    let firstError = ''
+    const sleep = ms => new Promise(r => setTimeout(r, ms))
+
     for (let i = 0; i < total; i++) {
       const t = playlist.tracks[i]
       const label = numbered
         ? `${pad(i + 1, total)} - ${safe(t.uploader ? `${t.uploader} - ${t.title}` : t.title)}`
         : safe(t.uploader ? `${t.uploader} - ${t.title}` : t.title)
-      try {
-        const res = await fetch(`${base}/api/track?url=${encodeURIComponent(t.url)}&q=${quality}&name=${encodeURIComponent(label)}`)
-        if (!res.ok) throw new Error('track failed')
-        const blob = await res.blob()
-        folder.file(`${label}.mp3`, blob)
-        prog[i] = 'done'; anySuccess = true
-      } catch {
-        prog[i] = 'failed'
+
+      let ok = false
+      for (let attempt = 0; attempt < 3 && !ok; attempt++) {
+        if (attempt > 0) await sleep(2000) // back off before a retry
+        try {
+          const res = await fetch(
+            `${base}/api/track?url=${encodeURIComponent(t.url)}&q=${quality}&name=${encodeURIComponent(label)}`,
+            { signal: AbortSignal.timeout(180000) }, // up to 3 min per track
+          )
+          if (!res.ok) {
+            // Capture the server's reason so we can show why it failed.
+            let detail = `HTTP ${res.status}`
+            try { const j = await res.json(); detail = j.detail || j.error || detail } catch { /* not json */ }
+            if (!firstError) firstError = detail
+            throw new Error(detail)
+          }
+          const blob = await res.blob()
+          if (blob.size < 1024) throw new Error('empty file') // guard against error pages
+          folder.file(`${label}.mp3`, blob)
+          ok = true; anySuccess = true
+        } catch (e) {
+          if (!firstError) firstError = e.message || 'request failed'
+        }
       }
+      prog[i] = ok ? 'done' : 'failed'
       setProgress({ ...prog })
+      await sleep(600) // pace requests so SoundCloud doesn't rate-limit the IP
     }
 
     if (!anySuccess) {
-      setError('Every track failed to download. The backend may have timed out — try a smaller playlist.')
+      setError(`Every track failed to download. First error from the server: "${firstError || 'unknown'}". ` +
+               `This is usually the free Render tier running out of CPU/memory, or SoundCloud rate-limiting the server. ` +
+               `Try a smaller set, or upgrade the Render instance.`)
       setPhase('listed')
       return
     }
+    if (firstError) setError(`Some tracks failed. First error: "${firstError}".`)
 
     const out = await folder.generateAsync({ type: 'blob' }, () => {})
     const a = document.createElement('a')
