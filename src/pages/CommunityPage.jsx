@@ -130,30 +130,30 @@ export default function CommunityPage() {
     const cc = commentCounts[rec.id] || 0
     const isMidi = rec.source_type === 'midi_upload'
     return (
-      <div key={rec.id} className="relative bg-[#16161e] border border-white/[0.06] rounded-xl p-4 flex flex-col hover:border-white/[0.14] transition">
+      <div key={rec.id} className="relative bg-surface border border-hairline p-4 flex flex-col hover:border-acid transition-colors duration-150">
         {rank != null && (
-          <span className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-gradient-to-br from-[#7c5cfc] to-[#a78bfa] text-white text-[12px] font-bold flex items-center justify-center shadow-lg">
+          <span className="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-acid text-base text-[12px] font-bold flex items-center justify-center shadow-lg">
             {rank}
           </span>
         )}
         <div className="flex items-center justify-between gap-2 mb-2">
-          <span className="text-[10px] font-mono uppercase tracking-wide px-2 py-0.5 rounded text-[#a78bfa] bg-[#7c5cfc]/15">
+          <span className="text-[10px] font-mono uppercase tracking-[0.16em] px-2 py-0.5 text-dim border border-hairline">
             {isMidi ? 'MIDI file' : genreName(rec.data?.genreId || rec.genre_id)}
           </span>
           {!rec.is_public && tab === 'mine' && (
-            <span className="text-[10px] text-gray-500 border border-white/10 rounded px-1.5 py-0.5">Private</span>
+            <span className="text-[10px] font-mono uppercase tracking-[0.16em] text-faint border border-hairline px-1.5 py-0.5">Private</span>
           )}
         </div>
-        <h3 className="text-[15px] font-semibold text-white mb-1 leading-snug">{rec.title}</h3>
-        {rec.description && <p className="text-[12px] text-gray-500 leading-relaxed line-clamp-2 mb-2">{rec.description}</p>}
+        <h3 className="text-[15px] font-display uppercase tracking-tight font-bold text-ink mb-1 leading-snug">{rec.title}</h3>
+        {rec.description && <p className="text-[12px] text-dim leading-relaxed line-clamp-2 mb-2">{rec.description}</p>}
 
         <div className="mt-auto">
           <div className="flex items-center justify-between pt-2 mb-3">
-            <span className="text-[11px] text-gray-600">by {rec.author_name} · {timeAgo(rec.created_at)}</span>
+            <span className="text-[11px] font-mono uppercase tracking-[0.16em] text-faint">by {rec.author_name} · {timeAgo(rec.created_at)}</span>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => handleLike(rec.id)}
-                className={`flex items-center gap-1 text-[12px] transition ${lk.liked ? 'text-rose-400' : 'text-gray-600 hover:text-rose-400'}`}
+                className={`flex items-center gap-1 text-[12px] transition-colors duration-150 ${lk.liked ? 'text-rose-400' : 'text-faint hover:text-rose-400'}`}
                 title={user ? (lk.liked ? 'Unlike' : 'Like') : 'Sign in to like'}
               >
                 <HeartIcon filled={lk.liked} />
@@ -161,7 +161,7 @@ export default function CommunityPage() {
               </button>
               <button
                 onClick={() => setCommentsFor(rec)}
-                className="flex items-center gap-1 text-[12px] text-gray-600 hover:text-white transition"
+                className="flex items-center gap-1 text-[12px] text-faint hover:text-ink transition-colors duration-150"
               >
                 <CommentIcon />
                 {cc > 0 && <span>{cc}</span>}
@@ -171,12 +171,12 @@ export default function CommunityPage() {
 
           <div className="flex items-center gap-2">
             {isMidi ? (
-              <a href={rec.midi_url} download className="flex-1 text-center text-[12px] bg-[#7c5cfc] hover:bg-[#6d4ef0] text-white rounded-lg py-1.5 transition">Download MIDI</a>
+              <a href={rec.midi_url} download className="flex-1 text-center text-[12px] font-mono uppercase tracking-[0.16em] bg-acid hover:bg-acid text-base py-1.5 transition-colors duration-150">Download MIDI</a>
             ) : (
-              <button onClick={() => open(rec)} className="flex-1 text-[12px] bg-[#7c5cfc] hover:bg-[#6d4ef0] text-white rounded-lg py-1.5 transition">Open in builder</button>
+              <button onClick={() => open(rec)} className="flex-1 text-[12px] font-mono uppercase tracking-[0.16em] bg-acid hover:bg-acid text-base py-1.5 transition-colors duration-150">Open in builder</button>
             )}
             {tab === 'mine' && (
-              <button onClick={() => remove(rec)} className="text-[12px] text-gray-500 hover:text-red-400 border border-white/[0.08] hover:border-red-500/30 rounded-lg px-3 py-1.5 transition">Delete</button>
+              <button onClick={() => remove(rec)} className="text-[12px] font-mono uppercase tracking-[0.16em] text-dim hover:text-red-400 border border-hairline hover:border-red-500/30 px-3 py-1.5 transition-colors duration-150">Delete</button>
             )}
           </div>
         </div>
@@ -185,23 +185,23 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f0f13] text-white">
+    <div className="min-h-screen bg-base text-ink">
       <div className="w-full max-w-6xl mx-auto px-5 sm:px-8 lg:px-12">
 
         {/* Nav */}
-        <nav className="flex items-center justify-between py-5 border-b border-white/[0.06]">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2.5 hover:opacity-80 transition">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="LoopLab" width={28} height={28} className="h-7 w-7 rounded-md" />
-            <span className="font-semibold text-white text-sm">LoopLab</span>
+        <nav className="flex items-center justify-between py-5 border-b border-hairline">
+          <button onClick={() => navigate('/')} className="flex items-center gap-2.5 hover:opacity-80 transition-colors duration-150">
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="LoopLab" width={28} height={28} className="h-7 w-7" />
+            <span className="font-display uppercase tracking-tight font-bold text-ink text-sm">LoopLab</span>
           </button>
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                <span className="text-[13px] text-gray-400 hidden sm:inline">Hey, <span className="text-white">{displayName}</span></span>
-                <button onClick={signOut} className="text-[12px] text-gray-500 hover:text-white border border-white/[0.1] hover:border-white/25 rounded-lg px-3 py-1.5 transition">Sign out</button>
+                <span className="text-[13px] text-dim hidden sm:inline">Hey, <span className="text-ink">{displayName}</span></span>
+                <button onClick={signOut} className="text-[12px] font-mono uppercase tracking-[0.16em] text-dim hover:text-ink border border-hairline hover:border-acid px-3 py-1.5 transition-colors duration-150">Sign out</button>
               </>
             ) : (
-              <button onClick={() => navigate('/login')} className="text-[13px] text-white border border-white/[0.1] hover:border-white/25 rounded-lg px-3 py-1.5 transition">Sign in</button>
+              <button onClick={() => navigate('/login')} className="text-[13px] font-mono uppercase tracking-[0.16em] text-ink border border-hairline hover:border-acid px-3 py-1.5 transition-colors duration-150">Sign in</button>
             )}
           </div>
         </nav>
@@ -209,15 +209,15 @@ export default function CommunityPage() {
         {/* Header */}
         <div className="py-8 sm:py-10 flex flex-col sm:flex-row sm:items-end gap-4 justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Community Arrangements</h1>
-            <p className="text-gray-500 text-sm max-w-lg">
+            <h1 className="text-2xl sm:text-3xl font-display uppercase tracking-tight font-bold text-ink mb-2">Community Arrangements</h1>
+            <p className="text-dim text-sm max-w-lg">
               Browse arrangements and MIDI files shared by other producers. Like, comment, and open them in the builder.
             </p>
           </div>
           {user && configured && (
             <button
               onClick={() => setShowUpload(true)}
-              className="flex items-center gap-2 text-[13px] border border-[#7c5cfc]/50 bg-[#7c5cfc]/10 hover:bg-[#7c5cfc]/20 text-[#c4b5fd] rounded-lg px-4 py-2 transition flex-shrink-0"
+              className="flex items-center gap-2 text-[13px] font-mono uppercase tracking-[0.16em] border border-acid bg-acid/10 hover:bg-acid/20 text-acid px-4 py-2 transition-colors duration-150 flex-shrink-0"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
               Upload MIDI
@@ -229,22 +229,22 @@ export default function CommunityPage() {
         <div className="flex items-center gap-2 mb-6">
           {['community', ...(user ? ['mine'] : [])].map(t => (
             <button key={t} onClick={() => setTab(t)}
-              className={`text-[13px] px-4 py-1.5 rounded-lg border transition ${tab === t ? 'border-[#7c5cfc]/60 bg-[#7c5cfc]/15 text-white' : 'border-white/[0.08] text-gray-400 hover:text-white'}`}
+              className={`text-[13px] font-mono uppercase tracking-[0.16em] px-4 py-1.5 border transition-colors duration-150 ${tab === t ? 'border-acid bg-acid/10 text-acid' : 'border-hairline text-dim hover:text-ink'}`}
             >{t === 'mine' ? 'My Arrangements' : 'Community'}</button>
           ))}
         </div>
 
         {!configured && (
-          <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-5 text-sm text-amber-200">
-            The community backend isn't connected yet. Add your Supabase keys in <code>src/lib/supabaseConfig.js</code>.
+          <div className="border border-hairline bg-surface-2 p-5 text-sm text-dim">
+            The community backend isn't connected yet. Add your Supabase keys in <code className="text-acid">src/lib/supabaseConfig.js</code>.
           </div>
         )}
 
-        {error && <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-[13px] text-red-300 mb-5">{error}</div>}
+        {error && <div className="border border-red-500/30 bg-red-500/10 p-3 text-[13px] text-red-300 mb-5">{error}</div>}
 
         {configured && tab === 'mine' && !user && (
-          <div className="text-center py-16 text-gray-600">
-            <button onClick={() => navigate('/login')} className="text-[#a78bfa] hover:text-[#c4b5fd]">Sign in</button> to see your saved arrangements.
+          <div className="text-center py-16 text-dim">
+            <button onClick={() => navigate('/login')} className="text-acid hover:text-acid">Sign in</button> to see your saved arrangements.
           </div>
         )}
 
@@ -252,9 +252,9 @@ export default function CommunityPage() {
         {configured && (
           <>
             {loading ? (
-              <div className="text-center py-16 text-gray-600 text-sm">Loading…</div>
+              <div className="text-center py-16 text-dim text-sm">Loading…</div>
             ) : items.length === 0 ? (
-              <div className="text-center py-16 text-gray-600 text-sm">
+              <div className="text-center py-16 text-dim text-sm">
                 {tab === 'mine' ? "You haven't saved any arrangements yet." : 'No arrangements have been shared yet — be the first!'}
               </div>
             ) : (
@@ -264,8 +264,8 @@ export default function CommunityPage() {
                   <div className="mb-10">
                     <div className="flex items-center gap-2 mb-4">
                       <span className="text-lg">🏆</span>
-                      <h2 className="text-[15px] font-semibold text-white">Top Arrangements</h2>
-                      <span className="text-[11px] text-gray-600">most liked by the community</span>
+                      <h2 className="text-[15px] font-display uppercase tracking-tight font-bold text-ink">Top Arrangements</h2>
+                      <span className="text-[11px] font-mono uppercase tracking-[0.16em] text-faint">most liked by the community</span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {topArrangements.map((rec, i) => renderCard(rec, i + 1))}
@@ -276,19 +276,19 @@ export default function CommunityPage() {
                 {/* Controls: sort + genre filter */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-5">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] text-gray-600 uppercase tracking-wide mr-1">Sort</span>
+                    <span className="text-[11px] font-mono text-faint uppercase tracking-[0.16em] mr-1">Sort</span>
                     {[['newest', 'Newest'], ['oldest', 'Oldest'], ['liked', 'Most liked']].map(([v, label]) => (
                       <button key={v} onClick={() => setSort(v)}
-                        className={`text-[12px] px-3 py-1.5 rounded-lg border transition ${sort === v ? 'border-[#7c5cfc]/60 bg-[#7c5cfc]/15 text-white' : 'border-white/[0.08] text-gray-400 hover:text-white'}`}
+                        className={`text-[12px] font-mono uppercase tracking-[0.16em] px-3 py-1.5 border transition-colors duration-150 ${sort === v ? 'border-acid bg-acid/10 text-acid' : 'border-hairline text-dim hover:text-ink'}`}
                       >{label}</button>
                     ))}
                   </div>
                   <div className="sm:ml-auto flex items-center gap-1.5">
-                    <span className="text-[11px] text-gray-600 uppercase tracking-wide mr-1">Genre</span>
+                    <span className="text-[11px] font-mono text-faint uppercase tracking-[0.16em] mr-1">Genre</span>
                     <select
                       value={genreFilter}
                       onChange={e => setGenreFilter(e.target.value)}
-                      className="text-[12px] bg-[#16161e] border border-white/[0.08] rounded-lg px-3 py-1.5 text-gray-300 focus:outline-none focus:border-[#7c5cfc]/50 transition cursor-pointer"
+                      className="text-[12px] bg-surface-2 border border-hairline px-3 py-1.5 text-dim focus:outline-none focus:border-acid transition-colors duration-150 cursor-pointer"
                     >
                       <option value="all">All genres</option>
                       {availableGenres.map(g => (
@@ -300,7 +300,7 @@ export default function CommunityPage() {
 
                 {/* Full list */}
                 {visibleItems.length === 0 ? (
-                  <div className="text-center py-16 text-gray-600 text-sm">No arrangements match this filter.</div>
+                  <div className="text-center py-16 text-dim text-sm">No arrangements match this filter.</div>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-16">
                     {visibleItems.map(rec => renderCard(rec))}

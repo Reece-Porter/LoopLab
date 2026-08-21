@@ -69,34 +69,34 @@ const CATEGORIES = [
 export default function ToolsPage() {
   const navigate = useNavigate()
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <div className="sticky top-0 z-10 backdrop-blur-lg bg-gray-950/80 border-b border-white/10">
+    <div className="min-h-screen bg-base text-ink">
+      <div className="sticky top-0 z-10 backdrop-blur-lg bg-base/80 border-b border-hairline">
         <div className="w-full max-w-6xl mx-auto px-6 lg:px-10 py-4 flex items-center gap-4">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-dim hover:text-acid transition-colors duration-150">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             Home
           </button>
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-2xl shadow-lg">🧰</div>
+          <div className="w-11 h-11 bg-surface-2 border border-hairline flex items-center justify-center text-2xl">🧰</div>
           <div>
-            <h1 className="text-xl font-black tracking-tight">Production Tools & Resources</h1>
-            <p className="text-xs text-gray-400">Free tools for finding tracks, samples, vocals and plugins</p>
+            <h1 className="font-display uppercase tracking-[0.02em] text-xl font-bold text-ink">Production Tools & Resources</h1>
+            <p className="text-xs text-dim">Free tools for finding tracks, samples, vocals and plugins</p>
           </div>
         </div>
       </div>
 
       <div className="w-full max-w-6xl mx-auto px-6 lg:px-10 py-8">
-        <p className="text-gray-400 mb-8 max-w-3xl">
+        <p className="text-dim mb-8 max-w-3xl">
           A hand-picked starter kit of free and freemium resources. Always check each site&rsquo;s licence before
           releasing — &ldquo;royalty-free&rdquo; and &ldquo;Creative Commons&rdquo; have different rules.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {CATEGORIES.map(cat => (
-            <div key={cat.title} className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <h2 className="text-lg font-bold mb-1 flex items-center gap-2">
+            <div key={cat.title} className="border border-hairline bg-surface p-6">
+              <h2 className="font-display uppercase tracking-[0.02em] text-lg font-bold mb-1 flex items-center gap-2 text-ink">
                 <span className="text-2xl">{cat.icon}</span> {cat.title}
               </h2>
-              <p className="text-sm text-gray-500 mb-4">{cat.blurb}</p>
+              <p className="text-sm text-faint mb-4">{cat.blurb}</p>
               <ul className="space-y-3">
                 {cat.links.map(([name, url, desc]) => (
                   <li key={url}>
@@ -104,12 +104,12 @@ export default function ToolsPage() {
                       href={url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="group flex items-start gap-3 rounded-xl border border-white/5 bg-white/[0.03] hover:bg-white/10 hover:border-white/15 transition p-3"
+                      className="group flex items-start gap-3 border border-hairline bg-surface-2 hover:bg-elevate hover:border-acid transition-colors duration-150 p-3"
                     >
-                      <span className="mt-0.5 text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0">↗</span>
+                      <span className="mt-0.5 text-dim group-hover:text-acid transition-colors duration-150 shrink-0">↗</span>
                       <span>
-                        <span className="text-sm font-semibold text-gray-100 group-hover:text-emerald-300 transition-colors">{name}</span>
-                        <span className="block text-xs text-gray-500 mt-0.5">{desc}</span>
+                        <span className="text-sm font-semibold text-ink group-hover:text-acid transition-colors duration-150">{name}</span>
+                        <span className="block text-xs text-faint mt-0.5">{desc}</span>
                       </span>
                     </a>
                   </li>
@@ -119,7 +119,7 @@ export default function ToolsPage() {
           ))}
         </div>
 
-        <footer className="text-center mt-16 text-xs text-gray-700">
+        <footer className="text-center mt-16 font-mono text-xs uppercase tracking-[0.16em] text-faint">
           Links open in a new tab · always verify licensing before commercial release
         </footer>
       </div>

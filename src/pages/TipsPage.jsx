@@ -94,64 +94,64 @@ export default function TipsPage() {
   })).filter(g => g.items.length > 0)
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <div className="sticky top-0 z-10 backdrop-blur-lg bg-gray-950/80 border-b border-white/10">
+    <div className="min-h-screen bg-base text-ink">
+      <div className="sticky top-0 z-10 backdrop-blur-lg bg-base/80 border-b border-hairline">
         <div className="w-full max-w-6xl mx-auto px-6 lg:px-10 py-4 flex items-center gap-4">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+          <button onClick={() => navigate('/')} className="flex items-center gap-2 font-mono text-xs uppercase tracking-[0.16em] text-dim hover:text-acid transition-colors duration-150">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             Home
           </button>
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-2xl shadow-lg">⌨️</div>
+          <div className="w-11 h-11 bg-surface-2 border border-hairline flex items-center justify-center text-2xl">⌨️</div>
           <div>
-            <h1 className="text-xl font-black tracking-tight">FL Studio Tips & Shortcuts</h1>
-            <p className="text-xs text-gray-400">Keyboard shortcuts and workflow tricks that make producing faster</p>
+            <h1 className="font-display uppercase tracking-[0.02em] text-xl font-bold text-ink">FL Studio Tips & Shortcuts</h1>
+            <p className="text-xs text-dim">Keyboard shortcuts and workflow tricks that make producing faster</p>
           </div>
         </div>
       </div>
 
       <div className="w-full max-w-6xl mx-auto px-6 lg:px-10 py-8">
         <div className="relative mb-8 max-w-md">
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" /></svg>
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-faint" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 111 11a6 6 0 0116 0z" /></svg>
           <input
             type="text"
             placeholder="Search shortcuts..."
             value={query}
             onChange={e => setQuery(e.target.value)}
-            className="w-full bg-white/5 border border-white/10 rounded-xl pl-11 pr-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition"
+            className="w-full bg-surface-2 border border-hairline pl-11 pr-4 py-3 text-ink placeholder-faint focus:border-acid transition-colors duration-150"
           />
         </div>
 
-        <h2 className="text-xs text-gray-500 uppercase tracking-widest mb-4">Keyboard Shortcuts</h2>
+        <h2 className="font-mono text-xs text-dim uppercase tracking-[0.16em] mb-4">Keyboard Shortcuts</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-12">
           {groups.map(group => (
-            <div key={group.group} className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <h3 className="text-base font-semibold mb-4 text-amber-300">{group.group}</h3>
+            <div key={group.group} className="border border-hairline bg-surface p-5">
+              <h3 className="font-display uppercase tracking-[0.02em] text-base font-bold mb-4 text-ink">{group.group}</h3>
               <ul className="space-y-2.5">
                 {group.items.map(([key, desc]) => (
                   <li key={key} className="flex items-start justify-between gap-3 text-sm">
-                    <kbd className="font-mono text-xs bg-black/50 border border-white/15 rounded px-2 py-1 text-gray-200 shrink-0 whitespace-nowrap">{key}</kbd>
-                    <span className="text-gray-400 text-right">{desc}</span>
+                    <kbd className="font-mono text-xs uppercase tracking-[0.08em] bg-surface-2 border border-hairline px-2 py-1 text-ink shrink-0 whitespace-nowrap">{key}</kbd>
+                    <span className="text-dim text-right">{desc}</span>
                   </li>
                 ))}
               </ul>
             </div>
           ))}
           {groups.length === 0 && (
-            <p className="text-gray-600 col-span-full text-center py-10">No shortcuts match &ldquo;{query}&rdquo;</p>
+            <p className="text-faint col-span-full text-center py-10">No shortcuts match &ldquo;{query}&rdquo;</p>
           )}
         </div>
 
-        <h2 className="text-xs text-gray-500 uppercase tracking-widest mb-4">Workflow & Production Tips</h2>
+        <h2 className="font-mono text-xs text-dim uppercase tracking-[0.16em] mb-4">Workflow & Production Tips</h2>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {WORKFLOW.map(card => (
-            <div key={card.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
+            <div key={card.title} className="border border-hairline bg-surface p-5">
+              <h3 className="font-display uppercase tracking-[0.02em] text-base font-bold mb-4 flex items-center gap-2 text-ink">
                 <span className="text-xl">{card.icon}</span> {card.title}
               </h3>
               <ul className="space-y-3">
                 {card.tips.map((tip, i) => (
-                  <li key={i} className="flex gap-3 text-sm text-gray-400 leading-relaxed">
-                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 shrink-0" />
+                  <li key={i} className="flex gap-3 text-sm text-dim leading-relaxed">
+                    <span className="mt-1.5 w-1.5 h-1.5 bg-acid shrink-0" />
                     {tip}
                   </li>
                 ))}
