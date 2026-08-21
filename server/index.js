@@ -59,7 +59,15 @@ function isAllowed(raw) {
 
 function sanitiseName(raw, fallback = 'looplab-track') {
   return (raw || fallback).toString()
+    // Transliterate the common "smart" punctuation that shows up in track
+    // titles into plain ASCII so it survives an HTTP header intact.
+    .replace(/[‐-―−]/g, '-')   // en/em dashes, minus → hyphen
+    .replace(/[‘’‛′]/g, "'") // smart single quotes → '
+    .replace(/[“”″]/g, '')       // smart double quotes → drop
     .replace(/[\\/:*?"<>|\r\n]/g, '')
+    // Strip anything still outside printable ASCII — HTTP header values must be
+    // ASCII, and a stray Unicode char (accents, emoji, …) crashes setHeader.
+    .replace(/[^\x20-\x7E]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 150) || fallback
