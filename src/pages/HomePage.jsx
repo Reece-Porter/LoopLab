@@ -23,9 +23,8 @@ export default function HomePage() {
 
         {/* Nav */}
         <nav className="flex items-center justify-between py-5 border-b border-hairline">
-          <div className="flex items-center gap-3">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="LoopLab" width={28} height={28} className="h-7 w-7" />
-            <span className="font-display font-semibold text-ink text-lg uppercase tracking-[0.14em]">LoopLab</span>
+          <div className="flex items-center">
+            <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-8 sm:h-9 w-auto" />
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
             {[['Community', '/community'], ['Tips', '/tips'], ['Tools', '/tools'], ['Player', '/player'], ['DJ Deck', '/dj']].map(([l, p]) => (
@@ -126,9 +125,9 @@ export default function HomePage() {
               <span>TikTok</span>
             </a>
           </div>
-          <div className="flex items-center gap-2.5">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="" width={16} height={16} className="h-4 w-4 opacity-25" />
-            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">LoopLab — FL Studio production reference</p>
+          <div className="flex items-center gap-3">
+            <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-5 w-auto opacity-40" />
+            <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-faint">FL Studio production reference</p>
           </div>
         </footer>
 

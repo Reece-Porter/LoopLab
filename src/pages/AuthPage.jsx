@@ -48,9 +48,8 @@ export default function AuthPage() {
     <div className="min-h-screen bg-base text-ink flex flex-col">
       {/* Header */}
       <div className="w-full max-w-6xl mx-auto px-6 lg:px-10 py-5 flex items-center gap-3">
-        <button onClick={() => navigate('/')} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity duration-150">
-          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="LoopLab" width={28} height={28} className="h-7 w-7 " />
-          <span className="font-display font-semibold text-ink text-sm uppercase tracking-[0.14em]">LoopLab</span>
+        <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity duration-150">
+          <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-8 w-auto" />
         </button>
       </div>
 

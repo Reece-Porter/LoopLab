@@ -190,9 +190,8 @@ export default function CommunityPage() {
 
         {/* Nav */}
         <nav className="flex items-center justify-between py-5 border-b border-hairline">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2.5 hover:opacity-80 transition-colors duration-150">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="LoopLab" width={28} height={28} className="h-7 w-7" />
-            <span className="font-display uppercase tracking-tight font-bold text-ink text-sm">LoopLab</span>
+          <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity duration-150">
+            <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-8 w-auto" />
           </button>
           <div className="flex items-center gap-4">
             {user ? (
