@@ -52,43 +52,43 @@ export default function CommentsModal({ arrangement, onClose, onCountChange }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-4 sm:pb-0" onClick={onClose}>
-      <div className="w-full max-w-lg bg-[#16161e] border border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="w-full max-w-lg bg-surface border border-hairline overflow-hidden shadow-2xl" onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-hairline">
           <div>
-            <p className="text-[11px] text-gray-500 mb-0.5">Comments on</p>
-            <h2 className="text-[15px] font-semibold text-white truncate">{arrangement.title}</h2>
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-faint mb-1">Comments on</p>
+            <h2 className="text-[15px] font-display font-bold uppercase tracking-tight text-ink truncate">{arrangement.title}</h2>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:text-white transition text-xl leading-none">✕</button>
+          <button onClick={onClose} className="text-dim hover:text-ink transition-colors duration-150 text-xl leading-none">✕</button>
         </div>
 
         {/* Comments list */}
         <div className="max-h-72 overflow-y-auto px-5 py-3 space-y-3">
-          {loading && <p className="text-center text-gray-600 text-sm py-6">Loading…</p>}
+          {loading && <p className="text-center text-faint text-sm py-6">Loading…</p>}
           {!loading && comments.length === 0 && (
-            <p className="text-center text-gray-600 text-sm py-6">No comments yet — be the first!</p>
+            <p className="text-center text-faint text-sm py-6">No comments yet — be the first!</p>
           )}
           {comments.map(c => (
             <div key={c.id} className="flex gap-3 group">
-              <div className="w-7 h-7 rounded-full bg-[#7c5cfc]/20 flex items-center justify-center flex-shrink-0 text-[11px] font-bold text-[#a78bfa]">
+              <div className="w-7 h-7 rounded-full bg-acid/15 flex items-center justify-center flex-shrink-0 text-[11px] font-bold text-acid">
                 {c.author_name[0].toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-baseline gap-2 mb-0.5">
-                  <span className="text-[12px] font-semibold text-white">{c.author_name}</span>
-                  <span className="text-[11px] text-gray-600">{timeAgo(c.created_at)}</span>
+                  <span className="text-[12px] font-mono uppercase tracking-wide text-ink">{c.author_name}</span>
+                  <span className="text-[11px] text-faint">{timeAgo(c.created_at)}</span>
                   {user?.id === c.user_id && (
-                    <button onClick={() => remove(c.id)} className="text-[11px] text-gray-700 hover:text-red-400 transition ml-auto opacity-0 group-hover:opacity-100">Delete</button>
+                    <button onClick={() => remove(c.id)} className="text-[11px] text-faint hover:text-red-400 transition ml-auto opacity-0 group-hover:opacity-100">Delete</button>
                   )}
                 </div>
-                <p className="text-[13px] text-gray-300 leading-relaxed">{c.body}</p>
+                <p className="text-[13px] text-dim leading-relaxed">{c.body}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Add comment */}
-        <div className="px-5 py-4 border-t border-white/[0.06]">
+        <div className="px-5 py-4 border-t border-hairline">
           {error && <p className="text-[12px] text-red-400 mb-2">{error}</p>}
           {user ? (
             <form onSubmit={submit} className="flex gap-2">
@@ -98,17 +98,17 @@ export default function CommentsModal({ arrangement, onClose, onCountChange }) {
                 onChange={e => setBody(e.target.value)}
                 placeholder="Add a comment…"
                 maxLength={500}
-                className="flex-1 bg-[#0f0f13] border border-white/[0.08] rounded-lg px-3 py-2 text-[13px] text-white placeholder-gray-600 focus:outline-none focus:border-[#7c5cfc]/50 transition"
+                className="flex-1 bg-surface-2 border border-hairline px-3 py-2 text-[13px] text-ink placeholder-faint focus:outline-none focus:border-acid transition-colors duration-150"
               />
               <button
                 type="submit"
                 disabled={posting || !body.trim()}
-                className="text-[13px] bg-[#7c5cfc] hover:bg-[#6d4ef0] disabled:opacity-40 text-white rounded-lg px-4 py-2 transition"
+                className="text-[13px] bg-acid hover:bg-acid-dim disabled:opacity-40 text-base font-mono uppercase tracking-[0.1em] text-[12px] px-4 py-2 transition-colors duration-150"
               >{posting ? '…' : 'Post'}</button>
             </form>
           ) : (
-            <p className="text-[13px] text-gray-500 text-center">
-              <button onClick={() => navigate('/login')} className="text-[#a78bfa] hover:text-[#c4b5fd]">Sign in</button> to leave a comment.
+            <p className="text-[13px] text-dim text-center">
+              <button onClick={() => navigate('/login')} className="text-acid hover:text-acid">Sign in</button> to leave a comment.
             </p>
           )}
         </div>
