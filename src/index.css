@@ -1,38 +1,134 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   DESIGN TOKENS — underground electronic / techno brand system.
+   Tailwind v4 reads these and generates utilities: bg-base, text-ink, text-acid,
+   border-hairline, font-display, font-mono, etc. Change a value here and it
+   propagates everywhere that uses the token.
+   ───────────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Monochrome surfaces — near-black base up through elevated panels */
+  --color-base:      #0a0a0b;   /* deepest page background            */
+  --color-surface:   #101012;   /* cards / panels                     */
+  --color-surface-2: #17171a;   /* inputs / nested panels             */
+  --color-elevate:   #1f1f24;   /* hovers / raised elements           */
+
+  /* Ink — off-white, never pure white */
+  --color-ink:    #ededed;      /* primary text                       */
+  --color-dim:    #8a8a92;      /* secondary text                     */
+  --color-faint:  #55555c;      /* tertiary / captions                */
+
+  /* Hairlines */
+  --color-hairline:      rgba(255, 255, 255, 0.09);
+  --color-hairline-soft: rgba(255, 255, 255, 0.05);
+
+  /* The single accent — acid lime. Punctuation, not decoration. */
+  --color-acid:      #c6f24e;
+  --color-acid-dim:  #9dbf3a;
+  --color-acid-deep: #2a3312;   /* accent tint for fills on dark      */
+
+  /* Typography */
+  --font-display: "Oswald", "Inter", system-ui, sans-serif;   /* condensed grotesque */
+  --font-sans:    "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono:    "Space Mono", ui-monospace, "SFMono-Regular", monospace;
+}
+
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   margin: 0;
-  background: #030712;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--color-base);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Visible, styled horizontal scrollbar for the arrangement timeline. */
+/* Selection uses the accent — small, deliberate brand moment. */
+::selection { background: var(--color-acid); color: #0a0a0b; }
+
+/* Accessible, consistent focus ring across the whole app (keyboard users). */
+:focus-visible {
+  outline: 2px solid var(--color-acid);
+  outline-offset: 2px;
+  border-radius: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   FILM GRAIN — faint static noise over everything for a physical, analog feel.
+   pointer-events:none so it never intercepts clicks. Sits below the crash
+   overlay (#err, z 9999) and above app content.
+   ───────────────────────────────────────────────────────────────────────────── */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9997;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   GLITCH / RGB-SPLIT — reserved for the hero heading only (applied in Step 2).
+   Restrained: a faint chromatic aberration that ticks occasionally.
+   ───────────────────────────────────────────────────────────────────────────── */
+@keyframes lab-rgb-split {
+  0%, 92%, 100% { text-shadow: none; transform: translate(0, 0); }
+  93%  { text-shadow: -0.02em 0 rgba(255,0,80,0.55), 0.02em 0 rgba(0,255,220,0.55); }
+  95%  { text-shadow:  0.03em 0 rgba(255,0,80,0.55), -0.03em 0 rgba(0,255,220,0.55); transform: translate(0.01em, 0); }
+  97%  { text-shadow: -0.02em 0 rgba(255,0,80,0.55), 0.02em 0 rgba(0,255,220,0.55); }
+}
+.lab-glitch {
+  animation: lab-rgb-split 6s steps(1) infinite;
+}
+
+/* Slow, mechanical fade/rise used for on-scroll reveals (applied later). */
+@keyframes lab-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.lab-rise { animation: lab-rise 520ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   MOTION — honour reduced-motion: kill the grain shimmer, glitch, reveals and
+   snappy transitions for users who ask for calm.
+   ───────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .lab-glitch { animation: none; }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   Timeline scrollbar — retuned from violet to the acid accent, hard-edged.
+   (Class name preserved: JS/markup references .looplab-scroll.)
+   ───────────────────────────────────────────────────────────────────────────── */
 .looplab-scroll {
   scrollbar-width: thin;
-  scrollbar-color: rgba(168, 85, 247, 0.6) rgba(255, 255, 255, 0.05);
+  scrollbar-color: var(--color-acid-dim) var(--color-hairline-soft);
 }
 .looplab-scroll::-webkit-scrollbar {
   height: 12px;
 }
 .looplab-scroll::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
+  background: var(--color-hairline-soft);
 }
 .looplab-scroll::-webkit-scrollbar-thumb {
-  background: rgba(168, 85, 247, 0.55);
-  border-radius: 6px;
+  background: rgba(157, 191, 58, 0.55);
   border: 2px solid transparent;
   background-clip: content-box;
 }
 .looplab-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(168, 85, 247, 0.8);
+  background: rgba(198, 242, 78, 0.85);
   background-clip: content-box;
 }
