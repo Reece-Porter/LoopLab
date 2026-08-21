@@ -2,10 +2,10 @@ export default function PlayButton({ playing, onClick, label = 'Play', accentCla
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+      className={`flex items-center gap-2 px-4 py-2 font-mono text-[12px] uppercase tracking-[0.12em] transition-colors duration-150 ${
         playing
-          ? 'bg-white/20 text-white'
-          : `bg-gradient-to-r ${accentClass} text-white hover:opacity-90`
+          ? 'bg-surface-2 text-ink border border-hairline'
+          : 'bg-acid text-base hover:bg-acid-dim'
       }`}
     >
       {playing ? (

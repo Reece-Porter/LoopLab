@@ -245,62 +245,62 @@ const Deck = forwardRef(function Deck({ ctx, destNode, label, accent }, ref) {
   const rate = origBpm > 0 ? bpm / origBpm : 1
   const loopBtn = n => (
     <button key={n} onClick={() => setLoop(n)}
-      className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold transition border ${loopBars === n ? 'text-white border-transparent' : 'text-gray-400 border-white/10 hover:border-white/30'}`}
+      className={`px-2.5 py-1  text-xs font-mono font-bold transition border ${loopBars === n ? 'text-white border-transparent' : 'text-dim border-hairline hover:border-hairline'}`}
       style={loopBars === n ? { background: accent } : {}}>
       {n}
     </button>
   )
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-col">
+    <div className=" border border-hairline bg-surface p-4 flex flex-col">
       <div className="flex items-center justify-between mb-3">
         <span className="text-xs font-bold uppercase tracking-widest" style={{ color: accent }}>Deck {label}</span>
         <div className="flex items-center gap-1.5 font-mono">
           <span className="text-2xl font-black" style={{ color: accent }}>{bpm}</span>
-          <span className="text-xs text-gray-500">BPM</span>
+          <span className="text-xs text-dim">BPM</span>
         </div>
       </div>
 
       <div className="flex gap-2 mb-3">
         <input type="text" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && load()}
           placeholder="SoundCloud / YouTube link"
-          className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-white/30 transition" />
-        <button onClick={load} className="px-3 py-2 rounded-lg text-xs font-semibold text-white transition" style={{ background: accent }}>Load</button>
+          className="flex-1 bg-black/30 border border-hairline  px-3 py-2 text-xs text-white placeholder-gray-600 focus:outline-none focus:border-hairline transition" />
+        <button onClick={load} className="px-3 py-2  text-xs font-semibold text-white transition" style={{ background: accent }}>Load</button>
       </div>
 
-      {status === 'loading' && <p className="text-xs text-gray-400 animate-pulse mb-2">Loading… (Render free tier can take ~40s to wake)</p>}
+      {status === 'loading' && <p className="text-xs text-dim animate-pulse mb-2">Loading… (Render free tier can take ~40s to wake)</p>}
       {status === 'error'   && <p className="text-xs text-red-400 mb-2 leading-snug">{errorMsg}</p>}
-      {trackName && status === 'ready' && <p className="text-xs text-gray-300 truncate mb-2" title={trackName}>♪ {trackName}</p>}
+      {trackName && status === 'ready' && <p className="text-xs text-dim truncate mb-2" title={trackName}>♪ {trackName}</p>}
 
-      <div className="relative rounded-lg overflow-hidden bg-black/40 mb-1" style={{ height: 56 }}>
+      <div className="relative  overflow-hidden bg-black/40 mb-1" style={{ height: 56 }}>
         <canvas ref={canvasRef} width={360} height={56} className="w-full h-full block" />
         <div className="absolute top-0 bottom-0 w-0.5 bg-white pointer-events-none" style={{ left: `${progress * 100}%` }} />
         <div className="absolute inset-0 cursor-pointer" onClick={e => { const r = e.currentTarget.getBoundingClientRect(); seek((e.clientX - r.left) / r.width) }} />
       </div>
-      <div className="flex justify-between text-[10px] font-mono text-gray-500 mb-3">
+      <div className="flex justify-between text-[10px] font-mono text-dim mb-3">
         <span>{fmtTime(progress * duration)}</span><span>{fmtTime(duration)}</span>
       </div>
 
       <div className="flex items-center justify-center gap-3 mb-3">
-        <button onClick={cue} disabled={status !== 'ready'} className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 disabled:opacity-30 flex items-center justify-center text-gray-300 transition" title="Cue / restart">⏮</button>
+        <button onClick={cue} disabled={status !== 'ready'} className="w-9 h-9 rounded-full bg-surface hover:bg-surface-2 disabled:opacity-30 flex items-center justify-center text-dim transition" title="Cue / restart">⏮</button>
         <button onClick={togglePlay} disabled={status !== 'ready'} className="w-14 h-14 rounded-full disabled:opacity-30 flex items-center justify-center text-2xl text-white shadow-lg transition" style={{ background: accent }}>{playing ? '⏸' : '▶'}</button>
-        <button onClick={stop} disabled={status !== 'ready'} className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 disabled:opacity-30 flex items-center justify-center text-gray-300 transition" title="Stop">⏹</button>
+        <button onClick={stop} disabled={status !== 'ready'} className="w-9 h-9 rounded-full bg-surface hover:bg-surface-2 disabled:opacity-30 flex items-center justify-center text-dim transition" title="Stop">⏹</button>
       </div>
 
       {/* Loops */}
       <div className="flex items-center gap-2 mb-3 justify-center">
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider">Loop bars</span>
+        <span className="text-[10px] text-dim uppercase tracking-wider">Loop bars</span>
         {[4, 8, 16, 32].map(loopBtn)}
-        {loopBars > 0 && <button onClick={clearLoop} className="px-2 py-1 rounded-lg text-xs text-gray-500 hover:text-red-400 transition">✕</button>}
+        {loopBars > 0 && <button onClick={clearLoop} className="px-2 py-1  text-xs text-dim hover:text-red-400 transition">✕</button>}
       </div>
 
       {/* Track BPM + grid */}
       <div className="flex items-center gap-2 mb-3">
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider w-16">Track BPM</span>
+        <span className="text-[10px] text-dim uppercase tracking-wider w-16">Track BPM</span>
         <input type="number" min={40} max={240} value={origBpm} onChange={e => setTrackBpm(e.target.value)}
-          className="w-16 bg-black/30 border border-white/10 rounded-lg px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-white/30" />
+          className="w-16 bg-black/30 border border-hairline  px-2 py-1 text-xs text-white font-mono focus:outline-none focus:border-hairline" />
         <button onClick={setGrid} disabled={status !== 'ready'}
-          className={`ml-auto px-2.5 py-1 rounded-lg text-[10px] font-semibold border transition disabled:opacity-30 ${gridSet ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-white/10 text-gray-400 hover:text-white'}`}
+          className={`ml-auto px-2.5 py-1  text-[10px] font-semibold border transition disabled:opacity-30 ${gridSet ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-hairline text-dim hover:text-white'}`}
           title="Mark beat 1 at the current position">
           ⬇ Set “1” {gridSet ? '✓' : ''}
         </button>
@@ -308,16 +308,16 @@ const Deck = forwardRef(function Deck({ ctx, destNode, label, accent }, ref) {
 
       {/* Tempo fader */}
       <div className="flex items-center gap-2 mb-2">
-        <span className="text-[10px] text-gray-500 uppercase tracking-wider w-16">Tempo</span>
+        <span className="text-[10px] text-dim uppercase tracking-wider w-16">Tempo</span>
         <input type="range" min={Math.round(origBpm * 0.5)} max={Math.round(origBpm * 1.5)} value={bpm}
           onChange={e => applyBpm(Number(e.target.value))} className="flex-1" style={{ accentColor: accent }} />
-        <span className="text-[10px] font-mono text-gray-400 w-12 text-right">{rate.toFixed(3)}×</span>
+        <span className="text-[10px] font-mono text-dim w-12 text-right">{rate.toFixed(3)}×</span>
       </div>
 
       <div className="flex items-center justify-center gap-2">
-        <button onClick={() => nudge(-1)} className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-300 transition">− BPM</button>
-        <button onClick={() => applyBpm(origBpm)} className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-400 transition">reset</button>
-        <button onClick={() => nudge(1)} className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs text-gray-300 transition">+ BPM</button>
+        <button onClick={() => nudge(-1)} className="px-3 py-1  bg-surface hover:bg-surface-2 text-xs text-dim transition">− BPM</button>
+        <button onClick={() => applyBpm(origBpm)} className="px-3 py-1  bg-surface hover:bg-surface-2 text-xs text-dim transition">reset</button>
+        <button onClick={() => nudge(1)} className="px-3 py-1  bg-surface hover:bg-surface-2 text-xs text-dim transition">+ BPM</button>
       </div>
     </div>
   )
@@ -379,19 +379,19 @@ export default function DJDecksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-base text-white">
       <div className="w-full max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => navigate('/')} className="text-gray-500 hover:text-white transition text-sm">← Back</button>
+          <button onClick={() => navigate('/')} className="text-dim hover:text-white transition text-sm">← Back</button>
           <div className="flex items-center gap-2 ml-2">
             <span className="text-3xl">🎧</span>
-            <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">DJ Deck</h1>
+            <h1 className="font-display text-2xl font-bold uppercase tracking-tight text-ink">DJ Deck</h1>
           </div>
-          <button onClick={() => navigate('/player')} className="ml-auto text-xs px-3 py-1.5 rounded-lg border border-white/10 text-gray-400 hover:text-white transition">Player &amp; Downloader →</button>
+          <button onClick={() => navigate('/player')} className="ml-auto text-xs px-3 py-1.5  border border-hairline text-dim hover:text-white transition">Player &amp; Downloader →</button>
         </div>
 
         {!hasBackend && (
-          <div className="rounded-xl bg-amber-900/10 border border-amber-500/20 p-4 text-xs text-amber-300/80 leading-relaxed mb-6">
+          <div className=" bg-amber-900/10 border border-amber-500/20 p-4 text-xs text-amber-300/80 leading-relaxed mb-6">
             <strong>Backend needed for SoundCloud/YouTube.</strong> Open <button onClick={() => navigate('/player')} className="underline hover:text-amber-200">Player &amp; Downloader</button>, set the backend URL under ⚙ Backend, then come back. Direct MP3/WAV links work without it.
           </div>
         )}
@@ -399,39 +399,39 @@ export default function DJDecksPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
           {ready && (
             <>
-              <Deck ref={deckARef} ctx={ctxRef.current} destNode={gainARef.current} label="A" accent="#06b6d4" />
-              <Deck ref={deckBRef} ctx={ctxRef.current} destNode={gainBRef.current} label="B" accent="#a855f7" />
+              <Deck ref={deckARef} ctx={ctxRef.current} destNode={gainARef.current} label="A" accent="#c6f24e" />
+              <Deck ref={deckBRef} ctx={ctxRef.current} destNode={gainBRef.current} label="B" accent="#ededed" />
             </>
           )}
         </div>
 
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
+        <div className=" border border-hairline bg-surface p-5">
           {/* Master play + sync */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-5">
-            <button onClick={() => sync(deckARef, deckBRef)} className="px-4 py-2 rounded-xl bg-cyan-600/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-600/30 text-xs font-semibold transition">⟵ Sync A to B</button>
-            <button onClick={playBoth} className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white text-sm font-bold transition shadow-lg">
+            <button onClick={() => sync(deckARef, deckBRef)} className="px-4 py-2  bg-acid/20 border border-acid/40 text-acid hover:bg-acid/30 text-xs font-semibold transition">⟵ Sync A to B</button>
+            <button onClick={playBoth} className="px-6 py-2.5 bg-acid text-base hover:bg-acid-dim font-display uppercase tracking-wide text-sm font-bold transition-colors duration-150">
               {bothPlaying ? '⏸ Pause Both' : '▶ Play Both (beat-locked)'}
             </button>
-            <button onClick={() => sync(deckBRef, deckARef)} className="px-4 py-2 rounded-xl bg-purple-600/20 border border-purple-500/40 text-purple-300 hover:bg-purple-600/30 text-xs font-semibold transition">Sync B to A ⟶</button>
+            <button onClick={() => sync(deckBRef, deckARef)} className="px-4 py-2  bg-surface-2/20 border border-hairline/40 text-ink hover:bg-surface-2/30 text-xs font-semibold transition">Sync B to A ⟶</button>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs font-bold text-cyan-400 w-6">A</span>
+            <span className="text-xs font-bold text-acid w-6">A</span>
             <input type="range" min={0} max={1} step={0.01} value={crossfade} onChange={e => setCrossfade(Number(e.target.value))} className="flex-1" style={{ accentColor: '#fff' }} />
-            <span className="text-xs font-bold text-purple-400 w-6 text-right">B</span>
+            <span className="text-xs font-bold text-ink w-6 text-right">B</span>
           </div>
-          <p className="text-center text-[10px] text-gray-600 mt-2 uppercase tracking-widest">Crossfader</p>
+          <p className="text-center text-[10px] text-faint mt-2 uppercase tracking-widest">Crossfader</p>
         </div>
 
-        <div className="mt-6 rounded-xl bg-white/5 border border-white/10 p-4 text-xs text-gray-400 leading-relaxed">
-          <strong className="text-gray-300">Beat-match like Rekordbox:</strong>
+        <div className="mt-6  bg-surface border border-hairline p-4 text-xs text-dim leading-relaxed">
+          <strong className="text-dim">Beat-match like Rekordbox:</strong>
           <ol className="list-decimal ml-4 mt-2 space-y-1">
             <li>Load a track on each deck and set each one's real BPM in <em>Track BPM</em>.</li>
             <li>For tight alignment, play a deck, and right as beat 1 of a bar hits, press <strong className="text-white">⬇ Set “1”</strong> to lock its grid (defaults to the track start otherwise).</li>
             <li>Press <strong className="text-white">Sync B to A</strong> — deck B snaps to A's tempo <em>and</em> beat phase, so the downbeats line up.</li>
             <li>Hit <strong className="text-white">Play Both</strong> to start them locked together, or use the crossfader to blend. Use <strong className="text-white">Loop bars</strong> (4/8/16/32) to hold a section while you mix.</li>
           </ol>
-          <p className="mt-2 text-gray-600">Tempo changes pitch slightly (vinyl-style) — normal for beat-matching.</p>
+          <p className="mt-2 text-faint">Tempo changes pitch slightly (vinyl-style) — normal for beat-matching.</p>
         </div>
       </div>
     </div>

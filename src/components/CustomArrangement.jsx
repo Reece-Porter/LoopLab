@@ -28,13 +28,13 @@ const VOICE_COLOR = {
 function VolumeFader({ name, volumes, setVolumes }) {
   return (
     <div className="flex items-center gap-1" title={`Volume: ${Math.round((volumes[name] ?? 1) * 100)}%`}>
-      <span className="text-[9px] text-gray-600">🔊</span>
+      <span className="text-[9px] text-faint">🔊</span>
       <input
         type="range"
         min={0} max={1.5} step={0.05}
         value={volumes[name] ?? 1}
         onChange={e => setVolumes(v => ({ ...v, [name]: Number(e.target.value) }))}
-        className="w-full h-1 accent-purple-500 cursor-pointer"
+        className="w-full h-1 accent-acid cursor-pointer"
         aria-label={`${name} volume`}
       />
     </div>
@@ -274,25 +274,25 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
   const armedVocalMeta = armedVocal ? savedVocalClips.find(c => c.id === armedVocal) : null
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden select-none">
+    <div className=" border border-hairline bg-black/40 overflow-hidden select-none">
 
       {/* ---- Header ---- */}
-      <div className="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-white/10">
+      <div className="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-hairline">
         <div className="flex items-center gap-2 mr-auto">
           <span className="text-lg">🎛️</span>
           <span className="text-base font-semibold text-white">Build Your Own</span>
-          <span className="text-xs text-gray-600 ml-1">{bars} bars · {bpm} BPM</span>
+          <span className="text-xs text-faint ml-1">{bars} bars · {bpm} BPM</span>
         </div>
 
         {/* Bar-count selector */}
-        <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5">
-          <span className="text-xs text-gray-500 mr-1.5">Bars:</span>
+        <div className="flex items-center gap-1 bg-surface border border-hairline  px-3 py-1.5">
+          <span className="text-xs text-dim mr-1.5">Bars:</span>
           {BAR_OPTIONS.map(n => (
             <button
               key={n}
               onClick={() => setBars(n)}
               className={`text-xs w-8 py-0.5 rounded transition-colors ${
-                bars === n ? 'bg-purple-500 text-white font-bold' : 'text-gray-400 hover:text-gray-200 hover:bg-white/10'
+                bars === n ? 'bg-acid text-white font-bold' : 'text-dim hover:text-ink hover:bg-surface-2'
               }`}
             >{n}</button>
           ))}
@@ -301,8 +301,8 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
         {/* Follow toggle */}
         <button
           onClick={() => setFollow(f => !f)}
-          className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
-            follow ? 'border-purple-500/50 bg-purple-500/15 text-purple-200' : 'border-white/10 bg-white/5 text-gray-400 hover:text-gray-200'
+          className={`text-xs px-3 py-1.5  border transition-colors ${
+            follow ? 'border-acid/50 bg-acid/15 text-acid' : 'border-hairline bg-surface text-dim hover:text-ink'
           }`}
           title="Toggle auto-scroll to follow playhead"
         >
@@ -311,19 +311,19 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
 
         <button
           onClick={() => { setGrid({}); setVocalGrid({}); setSampleGrid({}); setArmed(null); setArmedVocal(null); setArmedSample(null) }}
-          className="text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
+          className="text-xs px-3 py-1.5  border border-hairline bg-surface text-dim hover:text-ink transition-colors"
         >Clear</button>
 
         <button
           data-tutorial="custom-midi"
           onClick={() => exportClipsMidi(gridRef.current, bpm, tracks.map(t => t.name))}
-          className="text-xs px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-400 hover:text-gray-200 transition-colors"
+          className="text-xs px-3 py-1.5  border border-hairline bg-surface text-dim hover:text-ink transition-colors"
           title="Download arrangement as MIDI — drag into FL Studio"
         >↓ MIDI</button>
 
         <button
           onClick={() => setShowPublish(true)}
-          className="text-xs px-3 py-1.5 rounded-lg border border-[#7c5cfc]/50 bg-[#7c5cfc]/15 text-[#c4b5fd] hover:bg-[#7c5cfc]/25 transition-colors"
+          className="text-xs px-3 py-1.5  border border-[#7c5cfc]/50 bg-[#7c5cfc]/15 text-[#c4b5fd] hover:bg-[#7c5cfc]/25 transition-colors"
           title="Save your arrangement or publish it to the community"
         >↑ Publish</button>
 
@@ -342,9 +342,9 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
         <div className="relative" style={{ minWidth: LABEL_W + timelineWidth }}>
 
           {/* Bar ruler */}
-          <div data-tutorial="bar-grid" className="flex border-b border-white/10 bg-white/[0.04]">
+          <div data-tutorial="bar-grid" className="flex border-b border-hairline bg-surface">
             <div
-              className="shrink-0 px-4 py-2 text-xs text-gray-500 border-r border-white/10 font-semibold uppercase tracking-wider"
+              className="shrink-0 px-4 py-2 text-xs text-dim border-r border-hairline font-semibold uppercase tracking-wider"
               style={{ width: LABEL_W }}
             >
               Part · patterns
@@ -354,7 +354,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                 <div
                   key={b}
                   className={`shrink-0 border-r text-center py-2 text-[11px] font-mono ${
-                    b % 4 === 0 ? 'border-white/20 text-gray-300 bg-white/[0.03]' : 'border-white/5 text-gray-600'
+                    b % 4 === 0 ? 'border-hairline text-dim bg-surface' : 'border-hairline text-faint'
                   }`}
                   style={{ width: BAR_W }}
                 >
@@ -371,14 +371,14 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
             const isArmedLane = armed?.part === lane.name
 
             return (
-              <div key={lane.name} className="flex border-b border-white/5">
+              <div key={lane.name} className="flex border-b border-hairline">
 
                 {/* Label + pattern chips */}
                 <div
-                  className="shrink-0 flex flex-col justify-center gap-1.5 px-3 py-2 border-r border-white/10 bg-black/25"
+                  className="shrink-0 flex flex-col justify-center gap-1.5 px-3 py-2 border-r border-hairline bg-black/25"
                   style={{ width: LABEL_W }}
                 >
-                  <span className="text-xs text-gray-200 font-semibold truncate">{lane.icon} {lane.name}</span>
+                  <span className="text-xs text-ink font-semibold truncate">{lane.icon} {lane.name}</span>
                   <VolumeFader name={lane.name} volumes={volumes} setVolumes={setVolumes} />
                   <div className="flex flex-wrap gap-1">
                     {lane.patterns.map((pat, idx) => {
@@ -400,7 +400,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                             ? 'Click to disarm · click/drag across bars to paint'
                             : 'Click to arm (then paint bars) · or drag me'}
                           className={`text-[10px] px-1.5 py-0.5 rounded border transition-all cursor-grab active:cursor-grabbing ${
-                            isArmed ? 'font-bold ring-1 ring-white/50 text-black' : 'text-gray-300 hover:brightness-150'
+                            isArmed ? 'font-bold ring-1 ring-white/50 text-black' : 'text-dim hover:brightness-150'
                           }`}
                           style={isArmed
                             ? { background: color, borderColor: color }
@@ -429,7 +429,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                         onContextMenu={e => onContextMenu(lane, b, e)}
                         title={filled ? `${pat.name} — right-click to erase` : isArmedLane ? `Click or drag to place "${armedPatName}"` : 'Arm a pattern chip first'}
                         className={`shrink-0 border-r h-14 flex items-center justify-center px-0.5 transition-colors ${
-                          b % 4 === 0 ? 'border-white/10' : 'border-white/[0.04]'
+                          b % 4 === 0 ? 'border-hairline' : 'border-hairline'
                         } ${isArmedLane ? 'cursor-cell' : filled ? 'cursor-pointer' : 'cursor-default'}`}
                         style={{
                           width: BAR_W,
@@ -453,13 +453,13 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
           })}
 
           {/* ── Sample Presets lane ── */}
-          <div className="flex border-b border-white/5">
+          <div className="flex border-b border-hairline">
             {/* Label + preset chips */}
             <div
-              className="shrink-0 flex flex-col justify-center gap-1.5 px-3 py-2 border-r border-white/10 bg-black/25"
+              className="shrink-0 flex flex-col justify-center gap-1.5 px-3 py-2 border-r border-hairline bg-black/25"
               style={{ width: LABEL_W }}
             >
-              <span className="text-xs text-gray-200 font-semibold truncate">🎵 Samples</span>
+              <span className="text-xs text-ink font-semibold truncate">🎵 Samples</span>
               <VolumeFader name={SAMPLE_LANE} volumes={volumes} setVolumes={setVolumes} />
               <div className="flex flex-wrap gap-1">
                 {SAMPLE_PRESETS.map(preset => {
@@ -492,9 +492,9 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                         setArmed(null)
                       }}
                       className={`text-[10px] px-1.5 py-0.5 rounded border transition-all ${
-                        !ready   ? 'opacity-30 cursor-not-allowed text-gray-500 border-white/10' :
+                        !ready   ? 'opacity-30 cursor-not-allowed text-dim border-hairline' :
                         isArmed  ? 'font-bold ring-1 ring-white/50 text-black cursor-grab active:cursor-grabbing' :
-                                   'text-gray-300 hover:brightness-150 cursor-grab active:cursor-grabbing'
+                                   'text-dim hover:brightness-150 cursor-grab active:cursor-grabbing'
                       }`}
                       style={
                         !ready  ? { borderColor: '#ffffff18', background: 'transparent' } :
@@ -507,8 +507,8 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                   )
                 })}
               </div>
-              <p className="text-[9px] text-gray-600 leading-tight">
-                Add .mp3/.wav to <code className="text-gray-500">public/samples/</code>
+              <p className="text-[9px] text-faint leading-tight">
+                Add .mp3/.wav to <code className="text-dim">public/samples/</code>
               </p>
             </div>
 
@@ -557,7 +557,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                     }}
                     title={filled ? `${meta?.name || 'Sample'} — right-click to erase` : armedSample ? 'Click to place sample' : 'Arm a sample first'}
                     className={`shrink-0 border-r h-14 flex items-center justify-center px-0.5 transition-colors ${
-                      b % 4 === 0 ? 'border-white/10' : 'border-white/[0.04]'
+                      b % 4 === 0 ? 'border-hairline' : 'border-hairline'
                     } ${armedSample ? 'cursor-cell' : filled ? 'cursor-pointer' : 'cursor-default'}`}
                     style={{
                       width: BAR_W,
@@ -578,13 +578,13 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
 
           {/* ── Your Vocals lane ── */}
           {savedVocalClips.length > 0 && (
-            <div className="flex border-b border-white/5">
+            <div className="flex border-b border-hairline">
               {/* Label + clip chips */}
               <div
-                className="shrink-0 flex flex-col justify-center gap-1.5 px-3 py-2 border-r border-white/10 bg-black/25"
+                className="shrink-0 flex flex-col justify-center gap-1.5 px-3 py-2 border-r border-hairline bg-black/25"
                 style={{ width: LABEL_W }}
               >
-                <span className="text-xs text-gray-200 font-semibold truncate">🎤 Your Vocals</span>
+                <span className="text-xs text-ink font-semibold truncate">🎤 Your Vocals</span>
                 <VolumeFader name={VOCAL_LANE} volumes={volumes} setVolumes={setVolumes} />
                 <div className="flex flex-wrap gap-1">
                   {savedVocalClips.map(clip => {
@@ -604,7 +604,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                         onClick={() => { setArmedVocal(isArmed ? null : clip.id); setArmed(null); setArmedSample(null) }}
                         title={isArmed ? 'Click to disarm · click/drag across bars to paint' : 'Click to arm, then paint bars'}
                         className={`text-[10px] px-1.5 py-0.5 rounded border transition-all cursor-grab active:cursor-grabbing ${
-                          isArmed ? 'font-bold ring-1 ring-white/50 text-black' : 'text-gray-300 hover:brightness-150'
+                          isArmed ? 'font-bold ring-1 ring-white/50 text-black' : 'text-dim hover:brightness-150'
                         }`}
                         style={isArmed
                           ? { background: '#a855f7', borderColor: '#a855f7' }
@@ -662,7 +662,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
                       }}
                       title={filled ? `${meta?.name || 'Vocal'} — right-click to erase` : armedVocal ? 'Click to place vocal clip' : 'Arm a clip first'}
                       className={`shrink-0 border-r h-14 flex items-center justify-center px-0.5 transition-colors ${
-                        b % 4 === 0 ? 'border-white/10' : 'border-white/[0.04]'
+                        b % 4 === 0 ? 'border-hairline' : 'border-hairline'
                       } ${armedVocal ? 'cursor-cell' : filled ? 'cursor-pointer' : 'cursor-default'}`}
                       style={{
                         width: BAR_W,
@@ -697,7 +697,7 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
       </div>
 
       {/* Footer hint */}
-      <div className="px-5 py-3 border-t border-white/5 text-xs min-h-[2.5rem]">
+      <div className="px-5 py-3 border-t border-hairline text-xs min-h-[2.5rem]">
         {armed ? (
           <span style={{ color: VOICE_COLOR[armedLane?.voice] || '#a855f7' }}>
             ✏️ <strong>{armedPatName}</strong> armed on {armed.part} — click or drag across bars to paint · right-click to erase · click the chip again to disarm
@@ -707,9 +707,9 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
             🎤 <strong>{armedVocalMeta?.name || 'Vocal'}</strong> armed — click or drag across bars to paint · right-click to erase · click the chip again to disarm
           </span>
         ) : hasAnything ? (
-          <span className="text-gray-600">Click a chip to arm it and paint bars · drag chips · right-click a bar to erase · press <strong className="text-gray-400">Play mine</strong> to hear it.</span>
+          <span className="text-faint">Click a chip to arm it and paint bars · drag chips · right-click a bar to erase · press <strong className="text-dim">Play mine</strong> to hear it.</span>
         ) : (
-          <span className="text-gray-700">Click a coloured pattern chip to arm it, then click or click-drag across the bars in that row to fill them.</span>
+          <span className="text-faint">Click a coloured pattern chip to arm it, then click or click-drag across the bars in that row to fill them.</span>
         )}
       </div>
     </div>

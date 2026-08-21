@@ -95,7 +95,7 @@ function drawWaveform(canvas, audioBuffer, playhead = 0) {
   ctx.clearRect(0, 0, W, H)
 
   // Background
-  ctx.fillStyle = '#0f0f1a'
+  ctx.fillStyle = '#0a0a0b'
   ctx.fillRect(0, 0, W, H)
 
   // Waveform bars
@@ -107,9 +107,9 @@ function drawWaveform(canvas, audioBuffer, playhead = 0) {
     }
     const h = Math.max(1, max * H * 0.9)
     const progress = x / W
-    const r = progress < playhead ? 200 : 100
-    const g = progress < playhead ? 100 : 60
-    const b = progress < playhead ? 255 : 180
+    const r = progress < playhead ? 198 : 110
+    const g = progress < playhead ? 242 : 130
+    const b = progress < playhead ? 78 : 70
     ctx.fillStyle = `rgb(${r},${g},${b})`
     ctx.fillRect(x, (H - h) / 2, 1, h)
   }
@@ -121,7 +121,7 @@ function drawWaveform(canvas, audioBuffer, playhead = 0) {
 }
 
 // ─── Knob component ──────────────────────────────────────────────────────────
-function Knob({ label, value, onChange, min = -12, max = 12, color = '#a855f7' }) {
+function Knob({ label, value, onChange, min = -12, max = 12, color = '#c6f24e' }) {
   const svgRef     = useRef()
   const dragging   = useRef(false)
   const startY     = useRef(0)
@@ -176,8 +176,8 @@ function Knob({ label, value, onChange, min = -12, max = 12, color = '#a855f7' }
         {/* Zero dot */}
         <circle cx={cx} cy={cy + r} r="2" fill={Math.abs(value) < 0.5 ? color : '#374151'} />
       </svg>
-      <span className="text-xs font-mono text-gray-300">{value > 0 ? '+' : ''}{value.toFixed(1)} dB</span>
-      <span className="text-xs text-gray-500 uppercase tracking-widest">{label}</span>
+      <span className="text-xs font-mono text-dim">{value > 0 ? '+' : ''}{value.toFixed(1)} dB</span>
+      <span className="text-xs text-dim uppercase tracking-widest">{label}</span>
     </div>
   )
 }
@@ -506,12 +506,12 @@ export default function DJDeckPage() {
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <button onClick={() => navigate('/')} className="text-gray-500 hover:text-white transition text-sm flex items-center gap-1">
+          <button onClick={() => navigate('/')} className="text-dim hover:text-white transition text-sm flex items-center gap-1">
             ← Back
           </button>
           <div className="flex items-center gap-2 ml-2">
             <span className="text-3xl">🎚️</span>
-            <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-black tracking-tight bg-gradient-to-r from-acid to-acid bg-clip-text text-transparent">
               Player &amp; Downloader
             </h1>
           </div>
@@ -520,7 +520,7 @@ export default function DJDeckPage() {
               <button
                 onClick={copyBackendUrl}
                 title="Click to copy backend URL"
-                className="hidden sm:flex items-center gap-1.5 text-xs text-gray-500 hover:text-emerald-300 transition font-mono max-w-[220px] truncate"
+                className="hidden sm:flex items-center gap-1.5 text-xs text-dim hover:text-emerald-300 transition font-mono max-w-[220px] truncate"
               >
                 <span className="truncate">{backendUrl.replace(/^https?:\/\//, '')}</span>
                 <span className="shrink-0">{copied ? '✓' : '⎘'}</span>
@@ -532,7 +532,7 @@ export default function DJDeckPage() {
                 setShowBackend(next)
                 if (next && backendUrl) wakeBackend(backendUrl)
               }}
-              className={`text-xs px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 ${backendUrl ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-white/10 text-gray-400 hover:text-white'}`}
+              className={`text-xs px-3 py-1.5  border transition flex items-center gap-1.5 ${backendUrl ? 'border-emerald-500/40 text-emerald-300 bg-emerald-500/10' : 'border-hairline text-dim hover:text-white'}`}
             >
               ⚙ Backend
               {backendUrl && backendStatus === 'ok'      && <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_1px_rgba(52,211,153,0.7)] shrink-0" />}
@@ -544,23 +544,23 @@ export default function DJDeckPage() {
 
         {/* How-to banner */}
         {!backendUrl && (
-          <div className="rounded-2xl border border-purple-500/20 bg-purple-900/10 p-5 mb-6">
-            <h2 className="text-sm font-bold text-purple-300 mb-3">Load SoundCloud &amp; YouTube tracks</h2>
-            <p className="text-xs text-gray-400 leading-relaxed mb-3">
+          <div className=" border border-acid/20 bg-surface p-5 mb-6">
+            <h2 className="text-sm font-bold text-acid mb-3">Load SoundCloud &amp; YouTube tracks</h2>
+            <p className="text-xs text-dim leading-relaxed mb-3">
               This uses the LoopLab audio backend — a free service that's already set up and ready.
               You just need to connect it once:
             </p>
-            <ol className="space-y-2.5 text-xs text-gray-300 leading-relaxed">
+            <ol className="space-y-2.5 text-xs text-dim leading-relaxed">
               <li className="flex gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">1</span>
+                <span className="w-5 h-5 rounded-full bg-acid/50 text-acid flex items-center justify-center shrink-0 font-bold text-[10px]">1</span>
                 <span>Click the <strong className="text-white">⚙ Backend</strong> button above.</span>
               </li>
               <li className="flex gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">2</span>
+                <span className="w-5 h-5 rounded-full bg-acid/50 text-acid flex items-center justify-center shrink-0 font-bold text-[10px]">2</span>
                 <span>Paste your backend URL and hit <strong className="text-white">Save &amp; Wake</strong> — it may take ~30s to spin up on first use.</span>
               </li>
               <li className="flex gap-2.5">
-                <span className="w-5 h-5 rounded-full bg-purple-600/50 text-purple-200 flex items-center justify-center shrink-0 font-bold text-[10px]">3</span>
+                <span className="w-5 h-5 rounded-full bg-acid/50 text-acid flex items-center justify-center shrink-0 font-bold text-[10px]">3</span>
                 <span>Paste any SoundCloud or YouTube link below — the track loads straight into the deck with full EQ and download.</span>
               </li>
             </ol>
@@ -569,7 +569,7 @@ export default function DJDeckPage() {
 
         {/* Backend settings */}
         {showBackend && (
-          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-900/10 p-5 mb-6">
+          <div className=" border border-emerald-500/20 bg-emerald-900/10 p-5 mb-6">
             <h2 className="text-sm font-semibold text-emerald-300 uppercase tracking-widest mb-3">Downloader Backend</h2>
 
             {/* Status row */}
@@ -586,7 +586,7 @@ export default function DJDeckPage() {
                 }`} />
               </span>
 
-              {backendStatus === 'unknown' && <span className="text-xs text-gray-400">Offline — hit <strong className="text-white">Wake now</strong> to start the backend</span>}
+              {backendStatus === 'unknown' && <span className="text-xs text-dim">Offline — hit <strong className="text-white">Wake now</strong> to start the backend</span>}
               {backendStatus === 'waking'  && (
                 <span className="text-xs text-amber-300 font-mono tabular-nums">
                   Waking up Render… <strong className="text-amber-200">{wakeElapsed}s</strong>
@@ -599,13 +599,13 @@ export default function DJDeckPage() {
               {backendUrl && backendStatus !== 'waking' && (
                 <button
                   onClick={() => wakeBackend(backendUrl)}
-                  className="ml-auto text-xs px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition shrink-0"
+                  className="ml-auto text-xs px-2.5 py-1  bg-surface hover:bg-surface-2 border border-hairline transition shrink-0"
                 >
                   Wake now
                 </button>
               )}
               {backendStatus === 'waking' && (
-                <span className="ml-auto text-xs text-gray-500 shrink-0">checking…</span>
+                <span className="ml-auto text-xs text-dim shrink-0">checking…</span>
               )}
             </div>
 
@@ -615,7 +615,7 @@ export default function DJDeckPage() {
                 value={backendUrl}
                 onChange={e => setBackendUrl(e.target.value)}
                 placeholder="https://looplab-audio.onrender.com"
-                className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 transition font-mono"
+                className="flex-1 bg-black/30 border border-hairline  px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-emerald-500 transition font-mono"
               />
               <button
                 onClick={() => {
@@ -625,21 +625,21 @@ export default function DJDeckPage() {
                   setShowBackend(false)
                   if (u) wakeBackend(u)
                 }}
-                className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-sm font-semibold transition"
+                className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500  text-sm font-semibold transition"
               >
                 Save &amp; Wake
               </button>
             </div>
 
             <div className="flex items-center justify-between">
-              <p className="text-xs text-gray-600 leading-relaxed">
+              <p className="text-xs text-faint leading-relaxed">
                 After deploying to Render, paste your service URL above — it looks like{' '}
                 <code className="text-emerald-300/70">https://looplab-audio.onrender.com</code>
               </p>
               {backendUrl && (
                 <button
                   onClick={() => { setBackendUrl(''); setBackendStatus('unknown'); localStorage.removeItem('looplab-backend') }}
-                  className="text-xs text-gray-600 hover:text-red-400 ml-4 shrink-0 transition"
+                  className="text-xs text-faint hover:text-red-400 ml-4 shrink-0 transition"
                 >
                   Clear
                 </button>
@@ -649,19 +649,19 @@ export default function DJDeckPage() {
         )}
 
         {/* Load area */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-5 mb-6">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Load Audio</h2>
+        <div className=" border border-hairline bg-surface p-5 mb-6">
+          <h2 className="text-sm font-semibold text-dim uppercase tracking-widest mb-4">Load Audio</h2>
 
           {/* File drop zone */}
           <div
             onClick={() => fileInputRef.current.click()}
-            className="border-2 border-dashed border-white/10 hover:border-purple-500/50 rounded-xl p-6 text-center cursor-pointer transition mb-4 group"
+            className="border-2 border-dashed border-hairline hover:border-acid/50  p-6 text-center cursor-pointer transition mb-4 group"
           >
             <span className="text-3xl block mb-1">📁</span>
-            <p className="text-sm text-gray-400 group-hover:text-gray-200 transition">
+            <p className="text-sm text-dim group-hover:text-ink transition">
               Click or drag an audio file here
             </p>
-            <p className="text-xs text-gray-600 mt-1">MP3 · WAV · OGG · FLAC · M4A</p>
+            <p className="text-xs text-faint mt-1">MP3 · WAV · OGG · FLAC · M4A</p>
           </div>
           <input ref={fileInputRef} type="file" accept="audio/*" className="hidden" onChange={e => e.target.files[0] && loadFile(e.target.files[0])} />
 
@@ -673,24 +673,24 @@ export default function DJDeckPage() {
               onChange={e => setUrl(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && loadUrl()}
               placeholder="Paste a direct audio URL (MP3, SoundCloud stream…)"
-              className="flex-1 bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
+              className="flex-1 bg-black/30 border border-hairline  px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-acid transition"
             />
             <button
               onClick={loadUrl}
-              className="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 rounded-xl text-sm font-semibold transition"
+              className="px-4 py-2.5 bg-acid hover:bg-acid-dim  text-sm font-semibold transition"
             >
               Load
             </button>
           </div>
 
           {status === 'loading' && (
-            <p className="text-xs text-purple-400 mt-3 animate-pulse">Fetching and decoding audio…</p>
+            <p className="text-xs text-acid mt-3 animate-pulse">Fetching and decoding audio…</p>
           )}
-          <p className="text-xs text-gray-600 mt-3">
+          <p className="text-xs text-faint mt-3">
             Tip: paste a <span className="text-orange-400">SoundCloud</span> track URL to play it in the embedded player below.
           </p>
           {status === 'error' && (
-            <div className="mt-3 rounded-xl bg-red-900/20 border border-red-500/20 p-3 text-xs text-red-300 leading-relaxed">
+            <div className="mt-3  bg-red-900/20 border border-red-500/20 p-3 text-xs text-red-300 leading-relaxed">
               {errorMsg}
             </div>
           )}
@@ -701,7 +701,7 @@ export default function DJDeckPage() {
 
         {/* SoundCloud embedded player */}
         {status === 'soundcloud' && scUrl && (
-          <div className="rounded-2xl border border-orange-500/20 bg-orange-900/10 p-5 mb-6">
+          <div className=" border border-orange-500/20 bg-orange-900/10 p-5 mb-6">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">☁️</span>
               <h2 className="text-sm font-semibold text-orange-300 uppercase tracking-widest">SoundCloud Player</h2>
@@ -714,7 +714,7 @@ export default function DJDeckPage() {
               scrolling="no"
               frameBorder="no"
               allow="autoplay"
-              className="rounded-xl"
+              className=""
               src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(scUrl)}&color=%23a855f7&auto_play=true&hide_related=true&show_comments=false&show_user=true&show_reposts=false&visual=false`}
             />
             <p className="text-xs text-orange-300/50 mt-3 leading-relaxed">
@@ -726,10 +726,10 @@ export default function DJDeckPage() {
         )}
 
         {/* Deck — visible once ready */}
-        <div className={`rounded-2xl border border-white/10 bg-white/5 p-5 transition-opacity ${status === 'ready' ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+        <div className={` border border-hairline bg-surface p-5 transition-opacity ${status === 'ready' ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
 
           {/* Waveform */}
-          <div className="relative mb-4 rounded-xl overflow-hidden cursor-pointer" onClick={onWaveformClick} style={{ height: 80 }}>
+          <div className="relative mb-4  overflow-hidden cursor-pointer" onClick={onWaveformClick} style={{ height: 80 }}>
             <canvas
               ref={canvasRef}
               width={800}
@@ -738,14 +738,14 @@ export default function DJDeckPage() {
               style={{ display: 'block' }}
             />
             {status !== 'ready' && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-gray-600 text-xs">
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-faint text-xs">
                 Load a track to see the waveform
               </div>
             )}
           </div>
 
           {/* Time */}
-          <div className="flex justify-between text-xs font-mono text-gray-500 mb-4">
+          <div className="flex justify-between text-xs font-mono text-dim mb-4">
             <span>{fmt(currentTime)}</span>
             <span>{fmt(duration)}</span>
           </div>
@@ -761,7 +761,7 @@ export default function DJDeckPage() {
               setProgress(r)
               if (playing) playFrom(newOffset)
             }}
-            className="w-full mb-5 accent-purple-500"
+            className="w-full mb-5 accent-acid"
           />
 
           {/* Transport */}
@@ -769,57 +769,57 @@ export default function DJDeckPage() {
             {/* Rewind */}
             <button
               onClick={() => { stopSource(); offsetRef.current = 0; setCurrent(0); setProgress(0); setPlaying(false) }}
-              className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition text-gray-400 hover:text-white"
+              className="w-10 h-10 rounded-full bg-surface hover:bg-surface-2 flex items-center justify-center transition text-dim hover:text-white"
             >
               ⏮
             </button>
             {/* Play/Pause */}
             <button
               onClick={togglePlay}
-              className="w-16 h-16 rounded-full bg-purple-600 hover:bg-purple-500 flex items-center justify-center text-2xl transition shadow-lg shadow-purple-900/40"
+              className="w-16 h-16 rounded-full bg-acid hover:bg-acid-dim flex items-center justify-center text-2xl text-base transition-colors duration-150"
             >
               {playing ? '⏸' : '▶'}
             </button>
             {/* Stop */}
             <button
               onClick={() => { stopSource(); offsetRef.current = 0; setCurrent(0); setProgress(0); setPlaying(false) }}
-              className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition text-gray-400 hover:text-white"
+              className="w-10 h-10 rounded-full bg-surface hover:bg-surface-2 flex items-center justify-center transition text-dim hover:text-white"
             >
               ⏹
             </button>
           </div>
 
           {/* EQ section */}
-          <div className="border-t border-white/10 pt-6">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-widest text-center mb-5">3-Band EQ</h3>
+          <div className="border-t border-hairline pt-6">
+            <h3 className="text-xs font-semibold text-dim uppercase tracking-widest text-center mb-5">3-Band EQ</h3>
             <div className="grid grid-cols-3 gap-4 justify-items-center mb-6">
               <Knob label="Low"  value={lowGain}  onChange={v => setLowGain( Math.round(v * 10) / 10)} color="#3b82f6" />
               <Knob label="Mid"  value={midGain}  onChange={v => setMidGain( Math.round(v * 10) / 10)} color="#a855f7" />
               <Knob label="High" value={highGain} onChange={v => setHighGain(Math.round(v * 10) / 10)} color="#ec4899" />
             </div>
-            <p className="text-center text-xs text-gray-600">Double-click any knob to reset to 0 dB</p>
+            <p className="text-center text-xs text-faint">Double-click any knob to reset to 0 dB</p>
           </div>
 
           {/* Volume */}
-          <div className="border-t border-white/10 pt-5 mt-2">
+          <div className="border-t border-hairline pt-5 mt-2">
             <div className="flex items-center gap-3">
-              <span className="text-gray-500 text-sm">🔈</span>
+              <span className="text-dim text-sm">🔈</span>
               <input
                 type="range" min={0} max={1} step={0.01} value={volume}
                 onChange={e => setVolume(parseFloat(e.target.value))}
-                className="flex-1 accent-purple-500"
+                className="flex-1 accent-acid"
               />
-              <span className="text-gray-500 text-sm">🔊</span>
-              <span className="text-xs font-mono text-gray-400 w-10 text-right">{Math.round(volume * 100)}%</span>
+              <span className="text-dim text-sm">🔊</span>
+              <span className="text-xs font-mono text-dim w-10 text-right">{Math.round(volume * 100)}%</span>
             </div>
           </div>
 
           {/* Download */}
-          <div className="border-t border-white/10 pt-5 mt-5">
+          <div className="border-t border-hairline pt-5 mt-5">
             <button
               onClick={downloadMix}
               disabled={exporting || status !== 'ready'}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:opacity-40 disabled:cursor-not-allowed font-semibold text-sm transition flex items-center justify-center gap-2"
+              className="w-full py-3 bg-acid text-base hover:bg-acid-dim disabled:opacity-40 disabled:cursor-not-allowed font-display font-semibold uppercase tracking-wide text-sm transition-colors duration-150 flex items-center justify-center gap-2"
             >
               {exporting ? (
                 <><span className="animate-spin">⏳</span> Rendering mix…</>
@@ -827,13 +827,13 @@ export default function DJDeckPage() {
                 <>⬇ Download mix (WAV, with EQ applied)</>
               )}
             </button>
-            <p className="text-center text-xs text-gray-600 mt-2">Exports the track with your current EQ &amp; volume baked in</p>
+            <p className="text-center text-xs text-faint mt-2">Exports the track with your current EQ &amp; volume baked in</p>
 
             {streamUrl && backendUrl && (
               <a
                 href={`${backendUrl.replace(/\/$/, '')}/api/fetch?url=${encodeURIComponent(streamUrl)}&name=${encodeURIComponent(trackName)}`}
                 download={`${trackName || 'track'}_looplab.mp3`}
-                className="mt-3 w-full py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 font-semibold text-sm transition flex items-center justify-center gap-2 text-gray-200"
+                className="mt-3 w-full py-3  bg-surface hover:bg-surface-2 border border-hairline font-semibold text-sm transition flex items-center justify-center gap-2 text-ink"
               >
                 ⬇ Download original MP3 (no EQ)
               </a>
@@ -842,7 +842,7 @@ export default function DJDeckPage() {
         </div>
 
         {/* Info */}
-        <div className="mt-6 rounded-xl bg-amber-900/10 border border-amber-500/10 p-4 text-xs text-amber-300/60 leading-relaxed">
+        <div className="mt-6  bg-amber-900/10 border border-amber-500/10 p-4 text-xs text-amber-300/60 leading-relaxed">
           <strong className="text-amber-300/80">SoundCloud / YouTube downloads:</strong> deploy the small
           backend service in <code className="text-amber-200/80">server/</code> (one-click Render steps are in
           <code className="text-amber-200/80"> server/README.md</code>), then paste its URL into

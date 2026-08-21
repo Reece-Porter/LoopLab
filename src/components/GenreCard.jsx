@@ -7,7 +7,7 @@ export default function GenreCard({ genre }) {
   const accent = accentFromColor(genre.color)
 
   return (
-    <div className="bg-[#16161e] border border-white/[0.06] rounded-xl overflow-hidden hover:border-white/[0.12] transition-colors duration-150">
+    <div className="bg-[#101012] border border-hairline  overflow-hidden hover:border-hairline transition-colors duration-150">
       <button
         onClick={() => setOpen(!open)}
         className="w-full text-left p-4 flex items-start gap-3"
@@ -22,10 +22,10 @@ export default function GenreCard({ genre }) {
               {genre.bpm}
             </span>
           </div>
-          <p className="text-[11px] text-gray-600 leading-relaxed line-clamp-2">{genre.description}</p>
+          <p className="text-[11px] text-faint leading-relaxed line-clamp-2">{genre.description}</p>
         </div>
         <svg
-          className={`w-4 h-4 text-gray-600 transition-transform duration-300 shrink-0 mt-0.5 ${open ? 'rotate-180' : ''}`}
+          className={`w-4 h-4 text-faint transition-transform duration-300 shrink-0 mt-0.5 ${open ? 'rotate-180' : ''}`}
           fill="none" viewBox="0 0 24 24" stroke="currentColor"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -33,7 +33,7 @@ export default function GenreCard({ genre }) {
       </button>
 
       {open && (
-        <div className="border-t border-white/[0.06] px-4 pb-4 pt-3">
+        <div className="border-t border-hairline px-4 pb-4 pt-3">
           <div className="flex flex-wrap gap-2 mb-4">
             <InfoPill label="BPM" value={genre.bpm} accent={accent} />
             <InfoPill label="Key" value={genre.key} accent={accent} />
@@ -51,7 +51,7 @@ export default function GenreCard({ genre }) {
 
 function InfoPill({ label, value, accent }) {
   return (
-    <span className="text-[11px] font-mono px-2.5 py-1 rounded-md" style={{ color: accent, background: `${accent}15` }}>
+    <span className="text-[11px] font-mono px-2.5 py-1 " style={{ color: accent, background: `${accent}15` }}>
       <span className="opacity-50 mr-1">{label}:</span>{value}
     </span>
   )

@@ -130,14 +130,14 @@ export default function GenreTutorial() {
       {/* Spotlight: transparent box with shadow eating the overlay */}
       {spotlight && (
         <div
-          className="fixed z-40 pointer-events-none rounded-md"
+          className="fixed z-40 pointer-events-none"
           style={{
             top:    spotlight.top    - PAD,
             left:   spotlight.left   - PAD,
             width:  spotlight.width  + PAD * 2,
             height: spotlight.height + PAD * 2,
-            boxShadow: '0 0 0 9999px rgba(0,0,0,0.35)',
-            outline: '1.5px solid rgba(124,92,252,0.75)',
+            boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
+            outline: '1.5px solid rgba(198,242,78,0.85)',
           }}
         />
       )}
@@ -148,19 +148,19 @@ export default function GenreTutorial() {
       {/* Tooltip */}
       <div
         ref={tooltipRef}
-        className="pointer-events-auto z-50 bg-[#1a1a28] border border-[#7c5cfc]/50 rounded-xl shadow-2xl p-4"
+        className="pointer-events-auto z-50 bg-surface border border-hairline shadow-2xl p-4"
         style={tooltipStyle}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-2.5">
-          <span className="text-[10px] uppercase tracking-[0.15em] text-[#7c5cfc]">
+          <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-acid">
             {step + 1} / {STEPS.length}
           </span>
-          <button onClick={dismiss} className="text-gray-600 hover:text-gray-300 transition-colors leading-none text-lg">×</button>
+          <button onClick={dismiss} className="text-faint hover:text-dim transition-colors leading-none text-lg">×</button>
         </div>
 
-        <h3 className="text-white font-semibold text-[13px] mb-1.5 leading-snug">{current.title}</h3>
-        <p className="text-gray-400 text-[12px] leading-relaxed mb-3">{current.desc}</p>
+        <h3 className="font-display font-bold uppercase tracking-wide text-ink text-[13px] mb-1.5 leading-snug">{current.title}</h3>
+        <p className="text-dim text-[12px] leading-relaxed mb-3">{current.desc}</p>
 
         {/* Progress dots */}
         <div className="flex items-center gap-1 mb-3">
@@ -168,7 +168,7 @@ export default function GenreTutorial() {
             <button
               key={i}
               onClick={() => setStep(i)}
-              className={`h-1 rounded-full transition-all duration-200 ${i === step ? 'bg-[#7c5cfc] w-5' : 'bg-white/[0.15] w-2.5 hover:bg-white/30'}`}
+              className={`h-1 rounded-full transition-all duration-200 ${i === step ? 'bg-acid w-5' : 'bg-white/[0.15] w-2.5 hover:bg-white/30'}`}
             />
           ))}
         </div>
@@ -176,13 +176,13 @@ export default function GenreTutorial() {
         <div className="flex items-center justify-between">
           <div className="flex gap-3">
             {step > 0 && (
-              <button onClick={prev} className="text-[11px] text-gray-500 hover:text-gray-300 transition-colors">← Back</button>
+              <button onClick={prev} className="text-[11px] text-dim hover:text-dim transition-colors">← Back</button>
             )}
-            <button onClick={dismiss} className="text-[11px] text-gray-600 hover:text-gray-400 transition-colors">Skip all</button>
+            <button onClick={dismiss} className="text-[11px] text-faint hover:text-dim transition-colors">Skip all</button>
           </div>
           <button
             onClick={next}
-            className="bg-[#7c5cfc] hover:bg-[#6d4ef0] text-white text-[12px] font-medium px-4 py-1.5 rounded-lg transition-colors"
+            className="bg-acid hover:bg-acid-dim text-base font-mono uppercase tracking-[0.1em] text-[11px] px-4 py-1.5 transition-colors duration-150"
           >
             {isLast ? 'Done' : 'Next →'}
           </button>

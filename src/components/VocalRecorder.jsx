@@ -69,16 +69,16 @@ function ClipPill({ clip, audioCtx, onDelete, onDragStart }) {
     <div
       draggable
       onDragStart={e => onDragStart(e, clip)}
-      className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3 py-2 cursor-grab active:cursor-grabbing select-none transition group"
+      className="flex items-center gap-2 bg-surface hover:bg-surface-2 border border-hairline  px-3 py-2 cursor-grab active:cursor-grabbing select-none transition group"
     >
       <span className="text-base">🎤</span>
-      <span className="text-xs text-gray-300 truncate flex-1 min-w-0" title={clip.name}>{clip.name}</span>
-      <span className="text-[10px] text-gray-600 shrink-0">{(clip.length / clip.sampleRate).toFixed(1)}s</span>
-      <button onClick={preview} className={`text-xs transition shrink-0 ${previewing ? 'text-purple-400' : 'text-gray-500 hover:text-white'}`} title="Preview">
+      <span className="text-xs text-dim truncate flex-1 min-w-0" title={clip.name}>{clip.name}</span>
+      <span className="text-[10px] text-faint shrink-0">{(clip.length / clip.sampleRate).toFixed(1)}s</span>
+      <button onClick={preview} className={`text-xs transition shrink-0 ${previewing ? 'text-acid' : 'text-dim hover:text-white'}`} title="Preview">
         {previewing ? '⏹' : '▶'}
       </button>
-      <button onClick={() => onDelete(clip.id)} className="text-[10px] text-gray-600 hover:text-red-400 transition shrink-0" title="Delete">✕</button>
-      <span className="text-[10px] text-gray-600 shrink-0 hidden group-hover:block">drag →</span>
+      <button onClick={() => onDelete(clip.id)} className="text-[10px] text-faint hover:text-red-400 transition shrink-0" title="Delete">✕</button>
+      <span className="text-[10px] text-faint shrink-0 hidden group-hover:block">drag →</span>
     </div>
   )
 }
@@ -197,48 +197,48 @@ export default function VocalRecorder({ onClipsChange }) {
   const trimmedDur = dur * (trimEnd - trimStart)
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden mt-4">
+    <div className=" border border-hairline bg-black/40 overflow-hidden mt-4">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-white/5 transition"
+        className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-surface transition"
       >
         <div className="flex items-center gap-2">
           <span className="text-lg">🎤</span>
           <span className="text-sm font-semibold text-white">Your Vocals</span>
           {savedClips.length > 0 && (
-            <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">{savedClips.length} clip{savedClips.length !== 1 ? 's' : ''}</span>
+            <span className="text-xs bg-acid/20 text-acid px-2 py-0.5 rounded-full">{savedClips.length} clip{savedClips.length !== 1 ? 's' : ''}</span>
           )}
         </div>
-        <span className="text-gray-500 text-sm">{open ? '▲' : '▼'}</span>
+        <span className="text-dim text-sm">{open ? '▲' : '▼'}</span>
       </button>
 
       {open && (
-        <div className="px-5 pb-5 border-t border-white/10">
-          <p className="text-xs text-gray-500 mt-3 mb-4 leading-relaxed">
-            Record your voice, trim it, save it — your clips will appear as options in the <strong className="text-gray-300">Your Vocals</strong> row in the arrangement above.
+        <div className="px-5 pb-5 border-t border-hairline">
+          <p className="text-xs text-dim mt-3 mb-4 leading-relaxed">
+            Record your voice, trim it, save it — your clips will appear as options in the <strong className="text-dim">Your Vocals</strong> row in the arrangement above.
           </p>
 
           {error && <p className="text-xs text-red-400 mb-3">{error}</p>}
 
           {/* Controls */}
           {state === 'idle' && (
-            <button onClick={startRecording} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-sm font-semibold text-white transition">
+            <button onClick={startRecording} className="flex items-center gap-2 px-5 py-2.5  bg-red-600 hover:bg-red-500 text-sm font-semibold text-white transition">
               <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" /> Record
             </button>
           )}
-          {state === 'requesting' && <p className="text-xs text-gray-400 animate-pulse">Requesting microphone…</p>}
+          {state === 'requesting' && <p className="text-xs text-dim animate-pulse">Requesting microphone…</p>}
           {state === 'recording' && (
             <div className="flex items-center gap-3">
               <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shrink-0" />
               <span className="text-xs text-red-400 font-semibold animate-pulse">Recording…</span>
-              <button onClick={stopRecording} className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-semibold text-white transition">Stop</button>
+              <button onClick={stopRecording} className="px-4 py-2  bg-surface-2 hover:bg-surface-2 text-sm font-semibold text-white transition">Stop</button>
             </div>
           )}
 
           {/* Review / trim */}
           {state === 'review' && rawBufRef.current && (
             <div className="space-y-3">
-              <div className="relative rounded-xl overflow-hidden bg-black/40" style={{ height: 72 }}>
+              <div className="relative  overflow-hidden bg-black/40" style={{ height: 72 }}>
                 <canvas
                   ref={canvasRef} width={600} height={72}
                   className="w-full h-full block cursor-ew-resize"
@@ -247,20 +247,20 @@ export default function VocalRecorder({ onClipsChange }) {
                   onPointerUp={onCanvasPointerUp}
                 />
               </div>
-              <div className="flex justify-between text-[10px] font-mono text-gray-500">
+              <div className="flex justify-between text-[10px] font-mono text-dim">
                 <span>Drag white handles to trim</span>
                 <span>{trimmedDur.toFixed(2)}s selected of {dur.toFixed(2)}s total</span>
               </div>
               <input
                 type="text" value={clipName} onChange={e => setClipName(e.target.value)}
                 placeholder="Name this clip…"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500 transition"
+                className="w-full bg-surface border border-hairline  px-4 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-acid transition"
               />
               <div className="flex gap-2">
-                <button onClick={save} className="flex-1 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-sm font-semibold text-white transition">
+                <button onClick={save} className="flex-1 py-2.5  bg-acid hover:bg-acid-dim text-sm font-semibold text-base transition">
                   {state === 'saving' ? 'Saving…' : 'Save clip'}
                 </button>
-                <button onClick={discard} className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-sm text-gray-400 transition">Discard</button>
+                <button onClick={discard} className="px-4 py-2.5  bg-surface hover:bg-surface-2 text-sm text-dim transition">Discard</button>
               </div>
             </div>
           )}
@@ -268,7 +268,7 @@ export default function VocalRecorder({ onClipsChange }) {
           {/* Saved clips library */}
           {savedClips.length > 0 && (
             <div className="mt-4 space-y-2">
-              <p className="text-[10px] text-gray-600 uppercase tracking-widest mb-2">Saved clips — drag onto the Vocals row</p>
+              <p className="text-[10px] text-faint uppercase tracking-widest mb-2">Saved clips — drag onto the Vocals row</p>
               {savedClips.map(clip => (
                 <ClipPill key={clip.id} clip={clip} audioCtx={getContext()} onDelete={handleDelete} onDragStart={onDragStart} />
               ))}
