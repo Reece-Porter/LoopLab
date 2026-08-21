@@ -22,10 +22,29 @@ import { randomUUID } from 'crypto'
 const app  = express()
 const PORT = process.env.PORT || 3000
 
-// Allow any origin by default; lock this down to your GitHub Pages / custom
-// domain in production by setting ALLOWED_ORIGIN (e.g. https://looplab.uk).
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || '*'
-app.use(cors({ origin: ALLOWED_ORIGIN }))
+// CORS. The LoopLab site's own origins are ALWAYS allowed so a stale
+// ALLOWED_ORIGIN env var can never lock the real site out. You can add more
+// allowed origins via ALLOWED_ORIGIN (comma-separated); set it to "*" to allow
+// everything.
+const ALWAYS_ALLOWED = [
+  'https://looplab.uk',
+  'https://www.looplab.uk',
+  'https://reece-porter.github.io',
+]
+const extraOrigins = (process.env.ALLOWED_ORIGIN || '')
+  .split(',').map(s => s.trim()).filter(Boolean)
+const allowAll = extraOrigins.includes('*')
+const allowList = new Set([...ALWAYS_ALLOWED, ...extraOrigins])
+
+app.use(cors({
+  origin(origin, cb) {
+    // Non-browser requests (no Origin header) and any allowed origin pass.
+    if (allowAll || !origin || allowList.has(origin)) return cb(null, true)
+    // Allow any *.onrender.com / localhost during testing too.
+    if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return cb(null, true)
+    return cb(null, false)
+  },
+}))
 
 const ALLOWED_HOSTS = /(^|\.)(soundcloud\.com|snd\.sc|youtube\.com|youtu\.be|m\.soundcloud\.com)$/i
 
