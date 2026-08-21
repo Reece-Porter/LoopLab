@@ -20,6 +20,7 @@ export default function PlaylistDownloader({ backendUrl }) {
   const [progress, setProgress] = useState({}) // index → 'pending'|'done'|'failed'
   const [quality, setQuality] = useState('320')
   const [numbered, setNumbered] = useState(true)
+  const [showUnzipTip, setShowUnzipTip] = useState(false)
 
   const base = (backendUrl || '').replace(/\/$/, '')
   const configured = !!base
@@ -84,6 +85,14 @@ export default function PlaylistDownloader({ backendUrl }) {
     document.body.appendChild(a); a.click(); a.remove()
     setTimeout(() => URL.revokeObjectURL(a.href), 4000)
     setPhase('done')
+
+    // First-time reminder: the ZIP must be unzipped before Rekordbox can read it.
+    try {
+      if (!localStorage.getItem('looplab-unzip-tip-seen')) {
+        setShowUnzipTip(true)
+        localStorage.setItem('looplab-unzip-tip-seen', '1')
+      }
+    } catch { setShowUnzipTip(true) }
   }
 
   const doneCount = Object.values(progress).filter(v => v === 'done').length
@@ -99,6 +108,28 @@ export default function PlaylistDownloader({ backendUrl }) {
         Paste a SoundCloud set or YouTube playlist link — download the whole thing as a ZIP of tagged MP3s,
         ready to drag straight into Rekordbox.
       </p>
+
+      {/* How to use */}
+      <div className="rounded-xl border border-white/10 bg-black/20 p-3.5 mb-4">
+        <p className="text-[11px] font-semibold text-gray-300 uppercase tracking-wide mb-2">How to use</p>
+        <ol className="space-y-1.5 text-xs text-gray-400 leading-relaxed">
+          <li className="flex gap-2">
+            <span className="text-cyan-400 font-bold shrink-0">1.</span>
+            <span>Paste your SoundCloud set / YouTube playlist link and hit <strong className="text-gray-200">Load list</strong>.</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-cyan-400 font-bold shrink-0">2.</span>
+            <span>Hit <strong className="text-gray-200">Download all as ZIP</strong> — every track downloads with its name and artwork baked in.</span>
+          </li>
+          <li className="flex gap-2">
+            <span className="text-cyan-400 font-bold shrink-0">3.</span>
+            <span>
+              <strong className="text-amber-300">Unzip the file first</strong> (right-click → Extract All on Windows, or double-click on Mac),
+              then drag the unzipped folder into Rekordbox. Rekordbox can't read tracks while they're still inside the ZIP.
+            </span>
+          </li>
+        </ol>
+      </div>
 
       {!configured ? (
         <div className="rounded-xl bg-amber-900/20 border border-amber-500/25 p-3 text-xs text-amber-200 leading-relaxed">
@@ -214,6 +245,37 @@ export default function PlaylistDownloader({ backendUrl }) {
             Only download audio you have the right to — your own uploads, Creative Commons, or tracks where the artist enabled downloads.
           </p>
         </>
+      )}
+
+      {/* First-download reminder popup */}
+      {showUnzipTip && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+          onClick={() => setShowUnzipTip(false)}
+        >
+          <div
+            className="w-full max-w-sm bg-[#16161e] border border-cyan-500/30 rounded-2xl p-6 shadow-2xl text-center"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="text-4xl mb-3">🗂️</div>
+            <h3 className="text-white font-semibold text-base mb-2">Unzip before Rekordbox</h3>
+            <p className="text-sm text-gray-400 leading-relaxed mb-1">
+              Your set downloaded as a <strong className="text-gray-200">.zip</strong> file. Rekordbox can't read tracks
+              while they're inside the ZIP.
+            </p>
+            <div className="text-left text-sm text-gray-300 bg-black/30 border border-white/10 rounded-xl p-3.5 my-4 space-y-2">
+              <p><span className="text-cyan-400 font-bold">1.</span> Unzip it — <span className="text-gray-400">right-click → Extract All (Windows) or double-click (Mac)</span></p>
+              <p><span className="text-cyan-400 font-bold">2.</span> Drag the unzipped folder into Rekordbox</p>
+            </div>
+            <p className="text-xs text-gray-500 mb-4">Names and artwork are already baked into each track.</p>
+            <button
+              onClick={() => setShowUnzipTip(false)}
+              className="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-sm font-semibold transition"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
