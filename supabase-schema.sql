@@ -1,15 +1,32 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- LoopLab — Supabase database schema
+-- LoopLab — Supabase database schema  (single authoritative source of truth)
 --
--- HOW TO RUN:
---   1. Open your Supabase project → SQL Editor → New query.
---   2. Paste this whole file in and click "Run".
---   3. Done. The community gallery, publishing and saved arrangements now work.
+-- HOW TO RUN
+--   Supabase → SQL Editor → New query → paste this whole file → Run.
 --
--- This creates one table (`arrangements`) and the Row Level Security (RLS)
--- policies that keep it safe: anyone can READ public arrangements, but users
--- can only create/edit/delete their OWN rows.
+-- This file is SAFE TO RE-RUN at any time:
+--   • every table uses  create table if not exists   (never drops your data)
+--   • new columns use    add column if not exists     (backfills safely)
+--   • every policy is    drop policy if exists → create  (policies hold no data)
+--   • there is NO drop table and NO drop column anywhere
+--
+-- It is also SELF-HEALING: if an older deploy created `likes` without an `id`
+-- column, the ALTER below adds it (the app needs likes.id), backfilling existing
+-- rows. Nothing is destroyed.
+--
+-- SECURITY MODEL (enforced by the Row Level Security policies at the bottom):
+--   • Anonymous visitors (holding the public anon key) are READ-ONLY. Every
+--     insert/update/delete requires auth.uid() = user_id, which is null for
+--     anonymous requests, so all writes are denied.
+--   • Anyone can read PUBLIC arrangements, plus all likes and comments.
+--     Private arrangements (is_public = false) are visible only to their owner.
+--   • Signed-in users can only create/edit/delete their OWN rows.
 -- ─────────────────────────────────────────────────────────────────────────────
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- ARRANGEMENTS  (community-published builds + uploaded MIDI files)
+-- ═══════════════════════════════════════════════════════════════════════════
 
 create table if not exists public.arrangements (
   id          uuid primary key default gen_random_uuid(),
@@ -19,126 +36,72 @@ create table if not exists public.arrangements (
   description text default '',
   genre_id    text,
   is_public   boolean not null default true,
+  source_type text not null default 'builder',   -- 'builder' | 'midi_upload'
+  midi_url    text,                                -- public URL when source_type = 'midi_upload'
   data        jsonb not null,
   created_at  timestamptz not null default now()
 );
 
--- Fast lookups for the gallery and a user's own list.
+-- Self-heal: add the MIDI columns if an older deploy created the table without them.
+alter table public.arrangements
+  add column if not exists source_type text not null default 'builder',
+  add column if not exists midi_url    text;
+
 create index if not exists arrangements_public_idx on public.arrangements (is_public, created_at desc);
 create index if not exists arrangements_user_idx   on public.arrangements (user_id, created_at desc);
 
--- Turn on Row Level Security.
 alter table public.arrangements enable row level security;
 
--- READ: anyone (even logged-out) can see public arrangements;
---       signed-in users can additionally see their own private ones.
+-- READ: anyone can see public rows; owners can additionally see their private ones.
 drop policy if exists "read public or own" on public.arrangements;
 create policy "read public or own"
   on public.arrangements for select
   using ( is_public = true or auth.uid() = user_id );
 
--- INSERT: you can only create rows owned by yourself.
+-- INSERT: you may only create rows owned by yourself.
 drop policy if exists "insert own" on public.arrangements;
 create policy "insert own"
   on public.arrangements for insert
   with check ( auth.uid() = user_id );
 
--- UPDATE: you can only edit your own rows.
+-- UPDATE: you may only edit your own rows, AND may not reassign them to someone
+-- else (the WITH CHECK closes that gap).
 drop policy if exists "update own" on public.arrangements;
 create policy "update own"
   on public.arrangements for update
-  using ( auth.uid() = user_id );
+  using      ( auth.uid() = user_id )
+  with check ( auth.uid() = user_id );
 
--- DELETE: you can only delete your own rows.
+-- DELETE: you may only delete your own rows.
 drop policy if exists "delete own" on public.arrangements;
 create policy "delete own"
   on public.arrangements for delete
   using ( auth.uid() = user_id );
 
--- ─────────────────────────────────────────────────────────────────────────────
--- UPDATE 2: Likes, Comments, and MIDI uploads
---
--- Run this block to add likes + comments tables and the two new columns on
--- arrangements. Safe to run on an existing database — all statements are
--- idempotent (if not exists / drop policy if exists).
--- ─────────────────────────────────────────────────────────────────────────────
 
--- New columns on arrangements for MIDI uploads.
-alter table public.arrangements
-  add column if not exists source_type text not null default 'builder',
-  add column if not exists midi_url    text;
-
--- ── Likes ────────────────────────────────────────────────────────────────────
+-- ═══════════════════════════════════════════════════════════════════════════
+-- LIKES
+-- ═══════════════════════════════════════════════════════════════════════════
 
 create table if not exists public.likes (
-  id              uuid primary key default gen_random_uuid(),
-  user_id         uuid not null references auth.users (id) on delete cascade,
-  arrangement_id  uuid not null references public.arrangements (id) on delete cascade,
-  created_at      timestamptz not null default now(),
-  unique (user_id, arrangement_id)
-);
-
-create index if not exists likes_arrangement_idx on public.likes (arrangement_id);
-
-alter table public.likes enable row level security;
-
-drop policy if exists "read likes" on public.likes;
-create policy "read likes"
-  on public.likes for select using ( true );
-
-drop policy if exists "insert own like" on public.likes;
-create policy "insert own like"
-  on public.likes for insert
-  with check ( auth.uid() = user_id );
-
-drop policy if exists "delete own like" on public.likes;
-create policy "delete own like"
-  on public.likes for delete
-  using ( auth.uid() = user_id );
-
--- ── Comments ─────────────────────────────────────────────────────────────────
-
-create table if not exists public.comments (
-  id              uuid primary key default gen_random_uuid(),
-  arrangement_id  uuid not null references public.arrangements (id) on delete cascade,
-  user_id         uuid not null references auth.users (id) on delete cascade,
-  author_name     text not null default 'Producer',
-  body            text not null,
-  created_at      timestamptz not null default now()
-);
-
-create index if not exists comments_arrangement_idx on public.comments (arrangement_id, created_at asc);
-
-alter table public.comments enable row level security;
-
-drop policy if exists "read comments" on public.comments;
-create policy "read comments"
-  on public.comments for select using ( true );
-
-drop policy if exists "insert own comment" on public.comments;
-create policy "insert own comment"
-  on public.comments for insert
-  with check ( auth.uid() = user_id );
-
-drop policy if exists "delete own comment" on public.comments;
-create policy "delete own comment"
-  on public.comments for delete
-  using ( auth.uid() = user_id );
-
--- ─────────────────────────────────────────────────────────────────────────────
--- Likes table
--- ─────────────────────────────────────────────────────────────────────────────
-create table if not exists public.likes (
+  id             uuid primary key default gen_random_uuid(),
   user_id        uuid not null references auth.users (id) on delete cascade,
   arrangement_id uuid not null references public.arrangements (id) on delete cascade,
   created_at     timestamptz not null default now(),
-  primary key (user_id, arrangement_id)
+  unique (user_id, arrangement_id)
 );
+
+-- Self-heal: an older deploy may have created `likes` with a composite primary
+-- key and no `id` column. The app selects/deletes likes by `id`, so ensure it
+-- exists. This backfills existing rows with a generated uuid and never drops data.
+alter table public.likes
+  add column if not exists id uuid not null default gen_random_uuid();
 
 create index if not exists likes_arrangement_idx on public.likes (arrangement_id);
 
 alter table public.likes enable row level security;
 
+-- READ: like counts are public (a public gallery). Exposes user_id UUIDs only.
 drop policy if exists "read likes" on public.likes;
 create policy "read likes"
   on public.likes for select
@@ -154,9 +117,11 @@ create policy "delete own like"
   on public.likes for delete
   using ( auth.uid() = user_id );
 
--- ─────────────────────────────────────────────────────────────────────────────
--- Comments table
--- ─────────────────────────────────────────────────────────────────────────────
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- COMMENTS
+-- ═══════════════════════════════════════════════════════════════════════════
+
 create table if not exists public.comments (
   id             uuid primary key default gen_random_uuid(),
   arrangement_id uuid not null references public.arrangements (id) on delete cascade,
@@ -185,13 +150,49 @@ create policy "delete own comment"
   on public.comments for delete
   using ( auth.uid() = user_id );
 
--- ─────────────────────────────────────────────────────────────────────────────
--- Extend arrangements table for MIDI uploads
--- ─────────────────────────────────────────────────────────────────────────────
-alter table public.arrangements
-  add column if not exists source_type text not null default 'builder',
-  add column if not exists midi_url    text;
 
--- Storage bucket for MIDI files (run once; safe to re-run due to on conflict do nothing)
--- NOTE: Create the bucket named 'midi' in Supabase Storage dashboard with public access,
--- or run: insert into storage.buckets (id, name, public) values ('midi', 'midi', true) on conflict do nothing;
+-- ═══════════════════════════════════════════════════════════════════════════
+-- STORAGE — MIDI uploads bucket
+-- Explicit policies so uploads are governed here rather than left to defaults.
+-- Public read (files are shared in the community); only signed-in users upload.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+insert into storage.buckets (id, name, public)
+values ('midi', 'midi', true)
+on conflict (id) do nothing;
+
+drop policy if exists "public read midi" on storage.objects;
+create policy "public read midi"
+  on storage.objects for select
+  using ( bucket_id = 'midi' );
+
+drop policy if exists "authenticated upload midi" on storage.objects;
+create policy "authenticated upload midi"
+  on storage.objects for insert
+  to authenticated
+  with check ( bucket_id = 'midi' );
+
+drop policy if exists "owner delete midi" on storage.objects;
+create policy "owner delete midi"
+  on storage.objects for delete
+  to authenticated
+  using ( bucket_id = 'midi' and owner = auth.uid() );
+
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- OPTIONAL HARDENING — not enabled by default.
+--
+-- The client caps title/description/body lengths, but a caller using the raw
+-- API could bypass that and insert oversized rows. To enforce caps server-side,
+-- run the block below. IMPORTANT: adding a CHECK to a populated table FAILS if
+-- any existing row already exceeds the limit — verify first, e.g.
+--   select max(char_length(title)), max(char_length(coalesce(description,''))) from public.arrangements;
+--   select max(char_length(body)) from public.comments;
+-- Only then uncomment and run:
+--
+--   alter table public.arrangements
+--     add constraint arrangements_title_len       check (char_length(title) <= 80),
+--     add constraint arrangements_description_len  check (char_length(coalesce(description,'')) <= 400);
+--   alter table public.comments
+--     add constraint comments_body_len             check (char_length(body) <= 500);
+-- ─────────────────────────────────────────────────────────────────────────────
