@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import JSZip from 'jszip'
+import { backendFetch, accessMessage } from '../lib/backend'
 
 // Sanitise a filename for the zip.
 function safe(name, fallback = 'track') {
@@ -29,7 +30,9 @@ export default function PlaylistDownloader({ backendUrl }) {
     if (!url.trim()) return
     setError(''); setPhase('listing'); setPlaylist(null); setProgress({})
     try {
-      const res = await fetch(`${base}/api/playlist?url=${encodeURIComponent(url.trim())}`)
+      const res = await backendFetch(`${base}/api/playlist?url=${encodeURIComponent(url.trim())}`)
+      const gated = accessMessage(res.status)
+      if (gated) throw new Error(gated)
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Could not load playlist')
       if (!data.tracks?.length) throw new Error('No tracks found in that playlist.')
@@ -70,10 +73,13 @@ export default function PlaylistDownloader({ backendUrl }) {
       for (let attempt = 0; attempt < 3 && !ok; attempt++) {
         if (attempt > 0) await sleep(2000) // back off before a retry
         try {
-          const res = await fetch(
+          const res = await backendFetch(
             `${base}/api/track?url=${encodeURIComponent(t.url)}&q=${quality}&name=${encodeURIComponent(label)}`,
             { signal: AbortSignal.timeout(180000) }, // up to 3 min per track
           )
+          // Access problems are account-wide — stop the whole batch, don't retry.
+          const gated = accessMessage(res.status)
+          if (gated) { setError(gated); setPhase('listed'); return }
           if (!res.ok) {
             // Capture the server's reason so we can show why it failed.
             let detail = `HTTP ${res.status}`

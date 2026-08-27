@@ -79,6 +79,88 @@ app.get('/', (_req, res) => {
 
 app.get('/health', (_req, res) => res.json({ ok: true }))
 
+// ─────────────────────────────────────────────────────────────────────────────
+// AUTH + AUTHORISATION  (every /api/* endpoint)
+//
+// Enforced SERVER-SIDE — gating the page in React only hides the button. A
+// caller must present a valid Supabase access token (Authorization: Bearer …)
+// AND have download access on their profile (can_download = true, or role =
+// 'admin'). The service role key lives ONLY in Render's environment and is
+// never sent to the browser.
+//
+// Config comes from Render env vars:
+//   SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
+// If they are missing the gate FAILS CLOSED (503) — no config, no downloads.
+// ─────────────────────────────────────────────────────────────────────────────
+const SUPABASE_URL              = (process.env.SUPABASE_URL || '').replace(/\/$/, '')
+const SUPABASE_ANON_KEY         = process.env.SUPABASE_ANON_KEY || ''
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+const authConfigured = !!(SUPABASE_URL && SUPABASE_ANON_KEY && SUPABASE_SERVICE_ROLE_KEY)
+
+if (!authConfigured) {
+  console.warn('[looplab] SUPABASE_* env vars not set — /api/* will return 503 until configured.')
+}
+
+// Per-user fixed-window rate limit (in-memory; single Render instance).
+// Generous enough for a big playlist download, tight enough to stop abuse.
+const RATE_MAX_PER_HOUR = Number(process.env.RATE_MAX_PER_HOUR || 400)
+const rlBuckets = new Map() // userId -> { windowStart, count }
+function rateLimited(userId) {
+  const now = Date.now()
+  const b = rlBuckets.get(userId)
+  if (!b || now - b.windowStart > 3600_000) {
+    rlBuckets.set(userId, { windowStart: now, count: 1 })
+    return false
+  }
+  b.count += 1
+  return b.count > RATE_MAX_PER_HOUR
+}
+
+async function requireDownloadAccess(req, res, next) {
+  if (!authConfigured) {
+    return res.status(503).json({ error: 'The downloader is not configured on the server yet.' })
+  }
+  const header = req.get('authorization') || ''
+  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : ''
+  if (!token) return res.status(401).json({ error: 'Sign in to use the downloader.' })
+
+  try {
+    // 1. Verify the token and get the user id (anon key + the caller's bearer).
+    const uRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` },
+    })
+    if (!uRes.ok) return res.status(401).json({ error: 'Your session has expired — sign in again.' })
+    const user = await uRes.json()
+    if (!user || !user.id) return res.status(401).json({ error: 'Invalid session.' })
+
+    // 2. Rate limit per verified user.
+    if (rateLimited(user.id)) {
+      res.setHeader('Retry-After', '3600')
+      return res.status(429).json({ error: 'Download rate limit reached — please try again later.' })
+    }
+
+    // 3. Authorise via the profiles flag, read with the SERVICE ROLE key
+    //    (bypasses RLS; never exposed to the client).
+    const pRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(user.id)}&select=can_download,role`,
+      { headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` } },
+    )
+    const rows = pRes.ok ? await pRes.json() : []
+    const profile = Array.isArray(rows) ? rows[0] : null
+    if (!profile || (profile.can_download !== true && profile.role !== 'admin')) {
+      return res.status(403).json({ error: 'Download access is not enabled on your account.' })
+    }
+
+    req.userId = user.id
+    next()
+  } catch {
+    return res.status(502).json({ error: 'Could not verify access — please try again.' })
+  }
+}
+
+// Gate everything under /api/* (leaves "/" and "/health" open for the wake check).
+app.use('/api', requireDownloadAccess)
+
 // Returns track title/duration without downloading the whole thing.
 app.get('/api/info', (req, res) => {
   const url = req.query.url

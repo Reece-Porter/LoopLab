@@ -179,6 +179,91 @@ create policy "owner delete midi"
   using ( bucket_id = 'midi' and owner = auth.uid() );
 
 
+-- ═══════════════════════════════════════════════════════════════════════════
+-- PROFILES  (identity + per-feature access flags; powers backend authorisation)
+--
+-- One row per auth user. `role` and `can_download` are the access controls the
+-- backend checks server-side. Users may READ their own row but may NOT write
+-- role/flags (there is no user INSERT/UPDATE policy), so nobody can grant
+-- themselves access — only the signup trigger (security definer) and the service
+-- role key (server / admin) can write. Adding a future gated feature = add a
+-- boolean flag column here, no app migration required.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+create table if not exists public.profiles (
+  id           uuid primary key references auth.users (id) on delete cascade,
+  display_name text,
+  role         text not null default 'user',      -- 'user' | 'admin'
+  can_download boolean not null default false,     -- backend downloader access
+  created_at   timestamptz not null default now()
+);
+
+alter table public.profiles enable row level security;
+
+-- Auto-create a profile row whenever a new auth user signs up.
+create or replace function public.handle_new_user()
+  returns trigger
+  language plpgsql
+  security definer
+  set search_path = public
+as $$
+begin
+  insert into public.profiles (id, display_name)
+  values (new.id, coalesce(new.raw_user_meta_data ->> 'display_name', split_part(new.email, '@', 1)))
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+-- Backfill: give every EXISTING user a profile row (safe, idempotent).
+insert into public.profiles (id, display_name)
+select u.id, coalesce(u.raw_user_meta_data ->> 'display_name', split_part(u.email, '@', 1))
+from auth.users u
+on conflict (id) do nothing;
+
+-- Admin check as a SECURITY DEFINER function so admin policies don't recurse
+-- on the profiles table's own RLS.
+create or replace function public.is_admin()
+  returns boolean
+  language sql
+  security definer
+  set search_path = public
+  stable
+as $$
+  select exists (select 1 from public.profiles where id = auth.uid() and role = 'admin');
+$$;
+
+-- READ: a user may read only their own row …
+drop policy if exists "read own profile" on public.profiles;
+create policy "read own profile" on public.profiles for select
+  using ( auth.uid() = id );
+
+-- … and an admin may read everyone (for the admin panel).
+drop policy if exists "admin read all profiles" on public.profiles;
+create policy "admin read all profiles" on public.profiles for select
+  using ( public.is_admin() );
+
+-- WRITE: ONLY admins may update roles/flags. There is deliberately NO insert or
+-- update policy for ordinary users, so a normal account cannot set its own
+-- role='admin' or can_download=true — RLS denies the write outright.
+drop policy if exists "admin update profiles" on public.profiles;
+create policy "admin update profiles" on public.profiles for update
+  using ( public.is_admin() ) with check ( public.is_admin() );
+
+-- ── BOOTSTRAP YOUR OWN ADMIN (run once, replace the email) ───────────────────
+-- The SQL editor runs as a privileged role and bypasses RLS, so this is how the
+-- first admin is created when nobody is an admin yet:
+--
+--   update public.profiles
+--   set role = 'admin', can_download = true
+--   where id = (select id from auth.users where email = 'YOUR_EMAIL_HERE');
+
+
 -- ─────────────────────────────────────────────────────────────────────────────
 -- OPTIONAL HARDENING — not enabled by default.
 --

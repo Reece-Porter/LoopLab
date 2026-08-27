@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PlaylistDownloader from '../components/PlaylistDownloader'
+import { backendFetch, accessMessage } from '../lib/backend'
 
 // ─── Web Audio chain: source → low → mid → high → gain → destination ─────────
 function buildEQChain(ctx) {
@@ -205,6 +206,34 @@ export default function DJDeckPage() {
   const [wakeElapsed, setWakeElapsed] = useState(0) // seconds spent waking
   const [copied, setCopied]         = useState(false)
   const [streamUrl, setStreamUrl] = useState('') // SC/YT url loaded via backend
+  const [dlBusy, setDlBusy]       = useState(false) // original-MP3 download in flight
+  const [dlMsg, setDlMsg]         = useState('')    // original-MP3 download error/gated copy
+
+  // Download the original MP3 through the (authenticated) backend. An anchor
+  // can't carry the Supabase bearer, so we fetch → blob → save instead.
+  async function downloadOriginal() {
+    if (!streamUrl || !backendUrl) return
+    setDlBusy(true); setDlMsg('')
+    try {
+      const res = await backendFetch(
+        `${backendUrl.replace(/\/$/, '')}/api/fetch?url=${encodeURIComponent(streamUrl)}&name=${encodeURIComponent(trackName)}`
+      )
+      if (!res.ok) {
+        setDlMsg(accessMessage(res.status) || `Download failed (HTTP ${res.status}).`)
+        return
+      }
+      const blob = await res.blob()
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `${trackName || 'track'}_looplab.mp3`
+      document.body.appendChild(a); a.click(); a.remove()
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000)
+    } catch {
+      setDlMsg('Download failed — please try again.')
+    } finally {
+      setDlBusy(false)
+    }
+  }
   const wakeIntervalRef = useRef(null)
   const wakePollRef     = useRef(null)
 
@@ -379,12 +408,14 @@ export default function DJDeckPage() {
       setStatus('loading')
       try {
         // Grab the track's real name/artist in parallel with the audio.
-        const infoPromise = fetch(`${backend}/api/info?url=${encodeURIComponent(raw)}`)
+        const infoPromise = backendFetch(`${backend}/api/info?url=${encodeURIComponent(raw)}`)
           .then(r => r.ok ? r.json() : null)
           .catch(() => null)
 
-        const res = await fetch(`${backend}/api/fetch?url=${encodeURIComponent(raw)}`)
+        const res = await backendFetch(`${backend}/api/fetch?url=${encodeURIComponent(raw)}`)
         if (!res.ok) {
+          const gated = accessMessage(res.status)
+          if (gated) { setStatus('error'); setErrorMsg(gated); return }
           const msg = await res.json().catch(() => ({}))
           throw new Error(msg.error || `HTTP ${res.status}`)
         }
@@ -830,13 +861,16 @@ export default function DJDeckPage() {
             <p className="text-center text-xs text-faint mt-2">Exports the track with your current EQ &amp; volume baked in</p>
 
             {streamUrl && backendUrl && (
-              <a
-                href={`${backendUrl.replace(/\/$/, '')}/api/fetch?url=${encodeURIComponent(streamUrl)}&name=${encodeURIComponent(trackName)}`}
-                download={`${trackName || 'track'}_looplab.mp3`}
-                className="mt-3 w-full py-3  bg-surface hover:bg-surface-2 border border-hairline font-semibold text-sm transition flex items-center justify-center gap-2 text-ink"
-              >
-                ⬇ Download original MP3 (no EQ)
-              </a>
+              <>
+                <button
+                  onClick={downloadOriginal}
+                  disabled={dlBusy}
+                  className="mt-3 w-full py-3 bg-surface hover:bg-surface-2 border border-hairline font-semibold text-sm transition-colors duration-150 flex items-center justify-center gap-2 text-ink disabled:opacity-50"
+                >
+                  {dlBusy ? <><span className="animate-spin">⏳</span> Downloading…</> : <>⬇ Download original MP3 (no EQ)</>}
+                </button>
+                {dlMsg && <p className="text-center text-xs text-amber-300/80 mt-2">{dlMsg}</p>}
+              </>
             )}
           </div>
         </div>

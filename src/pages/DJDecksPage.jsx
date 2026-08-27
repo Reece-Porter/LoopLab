@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { makeTrackName, getBackendUrl, isStreamingUrl, fmtTime } from '../audio/djHelpers'
+import { backendFetch, accessMessage } from '../lib/backend'
 
 // ─── Single deck ──────────────────────────────────────────────────────────────
 // Audio plays through an AudioBufferSourceNode. Tempo (and therefore the
@@ -223,9 +224,9 @@ const Deck = forwardRef(function Deck({ ctx, destNode, label, accent }, ref) {
       let arrayBuffer, info = null
       if (isStreamingUrl(raw)) {
         if (!backend) throw new Error('No backend set. Open Player & Downloader → ⚙ Backend first.')
-        const infoP = fetch(`${backend}/api/info?url=${encodeURIComponent(raw)}`).then(r => r.ok ? r.json() : null).catch(() => null)
-        const res = await fetch(`${backend}/api/fetch?url=${encodeURIComponent(raw)}`)
-        if (!res.ok) { const m = await res.json().catch(() => ({})); throw new Error(m.error || `HTTP ${res.status}`) }
+        const infoP = backendFetch(`${backend}/api/info?url=${encodeURIComponent(raw)}`).then(r => r.ok ? r.json() : null).catch(() => null)
+        const res = await backendFetch(`${backend}/api/fetch?url=${encodeURIComponent(raw)}`)
+        if (!res.ok) { const gated = accessMessage(res.status); if (gated) throw new Error(gated); const m = await res.json().catch(() => ({})); throw new Error(m.error || `HTTP ${res.status}`) }
         arrayBuffer = await res.arrayBuffer(); info = await infoP
       } else {
         const res = await fetch(raw); if (!res.ok) throw new Error(`HTTP ${res.status}`)
