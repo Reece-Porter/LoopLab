@@ -6,6 +6,7 @@ const AuthContext = createContext(null)
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [profile, setProfile] = useState(null) // { role, can_download } for the signed-in user
 
   useEffect(() => {
     if (!supabase) { setLoading(false); return }
@@ -19,6 +20,19 @@ export function AuthProvider({ children }) {
     })
     return () => sub.subscription.unsubscribe()
   }, [])
+
+  // Fetch the user's own profile row (role + download flag). RLS allows a user
+  // to read only their own row, so this is safe. NOTE: this is used for
+  // cosmetic gating in the UI only — real enforcement is the RLS policies and
+  // the server-side check.
+  useEffect(() => {
+    if (!supabase || !user) { setProfile(null); return }
+    let active = true
+    supabase.from('profiles').select('role, can_download').eq('id', user.id).maybeSingle()
+      .then(({ data }) => { if (active) setProfile(data || null) })
+      .catch(() => { if (active) setProfile(null) })
+    return () => { active = false }
+  }, [user])
 
   const signUp = useCallback(async (email, password, displayName) => {
     if (!supabase) throw new Error('Backend not configured')
@@ -60,9 +74,12 @@ export function AuthProvider({ children }) {
     user?.email?.split('@')[0] ||
     'Producer'
 
+  const isAdmin = profile?.role === 'admin'
+  const canDownload = isAdmin || profile?.can_download === true
+
   return (
     <AuthContext.Provider
-      value={{ user, loading, displayName, configured: isSupabaseConfigured, signUp, signIn, signInWithGoogle, signOut }}
+      value={{ user, loading, displayName, isAdmin, canDownload, configured: isSupabaseConfigured, signUp, signIn, signInWithGoogle, signOut }}
     >
       {children}
     </AuthContext.Provider>

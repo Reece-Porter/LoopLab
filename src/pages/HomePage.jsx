@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext'
 export default function HomePage() {
   const [search, setSearch] = useState('')
   const navigate = useNavigate()
-  const { user, displayName } = useAuth()
+  const { user, displayName, isAdmin } = useAuth()
 
   useSeo()
 
@@ -30,6 +30,9 @@ export default function HomePage() {
             {[['Community', '/community'], ['Tips', '/tips'], ['Tools', '/tools'], ['Player', '/player'], ['DJ Deck', '/dj']].map(([l, p]) => (
               <button key={p} onClick={() => navigate(p)} className="font-mono text-[11px] uppercase tracking-[0.18em] text-dim hover:text-acid px-3 py-2 transition-colors duration-150 hidden sm:block">{l}</button>
             ))}
+            {isAdmin && (
+              <button onClick={() => navigate('/admin')} className="font-mono text-[11px] uppercase tracking-[0.18em] text-acid hover:text-ink border border-acid/40 hover:border-acid px-3 py-2 transition-colors duration-150">Admin</button>
+            )}
             {user ? (
               <button onClick={() => navigate('/community')} className="font-mono text-[11px] uppercase tracking-[0.18em] text-acid border border-acid/40 hover:bg-acid hover:text-base px-3 py-2 transition-colors duration-150" title="Your account">{displayName}</button>
             ) : (

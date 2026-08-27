@@ -264,6 +264,51 @@ create policy "admin update profiles" on public.profiles for update
 --   where id = (select id from auth.users where email = 'YOUR_EMAIL_HERE');
 
 
+-- ═══════════════════════════════════════════════════════════════════════════
+-- ADMIN PANEL support  (E2): extensible feature flags, a global kill switch,
+-- and admin moderation of the community gallery.
+-- ═══════════════════════════════════════════════════════════════════════════
+
+-- Extensible per-feature access without future migrations: gate a new feature
+-- by writing a key here (e.g. features->>'stems'), no schema change needed.
+alter table public.profiles
+  add column if not exists features jsonb not null default '{}';
+
+-- ── Global settings (single row) — the download kill switch ──────────────────
+create table if not exists public.app_settings (
+  id                int primary key default 1 check (id = 1),
+  downloads_enabled boolean not null default true
+);
+insert into public.app_settings (id) values (1) on conflict (id) do nothing;
+
+alter table public.app_settings enable row level security;
+
+-- READ: anyone may read the switch state (so the UI can reflect it).
+drop policy if exists "read settings" on public.app_settings;
+create policy "read settings" on public.app_settings for select using ( true );
+
+-- WRITE: admins only. A normal user cannot flip the switch.
+drop policy if exists "admin update settings" on public.app_settings;
+create policy "admin update settings" on public.app_settings for update
+  using ( public.is_admin() ) with check ( public.is_admin() );
+
+-- ── Admin moderation of the gallery ──────────────────────────────────────────
+-- These are ADDITIONAL permissive policies: a row is deletable/updatable if you
+-- own it (existing policies) OR you are an admin (these). Lets an admin remove
+-- or unpublish any arrangement/comment.
+drop policy if exists "admin delete any arrangement" on public.arrangements;
+create policy "admin delete any arrangement" on public.arrangements for delete
+  using ( public.is_admin() );
+
+drop policy if exists "admin update any arrangement" on public.arrangements;
+create policy "admin update any arrangement" on public.arrangements for update
+  using ( public.is_admin() ) with check ( public.is_admin() );
+
+drop policy if exists "admin delete any comment" on public.comments;
+create policy "admin delete any comment" on public.comments for delete
+  using ( public.is_admin() );
+
+
 -- ─────────────────────────────────────────────────────────────────────────────
 -- OPTIONAL HARDENING — not enabled by default.
 --

@@ -116,41 +116,61 @@ function rateLimited(userId) {
   return b.count > RATE_MAX_PER_HOUR
 }
 
-async function requireDownloadAccess(req, res, next) {
-  if (!authConfigured) {
-    return res.status(503).json({ error: 'The downloader is not configured on the server yet.' })
-  }
-  const header = req.get('authorization') || ''
-  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : ''
-  if (!token) return res.status(401).json({ error: 'Sign in to use the downloader.' })
+// Service-role headers — server-only, bypass RLS. Never sent to the client.
+const svc = () => ({ apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` })
 
+function bearer(req) {
+  const h = req.get('authorization') || ''
+  return h.startsWith('Bearer ') ? h.slice(7).trim() : ''
+}
+
+// Validate a Supabase access token → the user object, or null.
+async function getUserFromToken(token) {
+  const r = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` },
+  })
+  if (!r.ok) return null
+  const user = await r.json()
+  return user && user.id ? user : null
+}
+
+// The caller's profile (role + can_download), read with the service role.
+async function getProfile(userId) {
+  const r = await fetch(
+    `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(userId)}&select=can_download,role`,
+    { headers: svc() },
+  )
+  const rows = r.ok ? await r.json() : []
+  return Array.isArray(rows) ? rows[0] || null : null
+}
+
+// Global kill switch. Defaults to enabled if the row/table is missing.
+async function downloadsGloballyEnabled() {
   try {
-    // 1. Verify the token and get the user id (anon key + the caller's bearer).
-    const uRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
-      headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${token}` },
-    })
-    if (!uRes.ok) return res.status(401).json({ error: 'Your session has expired — sign in again.' })
-    const user = await uRes.json()
-    if (!user || !user.id) return res.status(401).json({ error: 'Invalid session.' })
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/app_settings?id=eq.1&select=downloads_enabled`, { headers: svc() })
+    const rows = r.ok ? await r.json() : []
+    return !rows[0] || rows[0].downloads_enabled !== false
+  } catch {
+    return true
+  }
+}
 
-    // 2. Rate limit per verified user.
+async function requireDownloadAccess(req, res, next) {
+  if (!authConfigured) return res.status(503).json({ error: 'The downloader is not configured on the server yet.' })
+  const token = bearer(req)
+  if (!token) return res.status(401).json({ error: 'Sign in to use the downloader.' })
+  try {
+    const user = await getUserFromToken(token)
+    if (!user) return res.status(401).json({ error: 'Your session has expired — sign in again.' })
+    if (!(await downloadsGloballyEnabled())) return res.status(503).json({ error: 'Downloads are temporarily disabled.' })
     if (rateLimited(user.id)) {
       res.setHeader('Retry-After', '3600')
       return res.status(429).json({ error: 'Download rate limit reached — please try again later.' })
     }
-
-    // 3. Authorise via the profiles flag, read with the SERVICE ROLE key
-    //    (bypasses RLS; never exposed to the client).
-    const pRes = await fetch(
-      `${SUPABASE_URL}/rest/v1/profiles?id=eq.${encodeURIComponent(user.id)}&select=can_download,role`,
-      { headers: { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` } },
-    )
-    const rows = pRes.ok ? await pRes.json() : []
-    const profile = Array.isArray(rows) ? rows[0] : null
+    const profile = await getProfile(user.id)
     if (!profile || (profile.can_download !== true && profile.role !== 'admin')) {
       return res.status(403).json({ error: 'Download access is not enabled on your account.' })
     }
-
     req.userId = user.id
     next()
   } catch {
@@ -158,7 +178,56 @@ async function requireDownloadAccess(req, res, next) {
   }
 }
 
-// Gate everything under /api/* (leaves "/" and "/health" open for the wake check).
+async function requireAdmin(req, res, next) {
+  if (!authConfigured) return res.status(503).json({ error: 'Admin API is not configured on the server yet.' })
+  const token = bearer(req)
+  if (!token) return res.status(401).json({ error: 'Sign in.' })
+  try {
+    const user = await getUserFromToken(token)
+    if (!user) return res.status(401).json({ error: 'Your session has expired — sign in again.' })
+    const profile = await getProfile(user.id)
+    if (!profile || profile.role !== 'admin') return res.status(403).json({ error: 'Admins only.' })
+    req.userId = user.id
+    next()
+  } catch {
+    return res.status(502).json({ error: 'Auth check failed.' })
+  }
+}
+
+// ── Admin: list users (registered BEFORE the download gate so it isn't subject
+//    to can_download). Joins auth.users (email, signup, last sign-in) with
+//    profiles (role, flags) using the service role. Admin-only. ───────────────
+app.get('/api/admin/users', requireAdmin, async (_req, res) => {
+  try {
+    const aRes = await fetch(`${SUPABASE_URL}/auth/v1/admin/users?per_page=200`, { headers: svc() })
+    if (!aRes.ok) return res.status(502).json({ error: 'Could not list users.' })
+    const aData = await aRes.json()
+    const authUsers = Array.isArray(aData.users) ? aData.users : (Array.isArray(aData) ? aData : [])
+
+    const pRes = await fetch(`${SUPABASE_URL}/rest/v1/profiles?select=id,display_name,role,can_download,created_at`, { headers: svc() })
+    const profiles = pRes.ok ? await pRes.json() : []
+    const byId = new Map((Array.isArray(profiles) ? profiles : []).map(p => [p.id, p]))
+
+    const users = authUsers.map(u => {
+      const p = byId.get(u.id) || {}
+      return {
+        id: u.id,
+        email: u.email || '',
+        display_name: p.display_name || (u.user_metadata && u.user_metadata.display_name) || '',
+        role: p.role || 'user',
+        can_download: p.can_download === true,
+        created_at: u.created_at || p.created_at || null,
+        last_sign_in_at: u.last_sign_in_at || null,
+      }
+    })
+    users.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0))
+    res.json({ users, count: users.length })
+  } catch {
+    res.status(502).json({ error: 'Could not list users.' })
+  }
+})
+
+// Gate everything else under /api/* (leaves "/" and "/health" open for the wake check).
 app.use('/api', requireDownloadAccess)
 
 // Returns track title/duration without downloading the whole thing.
