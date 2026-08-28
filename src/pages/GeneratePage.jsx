@@ -55,8 +55,19 @@ export default function GeneratePage() {
     if (g && !g.keyRoots.includes(keyRoot)) setKeyRoot(g.keyRoots[0])
   }
 
-  const bars = out?.bars || 4
-  const curBar = step >= 0 ? Math.floor(step / 16) % bars : -1
+  const progLen = out?.progression?.length || 4
+  const curBar = step >= 0 ? Math.floor(step / 16) % progLen : -1
+  const globalBar = step >= 0 ? Math.floor(step / 16) : -1
+  // Which arrangement section the playhead is in.
+  let curSection = -1
+  if (out && globalBar >= 0) {
+    let acc = 0
+    for (let i = 0; i < out.arrangement.length; i++) {
+      if (globalBar < acc + out.arrangement[i].bars) { curSection = i; break }
+      acc += out.arrangement[i].bars
+    }
+  }
+  const trackLen = out ? `${out.totalBars} bars` : ''
 
   return (
     <div className="min-h-screen bg-base text-ink">
@@ -126,8 +137,18 @@ export default function GeneratePage() {
         {out && (
           <div className="border border-hairline bg-surface p-6 mb-8">
             <div className="flex items-center justify-between mb-5">
-              <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-dim">{out.keyLabel} · {out.bpm} BPM{out.mood ? ` · ${out.mood}` : ''}</span>
+              <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-dim">{out.keyLabel} · {out.bpm} BPM · {trackLen}{out.mood ? ` · ${out.mood}` : ''}</span>
               <button onClick={() => generate({ seed: (out.seed + 1) >>> 0 })} className="font-mono text-[11px] uppercase tracking-[0.14em] text-faint hover:text-acid transition-colors duration-150">↻ Regenerate</button>
+            </div>
+
+            {/* Song structure */}
+            <div className="flex gap-1 mb-5">
+              {out.arrangement.map((sec, i) => (
+                <div key={i} style={{ flexGrow: sec.bars }} className={`text-center py-2 border transition-colors duration-150 ${curSection === i ? 'border-acid bg-acid/10' : 'border-hairline bg-surface-2'}`}>
+                  <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink truncate px-1">{sec.name}</div>
+                  <div className="font-mono text-[9px] text-faint">{sec.bars}</div>
+                </div>
+              ))}
             </div>
 
             {/* Progression */}
@@ -150,13 +171,13 @@ export default function GeneratePage() {
               ) : (
                 <button onClick={play} className="flex items-center gap-2 font-display font-semibold uppercase tracking-wide text-sm bg-acid text-base px-5 py-3 hover:bg-acid-dim transition-colors duration-150">▶ Audition</button>
               )}
-              <button onClick={() => exportStarterMidi(out)} className="flex items-center gap-2 font-display font-semibold uppercase tracking-wide text-sm border border-acid/50 text-acid px-5 py-3 hover:bg-acid hover:text-base transition-colors duration-150">↓ Download MIDI</button>
+              <button onClick={() => exportStarterMidi(out)} className="flex items-center gap-2 font-display font-semibold uppercase tracking-wide text-sm border border-acid/50 text-acid px-5 py-3 hover:bg-acid hover:text-base transition-colors duration-150">↓ Download full track MIDI</button>
             </div>
           </div>
         )}
 
         <p className="text-faint text-[11px] leading-relaxed pb-16 max-w-xl">
-          Version one gives you a 4-bar chord / bass / drum bed — a starting point, not a finished track. Drop the MIDI into FL Studio and build from there. More genres and a lead line are coming.
+          You get a full multi-section track — intro, build, drop, breakdown and outro, with instruments coming and going, fills and risers. Drop the MIDI into FL Studio and finish it. It's a genre-accurate skeleton, not a mastered record — no lead melody yet, and structures follow templates.
         </p>
       </div>
     </div>

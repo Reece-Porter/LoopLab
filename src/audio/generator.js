@@ -4,7 +4,7 @@
 
 import { grooveClip } from './arrangementClip'
 import { exportClipsMidi } from './midiExport'
-import { getContext, kick, hat, clap, bass, chordStab, supersawChord, rhodes, synthPad } from './synth'
+import { getContext, kick, hat, clap, bass, chordStab, supersawChord, rhodes, synthPad, riser } from './synth'
 import { noteToFreq, chordToFreqs } from './theory'
 import { GENERATOR } from '../data/generator'
 import { playKitVoice } from './drumKit'
@@ -69,6 +69,8 @@ export function generateStarter({ genreId, keyRoot, mode, mood, seed }) {
     return g.bass === 'octave' ? [`${root}1`, `${root}2`, `${root}1`, `${root}2`] : [`${root}1`]
   })
 
+  const arrangement = g.arrangement || [{ name: 'Loop', bars, parts: ['kick', 'hats', 'clap', 'bass', 'chords'] }]
+
   return {
     genreId, label: g.label, bpm: g.bpm, bars,
     key: { root: keyRoot, mode },
@@ -81,25 +83,60 @@ export function generateStarter({ genreId, keyRoot, mode, mood, seed }) {
     bassNotesPerBar,
     chordTimbre: g.chordTimbre,
     drums: g.drums,
+    arrangement,
+    totalBars: arrangement.reduce((s, x) => s + x.bars, 0),
   }
 }
 
-// ── voices → per-bar clips (for MIDI export) ─────────────────────────────────
+// ── Arrangement helpers ──────────────────────────────────────────────────────
+// Which section (and its active parts) covers a given global bar index.
+function partsAt(arrangement, globalBar) {
+  let acc = 0
+  for (const sec of arrangement) {
+    if (globalBar < acc + sec.bars) return { section: sec, localBar: globalBar - acc, parts: new Set(sec.parts) }
+    acc += sec.bars
+  }
+  return { section: null, localBar: 0, parts: new Set() }
+}
+
+// Global bar indices where a 4-bar riser should begin (leading into a drop).
+function riserStartBars(arrangement) {
+  const starts = []
+  let acc = 0
+  arrangement.forEach(sec => { starts.push(acc); acc += sec.bars })
+  const set = new Set()
+  arrangement.forEach((sec, i) => {
+    if (sec.riserEnd) set.add(starts[i] + Math.max(0, sec.bars - 4))
+    if (sec.riserStart && i > 0) set.add(starts[i - 1] + Math.max(0, arrangement[i - 1].bars - 4))
+  })
+  return set
+}
+
+// ── Full arrangement → per-bar clips (for MIDI export) ───────────────────────
+// One clip per bar per track across the whole song; null when a part is silent
+// in that section. Fills add extra claps on the last bar of an 8-bar phrase.
 function starterToClips(out) {
-  const { progression, chordSteps, bassSteps, bassNotesPerBar, drums, bars, chordTimbre } = out
+  const { progression, chordSteps, bassSteps, bassNotesPerBar, drums, chordTimbre, arrangement, totalBars } = out
   const pad = chordTimbre === 'pad'
   const useRhodes = chordTimbre === 'rhodes'
-  const clips = {}
-  clips.Chords = progression.map(sym => grooveClip('chord', { steps: stepsMask(chordSteps), chords: [sym], pad, rhodes: useRhodes }))
-  clips.Bass = progression.map((_sym, bar) => grooveClip('bass', { steps: stepsMask(bassSteps), notes: bassNotesPerBar[bar], sub: true }))
-  clips.Kick = Array.from({ length: bars }, () => grooveClip('kick', { steps: stepsMask(drums.Kick) }))
-  clips.Hats = Array.from({ length: bars }, () => grooveClip('hat', { steps: stepsMask(drums.Hats), open: true }))
-  clips.Clap = Array.from({ length: bars }, () => grooveClip('clap', { steps: stepsMask(drums.Clap) }))
+  const clips = { Kick: [], Hats: [], Clap: [], Bass: [], Chords: [], Pad: [] }
+  for (let bar = 0; bar < totalBars; bar++) {
+    const { parts, localBar } = partsAt(arrangement, bar)
+    const sym = progression[bar % progression.length]
+    const fill = localBar % 8 === 7
+    clips.Kick.push(parts.has('kick') ? grooveClip('kick', { steps: stepsMask(drums.Kick) }) : null)
+    clips.Hats.push(parts.has('hats') ? grooveClip('hat', { steps: stepsMask(drums.Hats), open: true }) : null)
+    const clapSteps = parts.has('clap') ? (fill ? [...new Set([...drums.Clap, 8, 10, 12, 14])] : drums.Clap) : null
+    clips.Clap.push(clapSteps ? grooveClip('clap', { steps: stepsMask(clapSteps) }) : null)
+    clips.Bass.push(parts.has('bass') ? grooveClip('bass', { steps: stepsMask(bassSteps), notes: bassNotesPerBar[bar % bassNotesPerBar.length], sub: true }) : null)
+    clips.Chords.push(parts.has('chords') ? grooveClip('chord', { steps: stepsMask(chordSteps), chords: [sym], pad, rhodes: useRhodes }) : null)
+    clips.Pad.push(parts.has('pad') ? grooveClip('chord', { steps: stepsMask([0]), chords: [sym], pad: true }) : null)
+  }
   return clips
 }
 
 export function exportStarterMidi(out) {
-  exportClipsMidi(starterToClips(out), out.bpm, ['Kick', 'Hats', 'Clap', 'Bass', 'Chords'])
+  exportClipsMidi(starterToClips(out), out.bpm, ['Kick', 'Hats', 'Clap', 'Bass', 'Chords', 'Pad'])
 }
 
 // ── Audition ─────────────────────────────────────────────────────────────────
@@ -111,14 +148,16 @@ export function playStarter(out, { onStep } = {}) {
   busEl.gain.value = 0.85
   busEl.connect(ctx.destination)
 
-  const { progression, chordSteps, bassSteps, bassNotesPerBar, drums, bars, chordTimbre, bpm } = out
-  const total = bars * 16
+  const { progression, chordSteps, bassSteps, bassNotesPerBar, drums, chordTimbre, bpm, arrangement, totalBars } = out
+  const total = totalBars * 16
   const stepDur = 60 / bpm / 4
   const kickSet = new Set(drums.Kick), hatSet = new Set(drums.Hats), clapSet = new Set(drums.Clap)
   const chordSet = new Set(chordSteps)
   const bassOrder = [...new Set(bassSteps)].sort((a, b) => a - b)
   const bassSet = new Set(bassSteps)
   const chordOct = 4
+  const risers = riserStartBars(arrangement)
+  const chordInst = chordTimbre === 'rhodes' ? 'rhodes' : chordTimbre === 'supersaw' ? 'supersaw' : chordTimbre === 'pad' ? 'pad' : 'piano'
 
   let cur = 0
   let next = ctx.currentTime + 0.1
@@ -131,25 +170,33 @@ export function playStarter(out, { onStep } = {}) {
       const s = cur % total
       const bar = Math.floor(s / 16)
       const inBar = s % 16
-      // Drums: use the sampled kit when loaded, else fall back to the synth.
-      if (kickSet.has(inBar)) { if (!playKitVoice(ctx, 'kick', next, busEl, 0.95)) kick(ctx, next, busEl, 0.9, '909') }
-      if (hatSet.has(inBar)) {
+      const { parts, localBar } = partsAt(arrangement, bar)
+      const fill = localBar % 8 === 7
+
+      // Riser into a drop (4 bars long, once at the section-relative start).
+      if (inBar === 0 && risers.has(bar)) riser(ctx, next, busEl, 0.14, stepDur * 64)
+
+      if (parts.has('kick') && kickSet.has(inBar)) { if (!playKitVoice(ctx, 'kick', next, busEl, 0.95)) kick(ctx, next, busEl, 0.9, '909') }
+      if (parts.has('hats') && hatSet.has(inBar)) {
         const open = inBar % 4 === 2
         if (!playKitVoice(ctx, open ? 'hatOpen' : 'hatClosed', next, busEl, 0.45)) hat(ctx, next, busEl, 0.3, open)
       }
-      if (clapSet.has(inBar)) { if (!playKitVoice(ctx, 'clap', next, busEl, 0.6)) clap(ctx, next, busEl, 0.5) }
-      if (chordSet.has(inBar)) {
+      if (parts.has('clap') && (clapSet.has(inBar) || (fill && (inBar === 8 || inBar === 10 || inBar === 12 || inBar === 14)))) {
+        if (!playKitVoice(ctx, 'clap', next, busEl, 0.6)) clap(ctx, next, busEl, 0.5)
+      }
+      if (parts.has('chords') && chordSet.has(inBar)) {
         const freqs = chordToFreqs(progression[bar % progression.length], chordOct)
-        // Sampled instrument first; synth fallback.
-        const inst = chordTimbre === 'rhodes' ? 'rhodes' : chordTimbre === 'supersaw' ? 'supersaw' : chordTimbre === 'pad' ? 'pad' : 'piano'
-        if (!playChordSampled(ctx, inst, freqs, next, busEl, 0.5, stepDur * 5)) {
+        if (!playChordSampled(ctx, chordInst, freqs, next, busEl, 0.5, stepDur * 5)) {
           if (chordTimbre === 'rhodes') rhodes(ctx, next, busEl, freqs, 0.22, stepDur * 6)
-          else if (chordTimbre === 'pad') synthPad(ctx, next, busEl, freqs, 0.18, stepDur * 10)
           else if (chordTimbre === 'supersaw') supersawChord(ctx, next, busEl, freqs, 0.13, stepDur * 3.2)
           else chordStab(ctx, next, busEl, freqs, 0.18, stepDur * 4, true)
         }
       }
-      if (bassSet.has(inBar)) {
+      if (parts.has('pad') && inBar === 0) {
+        const freqs = chordToFreqs(progression[bar % progression.length], chordOct)
+        if (!playChordSampled(ctx, 'pad', freqs, next, busEl, 0.4, stepDur * 16)) synthPad(ctx, next, busEl, freqs, 0.16, stepDur * 16)
+      }
+      if (parts.has('bass') && bassSet.has(inBar)) {
         const notes = bassNotesPerBar[bar % bassNotesPerBar.length]
         const idx = bassOrder.indexOf(inBar)
         const name = notes[idx % notes.length]

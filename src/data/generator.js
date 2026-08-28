@@ -29,6 +29,15 @@ export const GENERATOR = {
       { degrees: [0, 3, 4, 0], weight: 2, moods: ['classic'] },              // i–iv–v–i
       { degrees: [0, 5, 3, 4], weight: 2, moods: ['uplifting'] },            // i–VI–iv–v
     ],
+    // Full-track structure: sections with bar counts and which parts play.
+    arrangement: [
+      { name: 'Intro',  bars: 8,  parts: ['kick', 'hats'] },
+      { name: 'Build',  bars: 8,  parts: ['kick', 'hats', 'bass', 'chords'], riserEnd: true },
+      { name: 'Drop',   bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords', 'pad'] },
+      { name: 'Break',  bars: 8,  parts: ['pad', 'chords'] },
+      { name: 'Drop',   bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords', 'pad'], riserStart: true },
+      { name: 'Outro',  bars: 8,  parts: ['kick', 'hats', 'bass'] },
+    ],
   },
 
   'deep-house': {
@@ -49,6 +58,13 @@ export const GENERATOR = {
       { degrees: [0, 3, 6, 4], weight: 2, moods: ['soulful'] },       // i7–iv7–VII7–v7
       { degrees: [0, 5, 3, 4], weight: 2, moods: ['warm'] },          // i7–VI7–iv7–v7
       { degrees: [0, 4, 5, 3], weight: 1, moods: ['deep'] },          // i7–v7–VI7–iv7
+    ],
+    arrangement: [
+      { name: 'Intro',  bars: 8,  parts: ['kick', 'hats'] },
+      { name: 'Groove', bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords'] },
+      { name: 'Break',  bars: 8,  parts: ['pad', 'chords'] },
+      { name: 'Main',   bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords', 'pad'], riserStart: true },
+      { name: 'Outro',  bars: 8,  parts: ['kick', 'hats', 'bass'] },
     ],
   },
 }
