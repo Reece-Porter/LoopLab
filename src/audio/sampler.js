@@ -16,8 +16,12 @@ const BASE = import.meta.env.BASE_URL
 export const INSTRUMENTS = {
   bass:     [24, 30, 36, 42, 48],
   reese:    [30, 36, 45, 48],
+  moog:     [24, 30, 36, 42, 48],
+  acid:     [24, 30, 36, 42, 48],
   piano:    [36, 42, 48, 54, 60, 66],
   supersaw: [36, 42, 48, 54, 60, 72],
+  hoover:   [36, 42, 48, 54, 60, 72],
+  organ:    [36, 42, 48, 54, 60],
   pad:      [30, 42, 54, 66],
   rhodes:   [48, 54, 60, 66, 72, 78],
 }
