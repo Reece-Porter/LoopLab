@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import PlaylistDownloader from '../components/PlaylistDownloader'
 import { backendFetch, accessMessage } from '../lib/backend'
 import { useAuth } from '../context/AuthContext'
+import { makeTrackName } from '../audio/djHelpers'
 
 // ─── Web Audio chain: source → low → mid → high → gain → destination ─────────
 function buildEQChain(ctx) {
@@ -72,19 +73,6 @@ async function renderWithEQ(buffer, { low, mid, high, vol }) {
   return off.startRendering()
 }
 
-// ─── Build a filesystem-safe "Artist - Title" name from track info ───────────
-// The "_looplab" suffix is appended at download time so it isn't doubled up.
-function makeTrackName(info) {
-  if (!info || !info.title) return 'track'
-  // SoundCloud titles often already include the artist (e.g. "Artist - Title").
-  const title = String(info.title).trim()
-  const artist = (info.uploader || '').trim()
-  const hasArtist = artist && !title.toLowerCase().includes(artist.toLowerCase())
-  const base = hasArtist ? `${artist} - ${title}` : title
-  // Strip characters that browsers/filesystems dislike, collapse whitespace.
-  return base.replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim() || 'track'
-}
-
 // ─── Waveform drawer ─────────────────────────────────────────────────────────
 function drawWaveform(canvas, audioBuffer, playhead = 0) {
   if (!canvas || !audioBuffer) return
@@ -149,17 +137,20 @@ function Knob({ label, value, onChange, min = -12, max = 12, color = '#c6f24e' }
       onChange(Math.max(min, Math.min(max, startVal.current + delta)))
     }
     const onUp = () => { dragging.current = false }
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseup',  onUp)
-    window.addEventListener('touchmove', e => {
+    const onTouchMove = e => {
       if (!dragging.current) return
       const delta = (startY.current - e.touches[0].clientY) / 150 * (max - min)
       onChange(Math.max(min, Math.min(max, startVal.current + delta)))
-    })
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup',  onUp)
+    window.addEventListener('touchmove', onTouchMove)
     window.addEventListener('touchend', onUp)
     return () => {
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('mouseup',   onUp)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('touchend',  onUp)
     }
   }, [min, max, onChange])
 
