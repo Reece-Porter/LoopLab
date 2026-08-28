@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [profile, setProfile] = useState(null) // { role, can_download } for the signed-in user
+  const [profileLoading, setProfileLoading] = useState(false)
 
   useEffect(() => {
     if (!supabase) { setLoading(false); return }
@@ -26,11 +27,12 @@ export function AuthProvider({ children }) {
   // cosmetic gating in the UI only — real enforcement is the RLS policies and
   // the server-side check.
   useEffect(() => {
-    if (!supabase || !user) { setProfile(null); return }
+    if (!supabase || !user) { setProfile(null); setProfileLoading(false); return }
     let active = true
+    setProfileLoading(true)
     supabase.from('profiles').select('role, can_download').eq('id', user.id).maybeSingle()
-      .then(({ data }) => { if (active) setProfile(data || null) })
-      .catch(() => { if (active) setProfile(null) })
+      .then(({ data }) => { if (active) { setProfile(data || null); setProfileLoading(false) } })
+      .catch(() => { if (active) { setProfile(null); setProfileLoading(false) } })
     return () => { active = false }
   }, [user])
 
@@ -79,7 +81,7 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, displayName, isAdmin, canDownload, configured: isSupabaseConfigured, signUp, signIn, signInWithGoogle, signOut }}
+      value={{ user, loading, profileLoading, displayName, isAdmin, canDownload, configured: isSupabaseConfigured, signUp, signIn, signInWithGoogle, signOut }}
     >
       {children}
     </AuthContext.Provider>

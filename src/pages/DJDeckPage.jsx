@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import PlaylistDownloader from '../components/PlaylistDownloader'
 import { backendFetch, accessMessage } from '../lib/backend'
+import { useAuth } from '../context/AuthContext'
 
 // ─── Web Audio chain: source → low → mid → high → gain → destination ─────────
 function buildEQChain(ctx) {
@@ -183,9 +184,44 @@ function Knob({ label, value, onChange, min = -12, max = 12, color = '#c6f24e' }
   )
 }
 
+// ─── Access gate shown when a visitor can't use the downloader ─────────────────
+function DownloaderGate({ mode }) {
+  const navigate = useNavigate()
+  return (
+    <div className="min-h-screen bg-base text-ink flex flex-col">
+      <div className="w-full max-w-3xl mx-auto px-4 py-8 w-full">
+        <button onClick={() => navigate('/')} className="flex items-center gap-2 text-faint hover:text-acid transition-colors duration-150 font-mono text-[11px] uppercase tracking-[0.14em]">← Back</button>
+      </div>
+      <div className="flex-1 flex items-center justify-center px-5 pb-24">
+        <div className="w-full max-w-md text-center">
+          <h1 className="font-display text-3xl sm:text-4xl font-bold uppercase tracking-tight mb-3">Player &amp; Downloader</h1>
+          {mode === 'loading' && (
+            <p className="text-dim text-sm font-mono uppercase tracking-widest animate-pulse">Checking access…</p>
+          )}
+          {mode === 'signin' && (
+            <>
+              <p className="text-dim text-sm leading-relaxed mb-6">Sign in to use the Player &amp; Downloader — it's invite-only while in early access.</p>
+              <button onClick={() => navigate('/login')} className="font-display font-semibold uppercase tracking-wide text-sm bg-acid text-base px-6 py-3 hover:bg-acid-dim transition-colors duration-150">Sign in</button>
+            </>
+          )}
+          {mode === 'denied' && (
+            <>
+              <p className="text-dim text-sm leading-relaxed mb-2">You're signed in, but the downloader isn't switched on for your account yet.</p>
+              <p className="text-faint text-[13px] leading-relaxed mb-6">It's limited while the service is in early access. Request access and I'll enable it for you.</p>
+              <a href="mailto:reece_tp02@outlook.com?subject=LoopLab%20downloader%20access" className="font-display font-semibold uppercase tracking-wide text-sm border border-acid/50 text-acid px-6 py-3 hover:bg-acid hover:text-base transition-colors duration-150 inline-block">Request access</a>
+              <p className="text-faint text-[11px] mt-6">Playing and building arrangements stays free for everyone.</p>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function DJDeckPage() {
   const navigate    = useNavigate()
+  const { user, canDownload, profileLoading, configured: authConfigured } = useAuth()
   const [url, setUrl]             = useState('')
   const [status, setStatus]       = useState('idle') // idle | loading | ready | error
   const [errorMsg, setErrorMsg]   = useState('')
@@ -529,6 +565,15 @@ export default function DJDeckPage() {
     const m = Math.floor(s / 60)
     const sec = Math.floor(s % 60)
     return `${m}:${sec.toString().padStart(2, '0')}`
+  }
+
+  // ── Access gate: the whole page is invite-only. Signed-out → sign-in prompt;
+  //    signed-in without approval → the "not enabled" message. Real enforcement
+  //    is still server-side; this just stops people reaching the tools at all.
+  if (authConfigured) {
+    if (!user) return <DownloaderGate mode="signin" />
+    if (profileLoading) return <DownloaderGate mode="loading" />
+    if (!canDownload) return <DownloaderGate mode="denied" />
   }
 
   return (
