@@ -27,7 +27,7 @@ export default function HomePage() {
             <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-7 sm:h-8 w-auto" />
           </div>
           <div className="flex items-center gap-1 sm:gap-2">
-            {[['Community', '/community'], ['Tips', '/tips'], ['Tools', '/tools'], ['Player', '/player'], ['DJ Deck', '/dj']].map(([l, p]) => (
+            {[['Generate', '/generate'], ['Community', '/community'], ['Tips', '/tips'], ['Tools', '/tools'], ['Player', '/player'], ['DJ Deck', '/dj']].map(([l, p]) => (
               <button key={p} onClick={() => navigate(p)} className="font-mono text-[11px] uppercase tracking-[0.18em] text-dim hover:text-acid px-3 py-2 transition-colors duration-150 hidden sm:block">{l}</button>
             ))}
             {isAdmin && (
