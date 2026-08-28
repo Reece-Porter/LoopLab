@@ -7,6 +7,7 @@ import { loadSample } from '../audio/sampleLoader'
 import { exportGrooveMidi } from '../audio/midiExport'
 import { getContext } from '../audio/synth'
 import PlayButton from './PlayButton'
+import KitPicker from './KitPicker'
 
 // Turn a synth vocal clip into one that triggers a real vocal sample, pitched
 // per note to follow the written hook (rate clamped so it never chipmunks).
@@ -251,7 +252,8 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <KitPicker className="mr-1" />
           {hasVocalTrack && (
             <button
               data-tutorial="sample-toggle"

@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GENERATOR_GENRES, generateStarter, playStarter, exportStarterMidi } from '../audio/generator'
 import { stopAllPlayback } from '../audio/usePlayer'
-import { getContext } from '../audio/synth'
-import { loadDrumKit } from '../audio/drumKit'
+import { loadKit, getActiveKit } from '../audio/drumKit'
+import KitPicker from '../components/KitPicker'
 import { useSeo } from '../utils/useSeo'
 
 const ALL_KEYS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -37,9 +37,9 @@ export default function GeneratePage() {
   useEffect(() => { generate() }, [generate])
   // Stop audio when leaving the page.
   useEffect(() => () => stop(), [stop])
-  // Preload the sampled drum kit so audition plays real drums (decodes on a
+  // Preload the selected drum kit so audition plays real drums (decodes on a
   // suspended context — no user gesture needed; playback resumes on Audition).
-  useEffect(() => { loadDrumKit(getContext()) }, [])
+  useEffect(() => { loadKit(getActiveKit()) }, [])
 
   function play() {
     if (!out) return
@@ -139,6 +139,9 @@ export default function GeneratePage() {
                 </div>
               ))}
             </div>
+
+            {/* Kit selector */}
+            <div className="mb-4"><KitPicker /></div>
 
             {/* Transport */}
             <div className="flex flex-wrap items-center gap-3">

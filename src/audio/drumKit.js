@@ -1,40 +1,61 @@
-// Sampled drum kit (MusicRadar "Electro" one-shots, free to use).
-// Loaded and cached via the existing sampleLoader; played as AudioBufferSources.
-// Falls back silently to the synth when a sample isn't loaded yet, so nothing
-// breaks if the files are missing or still decoding.
+// Selectable sampled drum kits (MusicRadar one-shots, free to use).
+// A global "active kit" applies across the whole site — arrangements, the custom
+// builder and the track-starter generator all read it. "Synth" keeps the original
+// hand-written drum sounds. Missing voices in a kit fall back to the synth, so
+// nothing ever breaks.
 
 import { loadSample } from './sampleLoader'
+import { getContext } from './synth'
 
 const BASE = import.meta.env.BASE_URL
+const VOICES = ['kick', 'snare', 'clap', 'hatClosed', 'hatOpen', 'perc']
+const FILE = { kick: 'kick', snare: 'snare', clap: 'clap', hatClosed: 'hat-closed', hatOpen: 'hat-open', perc: 'perc' }
 
-export const DRUM_KIT = {
-  kick:      `${BASE}samples/kit/kick.wav`,
-  snare:     `${BASE}samples/kit/snare.wav`,
-  clap:      `${BASE}samples/kit/clap.wav`,
-  hatClosed: `${BASE}samples/kit/hat-closed.wav`,
-  hatOpen:   `${BASE}samples/kit/hat-open.wav`,
-}
+export const KITS = [
+  { id: 'synth',    label: 'Synth' },
+  { id: 'electro',  label: 'Electro' },
+  { id: 'vinyl',    label: 'Vinyl' },
+  { id: 'acoustic', label: 'Acoustic' },
+]
 
-const buffers = {} // voiceKey → AudioBuffer
+const buffers = {} // kitId → { voiceKey → AudioBuffer }
+const listeners = new Set()
+const KEY = 'looplab-kit'
 
-// Decode every kit sample into memory. Safe to call repeatedly (cached). Works
-// on a suspended AudioContext — decoding doesn't need a user gesture.
-export async function loadDrumKit(ctx) {
-  await Promise.all(Object.entries(DRUM_KIT).map(async ([voice, src]) => {
-    const buf = await loadSample(ctx, src)
-    if (buf) buffers[voice] = buf
+let activeKit = (() => { try { return localStorage.getItem(KEY) || 'synth' } catch { return 'synth' } })()
+
+export function getActiveKit() { return activeKit }
+export function onKitChange(fn) { listeners.add(fn); return () => listeners.delete(fn) }
+
+// Load (and cache) one kit's samples. No-op for 'synth'.
+export async function loadKit(id) {
+  if (id === 'synth' || buffers[id]) return buffers[id]
+  const ctx = getContext()
+  const map = {}
+  await Promise.all(VOICES.map(async v => {
+    const buf = await loadSample(ctx, `${BASE}samples/kit/${id}/${FILE[v]}.wav`)
+    if (buf) map[v] = buf
   }))
-  return buffers
+  buffers[id] = map
+  return map
 }
 
-export function kitReady() {
-  return !!buffers.kick
+export async function setActiveKit(id) {
+  activeKit = id
+  try { localStorage.setItem(KEY, id) } catch { /* ignore */ }
+  listeners.forEach(fn => fn(id))
+  if (id !== 'synth') await loadKit(id)
 }
 
-// Play one kit voice at an absolute time. Returns true if a sample played, false
-// if it isn't loaded (so the caller can fall back to the synth).
+export function kitReady(id = activeKit) {
+  return id === 'synth' ? true : !!(buffers[id] && buffers[id].kick)
+}
+
+// Play the active kit's voice at an absolute time. Returns true if a sample
+// played; false means the caller should fall back to the synth.
 export function playKitVoice(ctx, voiceKey, time, out, gain = 1) {
-  const buf = buffers[voiceKey]
+  if (activeKit === 'synth') return false
+  const buf = buffers[activeKit] && buffers[activeKit][voiceKey]
   if (!buf) return false
   const src = ctx.createBufferSource()
   src.buffer = buf

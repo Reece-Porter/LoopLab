@@ -5,6 +5,7 @@ import { getContext } from './synth'
 import * as S from './synth'
 import { noteToFreq, chordToFreqs } from './theory'
 import { grooveFor } from './grooves'
+import { playKitVoice } from './drumKit'
 
 // Decide which synth voice a part uses, from its name.
 export function voiceFor(partName) {
@@ -191,24 +192,30 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
   }
   if (evt.drum) {
     const tone = evt.tone
-    if (voice === 'kick') return S.kick(ctx, t, out, 1, tone)
-    if (voice === 'clap') return S.clap(ctx, t, out, 0.6)
+    // Sampled kit first (when one is selected); falls back to the synth voices.
+    // Trap hat rolls stay on the synth (fast retrigs sound wrong from one-shots).
+    if (voice === 'kick') { if (playKitVoice(ctx, 'kick', t, out, 0.95)) return; return S.kick(ctx, t, out, 1, tone) }
+    if (voice === 'clap') { if (playKitVoice(ctx, 'clap', t, out, 0.6)) return; return S.clap(ctx, t, out, 0.6) }
     if (voice === 'perc') {
+      if (playKitVoice(ctx, 'perc', t, out, 0.5)) return
       if (tone === 'conga') return S.conga(ctx, t, out, 0.45, 200 + (evt.level || 0.5) * 80)
       return S.hat(ctx, t, out, 0.32, true, tone)
     }
-    if (voice === 'snare') return (snareAsClap ? S.clap : S.snare)(ctx, t, out, 0.6, tone)
+    if (voice === 'snare') { if (playKitVoice(ctx, snareAsClap ? 'clap' : 'snare', t, out, 0.6)) return; return (snareAsClap ? S.clap : S.snare)(ctx, t, out, 0.6, tone) }
     if (voice === 'hat') {
-      if (evt.roll) { // trap roll: fast retrigs filling the step
+      if (evt.roll) { // trap roll: fast retrigs filling the step (synth only)
         for (let r = 0; r < evt.roll; r++) S.hat(ctx, t + (r * stepDur) / evt.roll, out, 0.22, false, tone)
         return
       }
+      if (playKitVoice(ctx, evt.open ? 'hatOpen' : 'hatClosed', t, out, 0.45)) return
       return S.hat(ctx, t, out, 0.3, !!evt.open, tone)
     }
     if (voice === 'break') {
       const isSnare = evt.breakSnare || (evt.breakStep != null && evt.breakStep % 8 >= 4)
+      if (playKitVoice(ctx, isSnare ? 'snare' : 'kick', t, out, 0.85)) return
       return isSnare ? S.snare(ctx, t, out, 0.55, evt.tone || 'dnb') : S.kick(ctx, t, out, 0.9, evt.tone || 'dnb')
     }
+    if (playKitVoice(ctx, 'kick', t, out, 0.95)) return
     return S.kick(ctx, t, out, 1, tone)
   }
   if (evt.freqs) {

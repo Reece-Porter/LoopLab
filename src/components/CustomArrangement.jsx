@@ -8,6 +8,7 @@ import { getContext } from '../audio/synth'
 import { SAMPLE_PRESETS } from '../audio/samplePresets'
 import { loadSample } from '../audio/sampleLoader'
 import PlayButton from './PlayButton'
+import KitPicker from './KitPicker'
 import PublishModal from './PublishModal'
 import { serialiseArrangement, takeStagedArrangement } from '../lib/arrangements'
 
@@ -297,6 +298,9 @@ export default function CustomArrangement({ parts, genreId, accentClass, bpm, sa
             >{n}</button>
           ))}
         </div>
+
+        {/* Drum kit */}
+        <KitPicker />
 
         {/* Follow toggle */}
         <button
