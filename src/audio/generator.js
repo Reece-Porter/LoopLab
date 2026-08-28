@@ -7,6 +7,7 @@ import { exportClipsMidi } from './midiExport'
 import { getContext, kick, hat, clap, bass, chordStab, supersawChord, rhodes, synthPad } from './synth'
 import { noteToFreq, chordToFreqs } from './theory'
 import { GENERATOR } from '../data/generator'
+import { playKitVoice } from './drumKit'
 
 const CHROMA = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 const PC = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 }
@@ -129,9 +130,13 @@ export function playStarter(out, { onStep } = {}) {
       const s = cur % total
       const bar = Math.floor(s / 16)
       const inBar = s % 16
-      if (kickSet.has(inBar)) kick(ctx, next, busEl, 0.9, '909')
-      if (hatSet.has(inBar)) hat(ctx, next, busEl, 0.3, inBar % 4 === 2)
-      if (clapSet.has(inBar)) clap(ctx, next, busEl, 0.5)
+      // Drums: use the sampled kit when loaded, else fall back to the synth.
+      if (kickSet.has(inBar)) { if (!playKitVoice(ctx, 'kick', next, busEl, 0.95)) kick(ctx, next, busEl, 0.9, '909') }
+      if (hatSet.has(inBar)) {
+        const open = inBar % 4 === 2
+        if (!playKitVoice(ctx, open ? 'hatOpen' : 'hatClosed', next, busEl, 0.45)) hat(ctx, next, busEl, 0.3, open)
+      }
+      if (clapSet.has(inBar)) { if (!playKitVoice(ctx, 'clap', next, busEl, 0.6)) clap(ctx, next, busEl, 0.5) }
       if (chordSet.has(inBar)) {
         const freqs = chordToFreqs(progression[bar % progression.length], chordOct)
         if (chordTimbre === 'rhodes') rhodes(ctx, next, busEl, freqs, 0.22, stepDur * 6)
