@@ -8,6 +8,7 @@ import { getContext, kick, hat, clap, bass, chordStab, supersawChord, rhodes, sy
 import { noteToFreq, chordToFreqs } from './theory'
 import { GENERATOR } from '../data/generator'
 import { playKitVoice } from './drumKit'
+import { playChordSampled, playFreqSampled } from './sampler'
 
 const CHROMA = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 const PC = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 }
@@ -139,17 +140,21 @@ export function playStarter(out, { onStep } = {}) {
       if (clapSet.has(inBar)) { if (!playKitVoice(ctx, 'clap', next, busEl, 0.6)) clap(ctx, next, busEl, 0.5) }
       if (chordSet.has(inBar)) {
         const freqs = chordToFreqs(progression[bar % progression.length], chordOct)
-        if (chordTimbre === 'rhodes') rhodes(ctx, next, busEl, freqs, 0.22, stepDur * 6)
-        else if (chordTimbre === 'pad') synthPad(ctx, next, busEl, freqs, 0.18, stepDur * 10)
-        else if (chordTimbre === 'supersaw') supersawChord(ctx, next, busEl, freqs, 0.13, stepDur * 3.2)
-        else chordStab(ctx, next, busEl, freqs, 0.18, stepDur * 4, true)
+        // Sampled instrument first; synth fallback.
+        const inst = chordTimbre === 'rhodes' ? 'rhodes' : chordTimbre === 'supersaw' ? 'supersaw' : chordTimbre === 'pad' ? 'pad' : 'piano'
+        if (!playChordSampled(ctx, inst, freqs, next, busEl, 0.5, stepDur * 5)) {
+          if (chordTimbre === 'rhodes') rhodes(ctx, next, busEl, freqs, 0.22, stepDur * 6)
+          else if (chordTimbre === 'pad') synthPad(ctx, next, busEl, freqs, 0.18, stepDur * 10)
+          else if (chordTimbre === 'supersaw') supersawChord(ctx, next, busEl, freqs, 0.13, stepDur * 3.2)
+          else chordStab(ctx, next, busEl, freqs, 0.18, stepDur * 4, true)
+        }
       }
       if (bassSet.has(inBar)) {
         const notes = bassNotesPerBar[bar % bassNotesPerBar.length]
         const idx = bassOrder.indexOf(inBar)
         const name = notes[idx % notes.length]
         const f = noteToFreq(name)
-        if (f) bass(ctx, next, busEl, f, 0.5, stepDur * 1.6)
+        if (f && !playFreqSampled(ctx, 'bass', f, next, busEl, 0.55, stepDur * 1.6)) bass(ctx, next, busEl, f, 0.5, stepDur * 1.6)
       }
       if (onStep) {
         const ms = (next - ctx.currentTime) * 1000

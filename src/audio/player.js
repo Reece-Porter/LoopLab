@@ -6,6 +6,7 @@ import * as S from './synth'
 import { noteToFreq, chordToFreqs } from './theory'
 import { grooveFor } from './grooves'
 import { playKitVoice } from './drumKit'
+import { playChordSampled, playFreqSampled } from './sampler'
 
 // Decide which synth voice a part uses, from its name.
 export function voiceFor(partName) {
@@ -220,6 +221,9 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
   }
   if (evt.freqs) {
     const vg = evt.gain != null ? evt.gain : 1 // per-pattern gain trim
+    // Sampled instruments first (when in 'samples' mode and loaded); else synth.
+    const chordInst = (evt.rhodes || evt.keys) ? 'rhodes' : evt.pad ? 'pad' : evt.rave ? 'supersaw' : 'piano'
+    if (playChordSampled(ctx, chordInst, evt.freqs, t, out, 0.5 * vg, evt.pad ? stepDur * 10 : stepDur * 4)) return
     if (evt.organ) return S.organ(ctx, t, out, evt.freqs, 0.3 * vg, stepDur * 2.5)
     if (evt.rhodes) return S.rhodes(ctx, t, out, evt.freqs, 0.24 * vg, stepDur * 7)
     if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24 * vg, evt.pad ? stepDur * 8 : stepDur * 3)
@@ -231,6 +235,9 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
   if (voice === 'riser') return S.riser(ctx, t, out, 0.14, stepDur * 64)
   if (evt.freq != null) {
     const f = evt.freq
+    // Sampled bass / reese / supersaw / piano first; else synth.
+    const noteInst = (evt.sub || voice === 'bass') ? 'bass' : voice === 'reese' ? 'reese' : voice === 'supersaw' ? 'supersaw' : voice === 'piano' ? 'piano' : null
+    if (noteInst && playFreqSampled(ctx, noteInst, f, t, out, noteInst === 'bass' ? 0.55 : 0.42, (voice === 'bass' || evt.sub) ? (evt.long ? stepDur * 4 : stepDur * 1.6) : stepDur * 1.8)) return
     if (evt.bell) return S.bell(ctx, t, out, f, 0.32, stepDur * 10)
     if (evt.hoover) return S.hoover(ctx, t, out, f, 0.26, stepDur * 2.2)
     if (evt.acid) return S.acid(ctx, t, out, f, 0.38, stepDur * 1.7, evt.accent)
