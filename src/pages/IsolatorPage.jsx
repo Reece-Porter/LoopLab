@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { getContext } from '../audio/synth'
 import { isolateVocalCentre, trimBuffer, encodeWav } from '../audio/vocalIsolate'
 import { saveClip, loadAllClips, deleteClip, deserialise } from '../audio/vocalStore'
+import { backendFetch, accessMessage } from '../lib/backend'
 import { useSeo } from '../utils/useSeo'
 
 // Draw a mono waveform with the selected [start..end] region highlighted.
@@ -47,10 +48,14 @@ export default function IsolatorPage() {
   const [playing, setPlaying] = useState(false)
   const [chunkName, setChunkName] = useState('')
   const [saved, setSaved] = useState([])
+  const [aiState, setAiState] = useState('idle') // idle | uploading | processing | done | error
+  const [aiError, setAiError] = useState('')
 
   const canvasRef = useRef(null)
   const srcRef = useRef(null)
   const dragRef = useRef(false)
+  const fileRef = useRef(null)   // original File, for AI upload
+  const pollRef = useRef(null)
 
   const ctx = getContext()
 
@@ -66,8 +71,13 @@ export default function IsolatorPage() {
   }, [])
   useEffect(() => () => stop(), [stop])
 
+  const cancelPoll = useCallback(() => { if (pollRef.current) { clearTimeout(pollRef.current); pollRef.current = null } }, [])
+  useEffect(() => () => cancelPoll(), [cancelPoll])
+
   async function onFile(file) {
     if (!file) return
+    cancelPoll(); setAiState('idle'); setAiError('')
+    fileRef.current = file
     stop(); setError(''); setVocal(null); setBusy(true); setName(file.name.replace(/\.[^.]+$/, ''))
     try {
       const arr = await file.arrayBuffer()
@@ -79,6 +89,40 @@ export default function IsolatorPage() {
     } finally {
       setBusy(false)
     }
+  }
+
+  // Clean isolation via the Render backend (Demucs). Uploads the track, polls
+  // the async job, then loads the returned vocal stem into the same chop UI.
+  async function runAI() {
+    const backend = (localStorage.getItem('looplab-backend') || '').replace(/\/$/, '')
+    if (!backend) { setAiState('error'); setAiError('Add your audio-service URL on the DJ Deck first, then come back — the clean isolator runs on it.'); return }
+    if (!fileRef.current) return
+    cancelPoll(); setAiError(''); setAiState('uploading')
+    try {
+      const fd = new FormData()
+      fd.append('audio', fileRef.current)
+      const res = await backendFetch(`${backend}/api/isolate`, { method: 'POST', body: fd })
+      if (!res.ok) {
+        const msg = accessMessage(res.status) || (await res.json().catch(() => ({}))).error || 'Upload failed.'
+        setAiState('error'); setAiError(msg); return
+      }
+      const { jobId } = await res.json()
+      setAiState('processing')
+      const poll = async () => {
+        try {
+          const sr = await backendFetch(`${backend}/api/isolate/${jobId}`)
+          if (!sr.ok) { setAiState('error'); setAiError('Lost track of the job — try again.'); return }
+          const st = await sr.json()
+          if (st.state === 'processing') { pollRef.current = setTimeout(poll, 3000); return }
+          if (st.state !== 'done') { setAiState('error'); setAiError(st.error || 'Separation failed.'); return }
+          const rr = await backendFetch(`${backend}/api/isolate/${jobId}/result`)
+          if (!rr.ok) { setAiState('error'); setAiError('Could not fetch the result.'); return }
+          const decoded = await ctx.decodeAudioData(await rr.arrayBuffer())
+          stop(); setVocal(decoded); setSel({ a: 0, b: 1 }); setAiState('done')
+        } catch (e) { setAiState('error'); setAiError(String(e.message || e)) }
+      }
+      poll()
+    } catch (e) { setAiState('error'); setAiError(String(e.message || e)) }
   }
 
   function play(fromSel = true) {
@@ -155,10 +199,27 @@ export default function IsolatorPage() {
 
         {error && <p className="text-red-400 text-xs mb-6">{error}</p>}
 
-        {/* Rough-method notice */}
-        <p className="text-faint text-[11px] leading-relaxed mb-6 max-w-xl">
-          Heads up: this is the quick browser method — it keeps the centred vocal and filters the rest, so centred drums and bass can leak through and it needs a stereo track. Cleaner AI separation is coming later.
-        </p>
+        {/* Method: quick (browser, already shown) vs clean (AI on the backend) */}
+        {name && (
+          <div className="border border-hairline bg-surface p-4 sm:p-5 mb-6">
+            <div className="flex flex-wrap items-center gap-3">
+              {aiState === 'uploading' || aiState === 'processing' ? (
+                <button disabled className="font-display font-semibold uppercase tracking-wide text-sm bg-surface-2 border border-hairline text-dim px-5 py-3 cursor-wait">
+                  {aiState === 'uploading' ? '↑ Uploading…' : '✨ Separating… (a minute or two)'}
+                </button>
+              ) : (
+                <button onClick={runAI} className="font-display font-semibold uppercase tracking-wide text-sm bg-acid text-base px-5 py-3 hover:bg-acid-dim transition-colors duration-150">✨ Clean isolate (AI)</button>
+              )}
+              <span className="font-mono text-[11px] text-faint">
+                {aiState === 'done' ? 'Clean AI vocal loaded ✓' : 'Loaded above is the quick browser version'}
+              </span>
+            </div>
+            {aiError && <p className="text-red-400 text-xs mt-3">{aiError}</p>}
+            <p className="text-faint text-[11px] leading-relaxed mt-3 max-w-xl">
+              The <strong className="text-dim">quick</strong> version runs instantly in your browser (centred vocal + filter — leaks some drums/bass, stereo only, nothing uploaded). <strong className="text-dim">Clean isolate</strong> sends the track to your audio service and runs real AI separation — much cleaner, takes a minute or two, and the track is uploaded to your Render box to do it.
+            </p>
+          </div>
+        )}
 
         {vocal && (
           <div className="border border-hairline bg-surface p-5 sm:p-6 mb-8">

@@ -12,11 +12,12 @@
 
 import express from 'express'
 import cors from 'cors'
+import multer from 'multer'
 import { spawn } from 'child_process'
-import { createReadStream } from 'fs'
-import { unlink, readdir } from 'fs/promises'
+import { createReadStream, existsSync } from 'fs'
+import { unlink, readdir, mkdir, rm, rename, copyFile } from 'fs/promises'
 import { tmpdir } from 'os'
-import { join } from 'path'
+import { join, extname } from 'path'
 import { randomUUID } from 'crypto'
 
 const app  = express()
@@ -407,6 +408,97 @@ app.get('/api/fetch', (req, res) => {
 
   // If the client disconnects, kill yt-dlp so we don't leak processes.
   req.on('close', () => { try { dl.kill('SIGKILL') } catch {} })
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
+// VOCAL ISOLATION  (AI source separation with Demucs)
+//
+// Cleanly splitting a vocal out of a finished track needs an AI model, which is
+// heavy (minutes of CPU, ~1.5 GB RAM) — far too slow for one HTTP request. So
+// this is an ASYNC job: POST the audio → get a jobId, poll the status, then GET
+// the result. Only ONE separation runs at a time (a 2 GB box can't do more), so
+// a second request while busy gets a 429. Jobs (and their temp files) are
+// cleaned up after 20 minutes. Gated by requireDownloadAccess like every /api/*.
+// ─────────────────────────────────────────────────────────────────────────────
+const ISO_DIR = join(tmpdir(), 'looplab-isolate')
+const upload = multer({ dest: join(ISO_DIR, 'uploads'), limits: { fileSize: 80 * 1024 * 1024 } })
+const DEMUCS_MODEL = process.env.DEMUCS_MODEL || 'htdemucs'
+const jobs = new Map() // id → { state, dir, out, error, created }
+let isolating = false   // single-job lock (one separation at a time on a 2 GB box)
+
+function cleanupJob(id) {
+  const j = jobs.get(id)
+  if (!j) return
+  rm(j.dir, { recursive: true, force: true }).catch(() => {})
+  jobs.delete(id)
+}
+// Sweep stale jobs so a crashed/abandoned run can't fill the disk.
+setInterval(() => {
+  const now = Date.now()
+  for (const [id, j] of jobs) if (now - j.created > 20 * 60 * 1000) cleanupJob(id)
+}, 5 * 60 * 1000).unref?.()
+
+app.post('/api/isolate', upload.single('audio'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No audio file uploaded.' })
+  if (isolating) {
+    await rm(req.file.path, { force: true }).catch(() => {})
+    return res.status(429).json({ error: 'The isolator is busy with another track — try again in a minute.' })
+  }
+  const id = randomUUID()
+  const dir = join(ISO_DIR, id)
+  try {
+    await mkdir(dir, { recursive: true })
+    const input = join(dir, 'input' + (extname(req.file.originalname || '') || '.mp3'))
+    // move the upload into the job dir (fall back to copy across filesystems)
+    await rename(req.file.path, input).catch(async () => {
+      await copyFile(req.file.path, input); await rm(req.file.path, { force: true })
+    })
+    const job = { state: 'processing', dir, out: null, error: null, created: Date.now() }
+    jobs.set(id, job)
+    isolating = true
+
+    // --two-stems=vocals: only split vocals vs the rest (half the work/memory).
+    // --segment 7: cap the analysis window so peak RAM fits a 2 GB instance.
+    const args = ['-d', 'cpu', '--two-stems', 'vocals', '--segment', '7',
+      '--mp3', '--mp3-bitrate', '192', '-n', DEMUCS_MODEL, '-o', join(dir, 'out'), input]
+    const proc = spawn('demucs', args)
+    let err = ''
+    proc.stderr.on('data', d => { err = (err + d.toString()).slice(-4000) })
+    proc.on('error', e => { isolating = false; job.state = 'error'; job.error = 'Isolator not available: ' + (e.message || e) })
+    proc.on('close', code => {
+      isolating = false
+      if (code === 0) {
+        const voc = join(dir, 'out', DEMUCS_MODEL, 'input', 'vocals.mp3')
+        if (existsSync(voc)) { job.out = voc; job.state = 'done' }
+        else { job.state = 'error'; job.error = 'No vocal stem was produced.' }
+      } else if (job.state !== 'error') {
+        job.state = 'error'; job.error = err.slice(-300) || `Separation failed (exit ${code}).`
+      }
+    })
+    res.json({ jobId: id })
+  } catch (e) {
+    isolating = false
+    cleanupJob(id)
+    res.status(500).json({ error: 'Could not start isolation: ' + (e.message || e) })
+  }
+})
+
+app.get('/api/isolate/:id', (req, res) => {
+  const j = jobs.get(req.params.id)
+  if (!j) return res.status(404).json({ error: 'Unknown or expired job.' })
+  res.json({ state: j.state, error: j.error || undefined })
+})
+
+app.get('/api/isolate/:id/result', (req, res) => {
+  const j = jobs.get(req.params.id)
+  if (!j) return res.status(404).json({ error: 'Unknown or expired job.' })
+  if (j.state !== 'done' || !j.out) return res.status(409).json({ error: 'Result is not ready.' })
+  res.setHeader('Content-Type', 'audio/mpeg')
+  res.setHeader('Content-Disposition', 'attachment; filename="vocals.mp3"')
+  const s = createReadStream(j.out)
+  s.pipe(res)
+  s.on('close', () => { setTimeout(() => cleanupJob(req.params.id), 2000) })
+  s.on('error', () => { if (!res.headersSent) res.status(500).json({ error: 'Could not read the result.' }) })
 })
 
 app.listen(PORT, () => console.log(`LoopLab audio service listening on :${PORT}`))

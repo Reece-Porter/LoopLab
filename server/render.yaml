@@ -6,8 +6,13 @@ services:
     runtime: docker
     rootDir: server
     dockerfilePath: ./Dockerfile
-    plan: free
+    # Vocal isolation (Demucs) needs ~1.5 GB RAM — Standard (2 GB) is the floor.
+    # The free 512 MB tier CANNOT run it. Bump to a 4 GB plan for headroom on
+    # longer tracks if you hit out-of-memory errors.
+    plan: standard
     healthCheckPath: /health
     envVars:
       - key: ALLOWED_ORIGIN
         sync: false   # set this to your GitHub Pages origin after first deploy
+      - key: DEMUCS_MODEL
+        value: htdemucs   # override to a lighter model (e.g. mdx_extra_q) if RAM is tight
