@@ -19,7 +19,7 @@ RUN pip3 install --no-cache-dir --break-system-packages --upgrade pip && \
     pip3 install --no-cache-dir --break-system-packages \
       --index-url https://download.pytorch.org/whl/cpu \
       torch==2.2.2 torchaudio==2.2.2 && \
-    pip3 install --no-cache-dir --break-system-packages demucs==4.0.1
+    pip3 install --no-cache-dir --break-system-packages "numpy<2" demucs==4.0.1
 
 # Bake the model weights into the image so the first request doesn't stall
 # downloading ~80 MB (and so a cold box works offline).
