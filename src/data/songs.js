@@ -72,11 +72,15 @@ export const GENRE_SONGS = {
       ],
       // Real key: A minor. BPM: 124. Chords F–G–Am.
       // Bassline A–F–G–A (anticipation quavers). Lead arp: A4–C5–E5–C5.
+      // Two-bar phrase: bar 2 answers bar 1 (bass walks down to E, arp lifts to
+      // the octave) so the hook evolves rather than looping every bar.
       groove: {
-        bass:  { steps: on(0,3,6,8,11,14), notes: ['A1','F1','G1','A1','F1','G1'] },
-        pluck: { steps: on(0,2,4,6,8,10,12,14), notes: ['A4','C5','E5','C5','A4','C5','E5','C5'] },
-        chord: { steps: on(0,6,10), chords: ['F','G','Am'], pad: true },
-        vox:   { steps: on(0,4,8,12), notes: ['A4','C5','E5','C5'] },
+        bass:  { steps: on2(0,3,6,8,11,14, 16,19,22,24,27,30),
+                 notes: ['A1','F1','G1','A1','F1','G1','A1','F1','G1','A1','G1','E1'] },
+        pluck: { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
+                 notes: ['A4','C5','E5','C5','A4','C5','E5','C5','A4','C5','E5','A5','E5','C5','A4','C5'] },
+        chord: { steps: on2(0,6,10, 16,22,26), chords: ['F','G','Am','F','G','Am'], pad: true },
+        vox:   { steps: on2(0,4,8,12, 16,20,24,28), notes: ['A4','C5','E5','C5','A4','C5','E5','E5'] },
       },
     },
   ],
@@ -97,11 +101,15 @@ export const GENRE_SONGS = {
         { name: 'FX/Atmos',  instrument: 'Vinyl-air atmosphere',            sections: [1,1,0,1,1,0,1] },
       ],
       // Real key: F minor. BPM: 125. Chords: Bbm7–Fm7–Ebm7–Dbmaj7.
-      // The jerky syncopated chord-stab bounce is the hook.
+      // The jerky syncopated chord-stab bounce is the hook; over two bars the
+      // stabs cycle the full four-chord progression instead of repeating one bar.
       groove: {
-        bass:  { steps: on(0,3,7,10,14), notes: ['F1','F1','A#1','F1','C2'] },
-        chord: { steps: on(0,3,7,10,13), chords: ['A#m','Fm','D#m','C#'], keys: true },
-        vox:   { steps: on(0,4,8,12), notes: ['F4','A#4','C5','D#5'] },
+        bass:  { steps: on2(0,3,7,10,14, 16,19,23,26,30),
+                 notes: ['F1','F1','A#1','F1','C2','F1','F1','D#1','F1','C#2'] },
+        chord: { steps: on2(0,3,7,10,13, 16,19,23,26,29),
+                 chords: ['A#m','Fm','D#m','C#','A#m','Fm','D#m','C#','A#m','Fm'], keys: true },
+        vox:   { steps: on2(0,4,8,12, 16,20,24,28),
+                 notes: ['F4','A#4','C5','D#5','F5','D#5','C5','A#4'] },
       },
     },
     {
@@ -119,11 +127,15 @@ export const GENRE_SONGS = {
         { name: 'FX/Atmos',  instrument: 'Tape-flutter atmosphere',         sections: [1,1,0,1,1,0,1] },
       ],
       // Real key: F minor. BPM: 123. Chords Fm–Gm.
-      // The pitched vocal chop riff and sparse organ stabs are the hook.
+      // The pitched vocal chop riff and sparse organ stabs are the hook; bar 2
+      // lifts to A#–C so the two-bar loop breathes instead of repeating.
       groove: {
-        bass:  { steps: on(0,3,6,10,14), notes: ['F1','F1','G1','F1','G1'] },
-        chord: { steps: on(2,6,10,14), chords: ['Fm','Gm','Fm','Gm'], keys: true },
-        vox:   { steps: on(0,2,5,8,10,13), notes: ['F4','F4','G4','F4','F4','G4'] },
+        bass:  { steps: on2(0,3,6,10,14, 16,19,22,26,30),
+                 notes: ['F1','F1','G1','F1','G1','F1','F1','G1','A#1','C2'] },
+        chord: { steps: on2(2,6,10,14, 18,22,26,30),
+                 chords: ['Fm','Gm','Fm','Gm','Fm','Gm','A#','C'], keys: true },
+        vox:   { steps: on2(0,2,5,8,10,13, 16,18,21,24,26,29),
+                 notes: ['F4','F4','G4','F4','F4','G4','F4','F4','G4','A#4','G4','F4'] },
       },
     },
   ],
@@ -144,10 +156,14 @@ export const GENRE_SONGS = {
         { name: 'Groove Stab', instrument: 'Filtered disco-loop stab',      sections: [0,0,1,0,0,1,0] },
         { name: 'Vocal',       instrument: '(none in this track)',          sections: [0,0,0,0,0,0,0] },
       ],
+      // Tribal groove over two bars — the conga lane and off-beat stab shift in
+      // bar 2 so the loop rolls forward rather than stamping the same bar.
       groove: {
-        perc:     { steps: on(3,6,7,10,11,14,15) },
-        bass:     { steps: on(0,3,6,10,14), notes: ['D2','D2','A1','D2','C2'] },
-        supersaw: { steps: on(2,6,10,14), notes: ['D4','D4','F4','D4'] },
+        perc:     { steps: on2(3,6,7,10,11,14,15, 16,19,22,23,26,27,30,31) },
+        bass:     { steps: on2(0,3,6,10,14, 16,19,22,26,30),
+                    notes: ['D2','D2','A1','D2','C2','D2','D2','A1','C2','A1'] },
+        supersaw: { steps: on2(2,6,10,14, 18,22,26,30),
+                    notes: ['D4','D4','F4','D4','D4','F4','A4','F4'] },
       },
     },
     {
@@ -165,10 +181,14 @@ export const GENRE_SONGS = {
         { name: 'Groove Stab', instrument: 'Chopped funk-loop stab',        sections: [0,1,1,0,1,1,0] },
         { name: 'Vocal',       instrument: 'Pitched "uh" vocal chop',       sections: [0,0,1,0,0,1,0] },
       ],
+      // Pumping groove bass with a two-bar answer (walks down to E), the funk
+      // stab climbs to E in bar 2 and the vocal chop lifts a fifth.
       groove: {
-        bass:     { steps: on(0,3,6,8,11,14), notes: ['A1','A1','C2','A1','A1','G1'] },
-        supersaw: { steps: on(0,2,8,10), notes: ['A3','C4','A3','G3'] },
-        vox:      { steps: on(0,8), notes: ['A4','D5'] },
+        bass:     { steps: on2(0,3,6,8,11,14, 16,19,22,24,27,30),
+                    notes: ['A1','A1','C2','A1','A1','G1','A1','A1','C2','A1','G1','E1'] },
+        supersaw: { steps: on2(0,2,8,10, 16,18,24,26),
+                    notes: ['A3','C4','A3','G3','A3','C4','E4','C4'] },
+        vox:      { steps: on2(0,8, 16,24), notes: ['A4','D5','A4','E5'] },
       },
     },
   ],
@@ -217,11 +237,17 @@ export const GENRE_SONGS = {
         { name: 'Hoover Stab', instrument: 'Screaming rave hoover (Cm)',    sections: [0,1,1,0,1,1,0] },
         { name: 'Vocal',       instrument: '"Burning up" diva loop',        sections: [0,1,1,1,0,1,0] },
       ],
+      // Two-bar phrase: the rolling C bass and bouncing donk descend through
+      // G–F in bar 2, and the hoover riff answers up to A#.
       groove: {
-        bass:     { steps: on(0,2,6,8,10,14), notes: ['C2','C2','G1','C2','A#1','C2'] },
-        donk:     { steps: on(0,2,4,6,8,10,12,14), notes: ['C3','C4','C3','C4','G2','G3','A#2','A#3'] },
-        supersaw: { steps: on(0,4,8,12), notes: ['C4','D#4','G4','D#4'], hoover: true },
-        vox:      { steps: on(0,4,8,12), notes: ['C5','D#5','G4','A#4'] },
+        bass:     { steps: on2(0,2,6,8,10,14, 16,18,22,24,26,30),
+                    notes: ['C2','C2','G1','C2','A#1','C2','C2','C2','G1','A#1','G1','F1'] },
+        donk:     { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
+                    notes: ['C3','C4','C3','C4','G2','G3','A#2','A#3','C3','C4','C3','C4','G2','G3','F2','F3'] },
+        supersaw: { steps: on2(0,4,8,12, 16,20,24,28),
+                    notes: ['C4','D#4','G4','D#4','C4','D#4','A#4','G4'], hoover: true },
+        vox:      { steps: on2(0,4,8,12, 16,20,24,28),
+                    notes: ['C5','D#5','G4','A#4','C5','D#5','A#4','G4'] },
       },
     },
   ],
@@ -297,12 +323,15 @@ export const GENRE_SONGS = {
         { name: 'Vocal',     instrument: '"Ripgroove!" MC shout',           sections: [0,0,1,0,0,1,0] },
       ],
       // Real key: C minor. BPM: 127. Bassline interpolates Mozart K491 (Cm Piano Concerto).
-      // The famous Reese walks: C–Eb–G–Ab–G–F–Eb–D (Mozart's theme).
+      // The famous Reese walks: C–Eb–G–Ab–G–F–Eb–D (Mozart's theme). Bar 2 is
+      // the answering phrase that climbs to the octave and settles back, so the
+      // Mozart line plays out over two bars like the record.
       groove: {
-        reese: { steps: on(0,2,4,6,8,10,12,14), notes: ['C1','D#1','G1','G#1','G1','F1','D#1','D1'] },
-        bass:  { steps: on(0,6,10), notes: ['C1','G1','A#1'], long: true },
-        piano: { steps: on(2,5,10,13), chords: ['Cm','Cm','Fm','Gm'] },
-        vox:   { steps: on(0,10), notes: ['G4','D5'] },
+        reese: { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
+                 notes: ['C1','D#1','G1','G#1','G1','F1','D#1','D1','C1','D#1','G1','C2','A#1','G1','F1','D#1'] },
+        bass:  { steps: on2(0,6,10, 16,22,26), notes: ['C1','G1','A#1','C1','G1','G#1'], long: true },
+        piano: { steps: on2(2,5,10,13, 18,21,26,29), chords: ['Cm','Cm','Fm','Gm','Cm','Cm','Gm','Cm'] },
+        vox:   { steps: on2(0,10, 16,26), notes: ['G4','D5','G4','C5'] },
       },
     },
     {
@@ -322,10 +351,14 @@ export const GENRE_SONGS = {
       ],
       // Real key: D minor. BPM: 131. The nursery-style vocal hook in Dm.
       // "Sweet like chocolate" melody: D5–F5–A4 (Dm triad, descending).
+      // Two-bar phrase: the sub bounces up to A# in bar 2 and the music-box
+      // vocal answers an octave up, so the nursery hook evolves.
       groove: {
-        reese: { steps: on(0,3,6,10,14), notes: ['D1','D1','F1','A1','C2'] },
-        piano: { steps: on(0,4,8,12), chords: ['Dm','C','A#','A'] },
-        vox:   { steps: on(0,2,4,7,10,12), notes: ['D5','F5','A4','F4','D5','A4'] },
+        reese: { steps: on2(0,3,6,10,14, 16,19,22,26,30),
+                 notes: ['D1','D1','F1','A1','C2','D1','D1','F1','A1','A#1'] },
+        piano: { steps: on2(0,4,8,12, 16,20,24,28), chords: ['Dm','C','A#','A','Dm','C','A#','A'] },
+        vox:   { steps: on2(0,2,4,7,10,12, 16,18,20,23,26,28),
+                 notes: ['D5','F5','A4','F4','D5','A4','D5','F5','A5','F5','D5','A4'] },
       },
     },
   ],
@@ -345,11 +378,15 @@ export const GENRE_SONGS = {
         { name: 'Rave Stab', instrument: 'Euphoric piano-rave stab (Am)',   sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',     instrument: '"Now is the time!" MC shout',     sections: [0,0,1,0,0,1,0] },
       ],
-      // Am, 170 BPM bouncy techno. Piano stab on 1–6–4–5 (Am–F–C–E).
+      // Am, 170 BPM bouncy techno. Piano stab on 1–6–4–5 (Am–F–C–E). Over two
+      // bars the octave donk drops to E and the rave stab reorders to a
+      // descending answer, so the euphoria builds across the phrase.
       groove: {
-        donk:     { steps: on(0,2,4,6,8,10,12,14), notes: ['A2','A3','A2','A3','A2','A3','G2','A3'] },
-        supersaw: { steps: on(0,4,8,12), notes: ['A4','F4','C5','E5'] },
-        vox:      { steps: on(0,8), notes: ['A4','E5'] },
+        donk:     { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
+                    notes: ['A2','A3','A2','A3','A2','A3','G2','A3','A2','A3','A2','A3','E2','E3','G2','A3'] },
+        supersaw: { steps: on2(0,4,8,12, 16,20,24,28),
+                    notes: ['A4','F4','C5','E5','A4','F4','E5','C5'] },
+        vox:      { steps: on2(0,8, 16,24), notes: ['A4','E5','A4','C5'] },
       },
     },
     {
@@ -366,11 +403,14 @@ export const GENRE_SONGS = {
         { name: 'Rave Stab', instrument: 'THE Obsession hoover riff (Am)',  sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',     instrument: '"Obsession" whispered vocal',     sections: [0,1,1,1,1,1,0] },
       ],
-      // Am, 158 BPM. Hoover riff climbs A–C–E–A octave (rave-anthem shape).
+      // Am, 158 BPM. Hoover riff climbs A–C–E–A octave (rave-anthem shape). Bar
+      // 2 answers with a G dip and pushes the riff to the top octave.
       groove: {
-        donk:     { steps: on(0,2,4,6,8,10,12,14), notes: ['A2','A3','A2','A3','C3','C4','E3','E4'] },
-        supersaw: { steps: on(0,3,6,9,12), notes: ['A4','C5','E5','C5','A4'], hoover: true },
-        vox:      { steps: on(0,8), notes: ['A4','E5'] },
+        donk:     { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
+                    notes: ['A2','A3','A2','A3','C3','C4','E3','E4','A2','A3','A2','A3','G2','G3','E3','E4'] },
+        supersaw: { steps: on2(0,3,6,9,12, 16,19,22,25,28),
+                    notes: ['A4','C5','E5','C5','A4','A4','C5','E5','A5','E5'], hoover: true },
+        vox:      { steps: on2(0,8, 16,24), notes: ['A4','E5','A4','C5'] },
       },
     },
   ],
@@ -393,10 +433,15 @@ export const GENRE_SONGS = {
       ],
       // Real key: D major. BPM: 125. The hook is the famous violin stab.
       // Notes: D5–A4–F#4 (D major triad) pounding on the grid.
+      // Two-bar phrase: the relentless violin stab lifts to the octave (F#5) at
+      // the top of bar 2 before falling back, so it rises across the phrase.
       groove: {
-        bass:     { steps: on(0,2,3,6,8,10,11,14), notes: ['D1','D1','A1','D1','D1','D1','A1','D1'] },
-        supersaw: { steps: on(0,2,4,6,8,10,12,14), notes: ['D5','A4','F#4','D5','A4','F#4','D5','A4'] },
-        vox:      { steps: on(0,3,6,10,13), notes: ['D5','D5','A4','D5','F#4'] },
+        bass:     { steps: on2(0,2,3,6,8,10,11,14, 16,18,19,22,24,26,27,30),
+                    notes: ['D1','D1','A1','D1','D1','D1','A1','D1','D1','D1','A1','D1','D1','D1','A1','A1'] },
+        supersaw: { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
+                    notes: ['D5','A4','F#4','D5','A4','F#4','D5','A4','F#5','A4','F#4','D5','A4','F#4','D5','A4'] },
+        vox:      { steps: on2(0,3,6,10,13, 16,19,22,26,29),
+                    notes: ['D5','D5','A4','D5','F#4','D5','D5','A4','F#4','A4'] },
       },
     },
     {
@@ -416,10 +461,15 @@ export const GENRE_SONGS = {
       ],
       // Real key: A minor. BPM: 128. Acid-bass riff in Am: A–G–F–E.
       // "Something for your mind" monotone vocal hook over Am groove.
+      // Two-bar acid line: bar 1 descends A–G–F–E, bar 2 climbs back through
+      // F–G–A so the 303 riff snakes over the full phrase.
       groove: {
-        bass:     { steps: on(0,2,4,6,8,10,12,14), notes: ['A1','G1','F1','E1','A1','G1','F1','E1'] },
-        supersaw: { steps: on(0,4,8,12), notes: ['A3','G3','F3','E3'] },
-        vox:      { steps: on(0,2,4,6,8,10,12), notes: ['A4','A4','A4','G4','A4','A4','G4'] },
+        bass:     { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
+                    notes: ['A1','G1','F1','E1','A1','G1','F1','E1','A1','G1','F1','E1','F1','G1','A1','E1'] },
+        supersaw: { steps: on2(0,4,8,12, 16,20,24,28),
+                    notes: ['A3','G3','F3','E3','A3','C4','E4','E3'] },
+        vox:      { steps: on2(0,2,4,6,8,10,12, 16,18,20,22,24,26,28),
+                    notes: ['A4','A4','A4','G4','A4','A4','G4','A4','A4','A4','E4','A4','A4','G4'] },
       },
     },
   ],
@@ -509,9 +559,11 @@ export const GENRE_SONGS = {
       ],
       // 126 BPM. Almost entirely percussion — the accelerating snare roll is the track.
       // Minimalist sub pulse barely audible under the drum workout.
+      // Two-bar snare workout: bar 2 fills every 16th so the roll accelerates
+      // into a machine-gun fill before the phrase resets — the Spastik tension.
       groove: {
-        perc: { steps: on(0,1,3,4,6,7,8,9,11,12,14,15) },
-        bass: { steps: on(0,8), notes: ['A#1','A#1'] },
+        perc: { steps: on2(0,1,3,4,6,7,8,9,11,12,14,15, 16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31) },
+        bass: { steps: on2(0,8, 16,24), notes: ['A#1','A#1','A#1','A#1'] },
       },
     },
   ],
@@ -532,11 +584,15 @@ export const GENRE_SONGS = {
         { name: 'Hoover',         instrument: 'Acid-rave lead riff (Em)',   sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',          instrument: '"Power to the raver" chant', sections: [0,0,1,1,0,1,0] },
       ],
-      // Em, 155 BPM. Rapid acid riff: E–G–B–D (Em7 arpeggio) over distorted kick.
+      // Em, 155 BPM. Rapid acid riff: E–G–B–D (Em7 arpeggio) over distorted
+      // kick. Bar 2 pushes the arpeggio up to E5 then cascades back down.
       groove: {
-        bass:     { steps: on(0,2,4,6,8,10,12,14), notes: ['E2','E2','E2','B1','E2','E2','D2','B1'] },
-        supersaw: { steps: on(0,2,4,6,8,10,12,14), notes: ['E4','G4','B4','D5','E4','G4','B4','D5'], hoover: true },
-        vox:      { steps: on(0,2,4,8,10,12), notes: ['E5','E5','B4','E5','D5','B4'] },
+        bass:     { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
+                    notes: ['E2','E2','E2','B1','E2','E2','D2','B1','E2','E2','E2','B1','E2','D2','B1','G1'] },
+        supersaw: { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
+                    notes: ['E4','G4','B4','D5','E4','G4','B4','D5','E4','G4','B4','E5','D5','B4','G4','E4'], hoover: true },
+        vox:      { steps: on2(0,2,4,8,10,12, 16,18,20,24,26,28),
+                    notes: ['E5','E5','B4','E5','D5','B4','E5','E5','B4','E5','G5','B4'] },
       },
     },
     {
@@ -554,10 +610,13 @@ export const GENRE_SONGS = {
         { name: 'Hoover',         instrument: 'Dark screech stab (Em)',     sections: [0,1,1,0,1,1,0] },
         { name: 'Vocal',          instrument: 'Pitched-down dark vocal',    sections: [0,0,1,1,0,1,0] },
       ],
+      // Dark two-bar loop: the sub drone dips to D and the screech stab answers
+      // down to D4 in bar 2, deepening the menace without breaking the drone.
       groove: {
-        bass:     { steps: on(0,4,8,12), notes: ['E2','E2','E2','E2'] },
-        supersaw: { steps: on(0,3,8,11), notes: ['E4','G4','E4','B3'], hoover: true },
-        vox:      { steps: on(0,8), notes: ['E4','B3'] },
+        bass:     { steps: on2(0,4,8,12, 16,20,24,28), notes: ['E2','E2','E2','E2','E2','E2','E2','D2'] },
+        supersaw: { steps: on2(0,3,8,11, 16,19,24,27),
+                    notes: ['E4','G4','E4','B3','E4','G4','E4','D4'], hoover: true },
+        vox:      { steps: on2(0,8, 16,24), notes: ['E4','B3','E4','G3'] },
       },
     },
   ],
@@ -577,10 +636,12 @@ export const GENRE_SONGS = {
         { name: 'Distorted Bass', instrument: 'Hammered C bass loop',       sections: [0,1,1,0,1,1,0] },
         { name: 'Rave Stab',      instrument: 'Crushing every-beat stab',   sections: [0,1,1,0,1,1,0] },
       ],
+      // Two-bar industrial grind: the perc loop shifts its accents in bar 2 and
+      // the crushing stab breaks its monotone to D#–G, driving the loop forward.
       groove: {
-        perc:     { steps: on(0,2,3,4,6,7,8,10,11,12,14,15) },
-        bass:     { steps: on(0,4,8,12), notes: ['C2','C2','C2','C2'] },
-        supersaw: { steps: on(0,4,8,12), notes: ['C4','C4','C4','C4'] },
+        perc:     { steps: on2(0,2,3,4,6,7,8,10,11,12,14,15, 16,18,19,20,22,23,24,26,27,28,30,31) },
+        bass:     { steps: on2(0,4,8,12, 16,20,24,28), notes: ['C2','C2','C2','C2','C2','C2','C2','C2'] },
+        supersaw: { steps: on2(0,4,8,12, 16,20,24,28), notes: ['C4','C4','C4','C4','C4','D#4','C4','G4'] },
       },
     },
     {
@@ -597,10 +658,12 @@ export const GENRE_SONGS = {
         { name: 'Distorted Bass', instrument: 'Driving C stomp bass',       sections: [0,1,1,0,1,1,0] },
         { name: 'Rave Stab',      instrument: 'DJ Rush vocal-stab loop',    sections: [0,0,1,0,0,1,0] },
       ],
+      // Two-bar funk-industrial groove: bar 2 doubles up the perc into a fill
+      // and the vocal-stab loop climbs C–D#–G before resetting.
       groove: {
-        perc:     { steps: on(0,2,4,6,8,10,12,14) },
-        bass:     { steps: on(0,4,8,12), notes: ['C2','C2','C2','C2'] },
-        supersaw: { steps: on(0,8), notes: ['C4','D#4'] },
+        perc:     { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,25,26,28,30) },
+        bass:     { steps: on2(0,4,8,12, 16,20,24,28), notes: ['C2','C2','C2','C2','C2','C2','C2','C2'] },
+        supersaw: { steps: on2(0,8, 16,20,24), notes: ['C4','D#4','C4','G4','D#4'] },
       },
     },
   ],
