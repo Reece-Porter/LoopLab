@@ -97,6 +97,10 @@ export default function IsolatorPage() {
     const backend = (localStorage.getItem('looplab-backend') || '').replace(/\/$/, '')
     if (!backend) { setAiState('error'); setAiError('Add your audio-service URL on the DJ Deck first, then come back — the clean isolator runs on it.'); return }
     if (!fileRef.current) return
+    // Match the server's length cap so we don't upload a track it will reject.
+    if (vocal && vocal.length / vocal.sampleRate > 390) {
+      setAiState('error'); setAiError('That track is too long for the clean isolator (limit ~6.5 min). Trim it first, or use the quick browser version.'); return
+    }
     cancelPoll(); setAiError(''); setAiState('uploading')
     try {
       const fd = new FormData()

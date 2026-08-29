@@ -423,8 +423,22 @@ app.get('/api/fetch', (req, res) => {
 const ISO_DIR = join(tmpdir(), 'looplab-isolate')
 const upload = multer({ dest: join(ISO_DIR, 'uploads'), limits: { fileSize: 80 * 1024 * 1024 } })
 const DEMUCS_MODEL = process.env.DEMUCS_MODEL || 'htdemucs'
+// Cap track length so a huge file can't OOM the 2 GB box. Override via env.
+const MAX_ISOLATE_SECONDS = Number(process.env.MAX_ISOLATE_SECONDS) || 390 // 6.5 min
 const jobs = new Map() // id → { state, dir, out, error, created }
 let isolating = false   // single-job lock (one separation at a time on a 2 GB box)
+
+// Read a file's duration in seconds via ffprobe (null if it can't be read).
+function probeDuration(path) {
+  return new Promise(resolve => {
+    const p = spawn('ffprobe', ['-v', 'error', '-show_entries', 'format=duration',
+      '-of', 'default=noprint_wrappers=1:nokey=1', path])
+    let out = ''
+    p.stdout.on('data', d => { out += d.toString() })
+    p.on('error', () => resolve(null))
+    p.on('close', () => { const n = parseFloat(out.trim()); resolve(Number.isFinite(n) ? n : null) })
+  })
+}
 
 function cleanupJob(id) {
   const j = jobs.get(id)
@@ -453,6 +467,15 @@ app.post('/api/isolate', upload.single('audio'), async (req, res) => {
     await rename(req.file.path, input).catch(async () => {
       await copyFile(req.file.path, input); await rm(req.file.path, { force: true })
     })
+
+    // Reject over-long tracks before committing the box to a heavy separation.
+    const seconds = await probeDuration(input)
+    if (seconds != null && seconds > MAX_ISOLATE_SECONDS) {
+      await rm(dir, { recursive: true, force: true }).catch(() => {}) // no job registered yet
+      const mins = Math.round(MAX_ISOLATE_SECONDS / 60)
+      return res.status(413).json({ error: `That track is too long to isolate here (limit ~${mins} min). Trim it first, then try again.` })
+    }
+
     const job = { state: 'processing', dir, out: null, error: null, created: Date.now() }
     jobs.set(id, job)
     isolating = true
