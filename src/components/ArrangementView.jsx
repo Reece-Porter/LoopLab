@@ -106,7 +106,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   // synth voice when enabled (default on). Falls back to the synth if not loaded.
   const vocalPreset = useMemo(() => vocalPresetFor(genreId), [genreId])
   const [vocalSample, setVocalSample] = useState({ src: null, buf: null })
-  const [useSampleVox, setUseSampleVox] = useState(false)
+  const [useSampleVox, setUseSampleVox] = useState(true)
   useEffect(() => {
     let live = true
     loadSample(getContext(), vocalPreset.src).then(buf => {

@@ -9,6 +9,8 @@ import { noteToFreq, chordToFreqs, chordToMidi } from './theory'
 import { GENERATOR } from '../data/generator'
 import { playKitVoice } from './drumKit'
 import { playChordSampled, playFreqSampled } from './sampler'
+import { vocalPresetFor } from './samplePresets'
+import { loadSample } from './sampleLoader'
 
 const CHROMA = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 const PC = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 }
@@ -194,6 +196,12 @@ export function playStarter(out, { onStep } = {}) {
   const chordInst = chordTimbre === 'rhodes' ? 'rhodes' : chordTimbre === 'supersaw' ? 'supersaw' : chordTimbre === 'pad' ? 'pad' : 'piano'
   const leadInst = chordTimbre === 'rhodes' ? 'rhodes' : 'supersaw'
 
+  // Real vocal sample for this genre (pitched to follow the topline). Decodes
+  // asynchronously; until it's ready the vocal falls back to the synth choir.
+  const vocalPreset = vocalPresetFor(out.genreId)
+  let vocalBuf = null
+  loadSample(ctx, vocalPreset.src).then(b => { vocalBuf = b }).catch(() => {})
+
   let cur = 0
   let next = ctx.currentTime + 0.1
   let stopped = false
@@ -247,13 +255,29 @@ export function playStarter(out, { onStep } = {}) {
           if (f && !playFreqSampled(ctx, leadInst, f, next, busEl, 0.32, stepDur * 1.8)) supersaw(ctx, next, busEl, f, 0.2, stepDur * 1.8)
         }
       }
-      // Vocal topline — a soft choral "ah" hook following the chord root/fifth.
+      // Vocal topline — the genre's real vocal sample, pitched to the note (rate
+      // clamped so it never chipmunks); falls back to the synth choir until the
+      // sample decodes.
       if (parts.has('vox')) {
         const ph = vocalPhrase(progression[bar % progression.length], bar)
         const i = ph ? ph.steps.indexOf(inBar) : -1
         if (i >= 0) {
           const f = noteToFreq(ph.notes[i])
-          if (f) voxSynth(ctx, next, busEl, f, 0.22, stepDur * 6)
+          if (f && vocalBuf) {
+            const dur = stepDur * 6
+            const src = ctx.createBufferSource()
+            src.buffer = vocalBuf
+            src.playbackRate.value = Math.min(2, Math.max(0.5, f / vocalPreset.baseFreq))
+            const vgain = ctx.createGain()
+            vgain.gain.setValueAtTime(0, next)
+            vgain.gain.linearRampToValueAtTime(0.7, next + 0.01)
+            vgain.gain.setValueAtTime(0.7, next + dur * 0.6)
+            vgain.gain.exponentialRampToValueAtTime(0.0001, next + dur)
+            src.connect(vgain); vgain.connect(busEl)
+            src.start(next); src.stop(next + dur + 0.05)
+          } else if (f) {
+            voxSynth(ctx, next, busEl, f, 0.22, stepDur * 6)
+          }
         }
       }
       if (onStep) {
