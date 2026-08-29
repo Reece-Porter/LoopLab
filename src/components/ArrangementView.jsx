@@ -3,6 +3,8 @@ import { usePlayer } from '../audio/usePlayer'
 import { voiceFor } from '../audio/player'
 import { buildTrackClip } from '../audio/arrangementClip'
 import { preloadInstruments } from '../audio/sampler'
+import { vocalPhraseFor } from '../data/vocalPhrases'
+import { loadSample } from '../audio/sampleLoader'
 import { exportGrooveMidi } from '../audio/midiExport'
 import { getContext } from '../audio/synth'
 import PlayButton from './PlayButton'
@@ -72,6 +74,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   const clipsRef = useRef({})  // live: trackName -> clip16
   const mutedRef = useRef({})  // live: trackName -> true
   const gainsRef = useRef({})  // live: trackName -> volume (0..1.5)
+  const vocalPhraseRef = useRef(null)  // live: { buf, bpm, bars } long sung phrase
   const [volumes, setVolumes] = useState({}) // trackName -> volume
 
   const [frac, setFrac] = useState(null) // smooth playhead 0..1
@@ -84,6 +87,18 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   // multisample so it's ready on the first Play (decodes on a suspended context).
   const [useSampleVox, setUseSampleVox] = useState(true)
   useEffect(() => { preloadInstruments(getContext(), ['vocal']) }, [])
+  // Load the genre's long sung-vocal phrase (for drops/breakdowns). Null when
+  // the genre has no matched phrase — those keep the per-note vocal throughout.
+  useEffect(() => {
+    vocalPhraseRef.current = null
+    const p = vocalPhraseFor(genreId)
+    if (!p) return
+    let live = true
+    loadSample(getContext(), p.src).then(buf => {
+      if (live && buf) vocalPhraseRef.current = { buf, bpm: p.bpm, bars: p.bars }
+    })
+    return () => { live = false }
+  }, [genreId])
 
   // Respond to container width changes so the label column narrows on mobile.
   useEffect(() => {
@@ -161,7 +176,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   useEffect(() => { gainsRef.current = volumes }, [volumes])
 
   const play = (fromBar = startBar) =>
-    start('arrangement', { genreId, arrangement, tracks: lineup, startStep: fromBar * 16, clipsRef, mutedRef, gainsRef, bpm })
+    start('arrangement', { genreId, arrangement, tracks: lineup, startStep: fromBar * 16, clipsRef, mutedRef, gainsRef, bpm, vocalPhraseRef })
 
   const onPlay = () => (playing ? stop() : play())
 

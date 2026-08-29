@@ -45,7 +45,7 @@ export function usePlayer(id) {
     if (kind === 'arrangement') {
       activeTransport = playArrangement(args.genreId, args.arrangement, args.tracks, {
         onStep, startStep: args.startStep, clipsRef: args.clipsRef, mutedRef: args.mutedRef,
-        gainsRef: args.gainsRef, bpm: args.bpm,
+        gainsRef: args.gainsRef, bpm: args.bpm, vocalPhraseRef: args.vocalPhraseRef,
       })
     } else if (kind === 'custom') {
       activeTransport = playCustom(args.tracks, args.bars, args.bpm, {

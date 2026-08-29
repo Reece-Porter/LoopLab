@@ -283,7 +283,7 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
 // a live map { trackName: clip16 } and mutedRef.current a live { name: true }
 // map — both are read fresh every step so the user can swap example patterns
 // and mute/unmute tracks while the song keeps playing.
-export function playArrangement(genreId, arrangement, tracks, { onStep, startStep = 0, clipsRef, mutedRef, gainsRef, bpm: bpmOverride } = {}) {
+export function playArrangement(genreId, arrangement, tracks, { onStep, startStep = 0, clipsRef, mutedRef, gainsRef, bpm: bpmOverride, vocalPhraseRef } = {}) {
   const ctx = getContext()
   const groove = grooveFor(genreId)
   const bpm = bpmOverride || groove.bpm
@@ -307,8 +307,16 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
   // Map bar index → section index.
   const sections = arrangement.sections
   const barSection = []
-  sections.forEach((s, si) => { for (let b = 0; b < s.bars; b++) barSection.push(si) })
+  const sectionStartBar = []
+  sections.forEach((s, si) => { sectionStartBar.push(barSection.length); for (let b = 0; b < s.bars; b++) barSection.push(si) })
   const totalBars = barSection.length
+
+  // Sections that get the long sung-vocal phrase (drops + breakdowns), matched
+  // by section name across the different structures — dance drops (Drop/Main),
+  // pop choruses/hooks, and breakdowns (Break/Bridge). In these the phrase
+  // replaces the per-note vocal; verses/builds keep the per-note vocal.
+  const phraseSection = sections.map(s => /drop|main|break|chorus|hook|bridge/i.test(s.name || ''))
+  const voxTrack = tracks.find(t => t.voice === 'vox')
   const totalSteps = totalBars * 16
   const stepDur = 60 / bpm / 4
 
@@ -341,9 +349,36 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
         S.vinyl(ctx, nextStepTime, out, 0.03, stepDur * 8)
       }
 
+      // Long sung-vocal phrase over drops/breakdowns: trigger at the section's
+      // phrase boundaries, grid-locked to genre tempo (rate = bpm / phrase.bpm),
+      // and gated so it never spills past the section end.
+      const vp = vocalPhraseRef && vocalPhraseRef.current
+      const phraseHere = vp && vp.buf && voxTrack && phraseSection[sectionIdx] && voxTrack.sections[sectionIdx]
+      if (phraseHere && stepInBar === 0 && !muted[voxTrack.name]) {
+        const local = bar - sectionStartBar[sectionIdx]
+        if (local % vp.bars === 0) {
+          const secEnd = sectionStartBar[sectionIdx] + sections[sectionIdx].bars
+          const playBars = Math.min(vp.bars, secEnd - bar)
+          const dur = playBars * 16 * stepDur
+          const src = ctx.createBufferSource()
+          src.buffer = vp.buf
+          src.playbackRate.value = bpm / vp.bpm
+          const pg = ctx.createGain()
+          pg.gain.setValueAtTime(0, nextStepTime)
+          pg.gain.linearRampToValueAtTime(0.9, nextStepTime + 0.02)
+          pg.gain.setValueAtTime(0.9, nextStepTime + Math.max(0.05, dur - 0.08))
+          pg.gain.exponentialRampToValueAtTime(0.0001, nextStepTime + dur)
+          src.connect(pg); pg.connect(outFor(voxTrack.name))
+          src.start(nextStepTime); src.stop(nextStepTime + dur + 0.05)
+        }
+      }
+
       tracks.forEach(track => {
         if (muted[track.name]) return
         if (!track.sections[sectionIdx]) return
+        // In drop/breakdown sections the phrase covers the vocal, so mute the
+        // per-note vox there (it still sings in builds and other sections).
+        if (track.voice === 'vox' && phraseHere) return
         const clip = clips[track.name]
         // Index by GLOBAL step modulo this clip's own length, so a 16-step clip
         // loops every bar while a 32/64-step phrase evolves over 2/4 bars — all
