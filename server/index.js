@@ -425,7 +425,8 @@ const upload = multer({ dest: join(ISO_DIR, 'uploads'), limits: { fileSize: 80 *
 const DEMUCS_MODEL = process.env.DEMUCS_MODEL || 'htdemucs'
 // Test-time augmentation: more shifts = cleaner separation (less instrumental
 // bleed) but proportionally slower. 1 is a good default; 0 is fastest.
-const DEMUCS_SHIFTS = String(Math.max(0, Math.min(5, Number(process.env.DEMUCS_SHIFTS) || 1)))
+const DEMUCS_SHIFTS_N = Math.max(0, Math.min(5, Number(process.env.DEMUCS_SHIFTS) || 1))
+const DEMUCS_SHIFTS = String(DEMUCS_SHIFTS_N)
 // Cap track length so a huge file can't OOM the 2 GB box. Override via env.
 const MAX_ISOLATE_SECONDS = Number(process.env.MAX_ISOLATE_SECONDS) || 390 // 6.5 min
 const jobs = new Map() // id → { state, dir, out, error, created }
@@ -479,7 +480,7 @@ app.post('/api/isolate', upload.single('audio'), async (req, res) => {
       return res.status(413).json({ error: `That track is too long to isolate here (limit ~${mins} min). Trim it first, then try again.` })
     }
 
-    const job = { state: 'processing', dir, out: null, error: null, created: Date.now() }
+    const job = { state: 'processing', dir, out: null, error: null, created: Date.now(), progress: 0, _last: 0, _pass: 0 }
     jobs.set(id, job)
     isolating = true
 
@@ -489,13 +490,30 @@ app.post('/api/isolate', upload.single('audio'), async (req, res) => {
       '--mp3', '--mp3-bitrate', '192', '-n', DEMUCS_MODEL, '-o', join(dir, 'out'), input]
     const proc = spawn('demucs', args)
     let err = ''
-    proc.stderr.on('data', d => { err = (err + d.toString()).slice(-4000) })
+    proc.stderr.on('data', d => {
+      const s = d.toString()
+      err = (err + s).slice(-4000)
+      // Demucs prints a tqdm progress bar to stderr ("... 42%|██ ..."). With
+      // --shifts the bar restarts for each pass, so fold pass count in for a
+      // monotonic overall percentage.
+      const m = s.match(/(\d+)%/g)
+      if (m) {
+        const pct = parseInt(m[m.length - 1], 10)
+        if (Number.isFinite(pct)) {
+          if (pct + 25 < job._last) job._pass++      // bar wrapped → next pass
+          job._last = pct
+          const passes = Math.max(1, DEMUCS_SHIFTS_N)
+          const overall = Math.round((job._pass * 100 + pct) / passes)
+          job.progress = Math.min(99, Math.max(job.progress, overall))
+        }
+      }
+    })
     proc.on('error', e => { isolating = false; job.state = 'error'; job.error = 'Isolator not available: ' + (e.message || e) })
     proc.on('close', code => {
       isolating = false
       if (code === 0) {
         const voc = join(dir, 'out', DEMUCS_MODEL, 'input', 'vocals.mp3')
-        if (existsSync(voc)) { job.out = voc; job.state = 'done' }
+        if (existsSync(voc)) { job.out = voc; job.state = 'done'; job.progress = 100 }
         else { job.state = 'error'; job.error = 'No vocal stem was produced.' }
       } else if (job.state !== 'error') {
         job.state = 'error'; job.error = err.slice(-300) || `Separation failed (exit ${code}).`
@@ -512,7 +530,7 @@ app.post('/api/isolate', upload.single('audio'), async (req, res) => {
 app.get('/api/isolate/:id', (req, res) => {
   const j = jobs.get(req.params.id)
   if (!j) return res.status(404).json({ error: 'Unknown or expired job.' })
-  res.json({ state: j.state, error: j.error || undefined })
+  res.json({ state: j.state, progress: j.progress, error: j.error || undefined })
 })
 
 app.get('/api/isolate/:id/result', (req, res) => {

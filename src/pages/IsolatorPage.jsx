@@ -55,6 +55,9 @@ export default function IsolatorPage() {
   const [saved, setSaved] = useState([])
   const [aiState, setAiState] = useState('idle') // idle | uploading | processing | done | error
   const [aiError, setAiError] = useState('')
+  const [aiProgress, setAiProgress] = useState(0) // 0..100 during separation
+  const [aiEta, setAiEta] = useState(null)        // seconds remaining (estimate)
+  const aiStartRef = useRef(0)
   const [hasFile, setHasFile] = useState(false)  // an uploadable File is loaded (vs a saved clip)
 
   const canvasRef = useRef(null)
@@ -122,6 +125,7 @@ export default function IsolatorPage() {
       setAiState('error'); setAiError('That track is too long for the clean isolator (limit ~6.5 min). Trim it first, or use the quick browser version.'); return
     }
     cancelPoll(); setAiError(''); setAiState('uploading')
+    if (ctx.state === 'suspended') ctx.resume() // keep the clock moving for the ETA
     try {
       const fd = new FormData()
       fd.append('audio', fileRef.current)
@@ -131,13 +135,19 @@ export default function IsolatorPage() {
         setAiState('error'); setAiError(msg); return
       }
       const { jobId } = await res.json()
-      setAiState('processing')
+      setAiState('processing'); setAiProgress(0); setAiEta(null); aiStartRef.current = ctx.currentTime
       const poll = async () => {
         try {
           const sr = await backendFetch(`${backend}/api/isolate/${jobId}`)
           if (!sr.ok) { setAiState('error'); setAiError('Lost track of the job — try again.'); return }
           const st = await sr.json()
-          if (st.state === 'processing') { pollRef.current = setTimeout(poll, 3000); return }
+          if (st.state === 'processing') {
+            const pct = Math.max(0, Math.min(99, st.progress || 0))
+            setAiProgress(pct)
+            const elapsed = ctx.currentTime - aiStartRef.current
+            setAiEta(pct > 4 ? Math.max(1, Math.round(elapsed / (pct / 100) - elapsed)) : null)
+            pollRef.current = setTimeout(poll, 2000); return
+          }
           if (st.state !== 'done') { setAiState('error'); setAiError(st.error || 'Separation failed.'); return }
           const rr = await backendFetch(`${backend}/api/isolate/${jobId}/result`)
           if (!rr.ok) { setAiState('error'); setAiError('Could not fetch the result.'); return }
@@ -249,7 +259,7 @@ export default function IsolatorPage() {
             <div className="flex flex-wrap items-center gap-3">
               {aiState === 'uploading' || aiState === 'processing' ? (
                 <button disabled className="font-display font-semibold uppercase tracking-wide text-sm bg-surface-2 border border-hairline text-dim px-5 py-3 cursor-wait">
-                  {aiState === 'uploading' ? '↑ Uploading…' : '✨ Separating… (a minute or two)'}
+                  {aiState === 'uploading' ? '↑ Uploading…' : '✨ Separating…'}
                 </button>
               ) : (
                 <button onClick={runAI} className="font-display font-semibold uppercase tracking-wide text-sm bg-acid text-base px-5 py-3 hover:bg-acid-dim transition-colors duration-150">✨ Clean isolate (AI)</button>
@@ -258,6 +268,29 @@ export default function IsolatorPage() {
                 {aiState === 'done' ? 'Clean AI vocal loaded ✓' : 'Loaded above is the quick browser version'}
               </span>
             </div>
+
+            {/* Separation progress */}
+            {aiState === 'processing' && (
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-dim">{aiProgress > 0 ? `Separating · ${aiProgress}%` : 'Loading model…'}</span>
+                  <span className="font-mono text-[11px] text-faint">
+                    {aiEta != null ? `~${aiEta >= 60 ? `${Math.floor(aiEta / 60)}m ${aiEta % 60}s` : `${aiEta}s`} left` : 'estimating…'}
+                  </span>
+                </div>
+                <div className="h-2 bg-surface-2 border border-hairline overflow-hidden">
+                  <div className="h-full bg-acid transition-[width] duration-500 ease-linear" style={{ width: `${Math.max(3, aiProgress)}%` }} />
+                </div>
+              </div>
+            )}
+            {aiState === 'uploading' && (
+              <div className="mt-4">
+                <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-dim mb-1.5">Uploading track…</div>
+                <div className="h-2 bg-surface-2 border border-hairline overflow-hidden">
+                  <div className="h-full w-1/3 bg-acid/60 animate-pulse" />
+                </div>
+              </div>
+            )}
             {aiError && <p className="text-red-400 text-xs mt-3">{aiError}</p>}
             <p className="text-faint text-[11px] leading-relaxed mt-3 max-w-xl">
               The <strong className="text-dim">quick</strong> version runs instantly in your browser (centred vocal + filter — leaks some drums/bass, stereo only, nothing uploaded). <strong className="text-dim">Clean isolate</strong> sends the track to your audio service and runs real AI separation — much cleaner, takes a minute or two, and the track is uploaded to your Render box to do it.
