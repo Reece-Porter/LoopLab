@@ -136,10 +136,23 @@ export default function IsolatorPage() {
       }
       const { jobId } = await res.json()
       setAiState('processing'); setAiProgress(0); setAiEta(null); aiStartRef.current = ctx.currentTime
+      let fails = 0 // tolerate transient blips / brief cold-starts before giving up
       const poll = async () => {
         try {
           const sr = await backendFetch(`${backend}/api/isolate/${jobId}`)
-          if (!sr.ok) { setAiState('error'); setAiError('Lost track of the job — try again.'); return }
+          if (!sr.ok) {
+            fails++
+            // A 404 that persists means the job is genuinely gone — on a small box
+            // that usually means the service restarted (often out of memory).
+            if (sr.status === 404 && fails >= 3) {
+              setAiState('error')
+              setAiError('The server lost this job — it most likely ran out of memory and restarted mid-separation. Try a shorter clip, or set DEMUCS_MODEL=mdx_extra_q (or a lower DEMUCS_SEGMENT) on Render.')
+              return
+            }
+            if (fails >= 8) { setAiState('error'); setAiError('Lost contact with the isolator — please try again.'); return }
+            pollRef.current = setTimeout(poll, 3000); return
+          }
+          fails = 0
           const st = await sr.json()
           if (st.state === 'processing') {
             const pct = Math.max(0, Math.min(99, st.progress || 0))
@@ -153,7 +166,11 @@ export default function IsolatorPage() {
           if (!rr.ok) { setAiState('error'); setAiError('Could not fetch the result.'); return }
           const decoded = await ctx.decodeAudioData(await rr.arrayBuffer())
           stop(); setVocal(decoded); setSel({ a: 0, b: 1 }); setAiState('done')
-        } catch (e) { setAiState('error'); setAiError(String(e.message || e)) }
+        } catch {
+          fails++
+          if (fails >= 8) { setAiState('error'); setAiError('Lost contact with the isolator — please try again.'); return }
+          pollRef.current = setTimeout(poll, 3000)
+        }
       }
       poll()
     } catch (e) { setAiState('error'); setAiError(String(e.message || e)) }
