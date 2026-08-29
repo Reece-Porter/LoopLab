@@ -32,10 +32,10 @@ export const GENERATOR = {
     // Full-track structure: sections with bar counts and which parts play.
     arrangement: [
       { name: 'Intro',  bars: 8,  parts: ['kick', 'hats'] },
-      { name: 'Build',  bars: 8,  parts: ['kick', 'hats', 'bass', 'chords'], riserEnd: true },
-      { name: 'Drop',   bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords', 'pad'] },
-      { name: 'Break',  bars: 8,  parts: ['pad', 'chords'] },
-      { name: 'Drop',   bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords', 'pad'], riserStart: true },
+      { name: 'Build',  bars: 8,  parts: ['kick', 'hats', 'bass', 'chords', 'lead'], riserEnd: true },
+      { name: 'Drop',   bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords', 'pad', 'lead', 'vox'] },
+      { name: 'Break',  bars: 8,  parts: ['pad', 'chords', 'vox'] },
+      { name: 'Drop',   bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords', 'pad', 'lead', 'vox'], riserStart: true },
       { name: 'Outro',  bars: 8,  parts: ['kick', 'hats', 'bass'] },
     ],
   },
@@ -61,9 +61,9 @@ export const GENERATOR = {
     ],
     arrangement: [
       { name: 'Intro',  bars: 8,  parts: ['kick', 'hats'] },
-      { name: 'Groove', bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords'] },
-      { name: 'Break',  bars: 8,  parts: ['pad', 'chords'] },
-      { name: 'Main',   bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords', 'pad'], riserStart: true },
+      { name: 'Groove', bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords', 'lead'] },
+      { name: 'Break',  bars: 8,  parts: ['pad', 'chords', 'vox'] },
+      { name: 'Main',   bars: 16, parts: ['kick', 'hats', 'clap', 'bass', 'chords', 'pad', 'lead', 'vox'], riserStart: true },
       { name: 'Outro',  bars: 8,  parts: ['kick', 'hats', 'bass'] },
     ],
   },

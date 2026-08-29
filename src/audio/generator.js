@@ -4,8 +4,8 @@
 
 import { grooveClip } from './arrangementClip'
 import { exportClipsMidi } from './midiExport'
-import { getContext, kick, hat, clap, bass, chordStab, supersawChord, rhodes, synthPad, riser } from './synth'
-import { noteToFreq, chordToFreqs } from './theory'
+import { getContext, kick, hat, clap, bass, chordStab, supersawChord, rhodes, synthPad, riser, supersaw, vox as voxSynth } from './synth'
+import { noteToFreq, chordToFreqs, chordToMidi } from './theory'
 import { GENERATOR } from '../data/generator'
 import { playKitVoice } from './drumKit'
 import { playChordSampled, playFreqSampled } from './sampler'
@@ -99,6 +99,36 @@ function partsAt(arrangement, globalBar) {
   return { section: null, localBar: 0, parts: new Set() }
 }
 
+// MIDI number → note name (e.g. 60 → 'C4'), for building lead/vocal clips.
+function midiToName(m) {
+  return CHROMA[((m % 12) + 12) % 12] + (Math.floor(m / 12) - 1)
+}
+
+// Lead line: an 8th-note arpeggio of the current chord's tones, up in octave 5.
+// Even bars ascend, odd bars descend, so the lead answers itself across a
+// two-bar phrase instead of repeating. Returns { steps, notes } for grooveClip.
+function leadPhrase(sym, bar) {
+  // Octave 4 keeps the arp within the sampled instruments' recorded range so it
+  // stays in tune (they top out around MIDI 72) while still sitting above the pad.
+  const midis = chordToMidi(sym, 4)
+  if (!midis.length) return null
+  const seq = bar % 2 === 0 ? midis : [...midis].reverse()
+  const steps = [0, 2, 4, 6, 8, 10, 12, 14]
+  return { steps, notes: steps.map((_, i) => midiToName(seq[i % seq.length])) }
+}
+
+// Vocal topline: the chord root and fifth up high, sparse and hook-like, phrasing
+// over two bars. Returns { steps, notes } for grooveClip.
+function vocalPhrase(sym, bar) {
+  const midis = chordToMidi(sym, 5)
+  if (!midis.length) return null
+  const root = midiToName(midis[0])
+  const fifth = midiToName(midis[Math.min(2, midis.length - 1)])
+  return bar % 2 === 0
+    ? { steps: [0, 8], notes: [root, fifth] }
+    : { steps: [0, 6, 12], notes: [fifth, root, fifth] }
+}
+
 // Global bar indices where a 4-bar riser should begin (leading into a drop).
 function riserStartBars(arrangement) {
   const starts = []
@@ -119,7 +149,7 @@ function starterToClips(out) {
   const { progression, chordSteps, bassSteps, bassNotesPerBar, drums, chordTimbre, arrangement, totalBars } = out
   const pad = chordTimbre === 'pad'
   const useRhodes = chordTimbre === 'rhodes'
-  const clips = { Kick: [], Hats: [], Clap: [], Bass: [], Chords: [], Pad: [] }
+  const clips = { Kick: [], Hats: [], Clap: [], Bass: [], Chords: [], Pad: [], Lead: [], Vox: [] }
   for (let bar = 0; bar < totalBars; bar++) {
     const { parts, localBar } = partsAt(arrangement, bar)
     const sym = progression[bar % progression.length]
@@ -131,12 +161,16 @@ function starterToClips(out) {
     clips.Bass.push(parts.has('bass') ? grooveClip('bass', { steps: stepsMask(bassSteps), notes: bassNotesPerBar[bar % bassNotesPerBar.length], sub: true }) : null)
     clips.Chords.push(parts.has('chords') ? grooveClip('chord', { steps: stepsMask(chordSteps), chords: [sym], pad, rhodes: useRhodes }) : null)
     clips.Pad.push(parts.has('pad') ? grooveClip('chord', { steps: stepsMask([0]), chords: [sym], pad: true }) : null)
+    const lead = parts.has('lead') ? leadPhrase(sym, bar) : null
+    clips.Lead.push(lead ? grooveClip('pluck', { steps: stepsMask(lead.steps), notes: lead.notes }) : null)
+    const voc = parts.has('vox') ? vocalPhrase(sym, bar) : null
+    clips.Vox.push(voc ? grooveClip('pluck', { steps: stepsMask(voc.steps), notes: voc.notes }) : null)
   }
   return clips
 }
 
 export function exportStarterMidi(out) {
-  exportClipsMidi(starterToClips(out), out.bpm, ['Kick', 'Hats', 'Clap', 'Bass', 'Chords', 'Pad'])
+  exportClipsMidi(starterToClips(out), out.bpm, ['Kick', 'Hats', 'Clap', 'Bass', 'Chords', 'Pad', 'Lead', 'Vox'])
 }
 
 // ── Audition ─────────────────────────────────────────────────────────────────
@@ -158,6 +192,7 @@ export function playStarter(out, { onStep } = {}) {
   const chordOct = 4
   const risers = riserStartBars(arrangement)
   const chordInst = chordTimbre === 'rhodes' ? 'rhodes' : chordTimbre === 'supersaw' ? 'supersaw' : chordTimbre === 'pad' ? 'pad' : 'piano'
+  const leadInst = chordTimbre === 'rhodes' ? 'rhodes' : 'supersaw'
 
   let cur = 0
   let next = ctx.currentTime + 0.1
@@ -202,6 +237,24 @@ export function playStarter(out, { onStep } = {}) {
         const name = notes[idx % notes.length]
         const f = noteToFreq(name)
         if (f && !playFreqSampled(ctx, 'bass', f, next, busEl, 0.55, stepDur * 1.6)) bass(ctx, next, busEl, f, 0.5, stepDur * 1.6)
+      }
+      // Lead — sampled synth arpeggio of the chord, with a synth fallback.
+      if (parts.has('lead')) {
+        const ph = leadPhrase(progression[bar % progression.length], bar)
+        const i = ph ? ph.steps.indexOf(inBar) : -1
+        if (i >= 0) {
+          const f = noteToFreq(ph.notes[i])
+          if (f && !playFreqSampled(ctx, leadInst, f, next, busEl, 0.32, stepDur * 1.8)) supersaw(ctx, next, busEl, f, 0.2, stepDur * 1.8)
+        }
+      }
+      // Vocal topline — a soft choral "ah" hook following the chord root/fifth.
+      if (parts.has('vox')) {
+        const ph = vocalPhrase(progression[bar % progression.length], bar)
+        const i = ph ? ph.steps.indexOf(inBar) : -1
+        if (i >= 0) {
+          const f = noteToFreq(ph.notes[i])
+          if (f) voxSynth(ctx, next, busEl, f, 0.22, stepDur * 6)
+        }
       }
       if (onStep) {
         const ms = (next - ctx.currentTime) * 1000

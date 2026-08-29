@@ -177,7 +177,7 @@ export default function GeneratePage() {
         )}
 
         <p className="text-faint text-[11px] leading-relaxed pb-16 max-w-xl">
-          You get a full multi-section track — intro, build, drop, breakdown and outro, with instruments coming and going, fills and risers. Drop the MIDI into FL Studio and finish it. It's a genre-accurate skeleton, not a mastered record — no lead melody yet, and structures follow templates.
+          You get a full multi-section track — intro, build, drop, breakdown and outro, with instruments coming and going, fills and risers. Chords, a sampled lead synth arpeggio, a sustained pad and a soft vocal topline all follow the progression. Drop the MIDI into FL Studio and finish it. It's a genre-accurate skeleton, not a mastered record — structures follow templates.
         </p>
       </div>
     </div>
