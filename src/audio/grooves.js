@@ -259,6 +259,8 @@ export const GENRE_GROOVES = {
       // Dark off-beat synth chord stabs — let the percussion breathe.
       supersaw:{ steps: on4(2,10, 18,26, 34,42, 50,58),
                  chords: ['Dm','Dm','Am','Dm','Dm','Dm','Gm','Am'] },
+      // Sustained analog pad underneath — one chord per bar, sitting well back.
+      chord:   { steps: on4(0,16,32,48), chords: ['Dm','Dm','Gm','Am'], pad: true, gain: 0.3 },
       // Chopped vocal-stab hook (soft keys) — rhythmic off-beat hits in Dm.
       vox:     { steps: on4(6,14, 22,30, 38,46, 54,62),
                  notes: ['A4','D5','A4','F5','A4','D5','A4','D5'] },
@@ -318,6 +320,8 @@ export const GENRE_GROOVES = {
         steps: on4(6,14, 22,30, 38,46, 54,62),
         notes: ['C5','Eb5', 'C5','Ab4', 'Eb5','G4', 'Bb4','C5'],
       },
+      // Sustained pad tracking Cm–Ab–Eb–Bb under the hoover — adds harmonic body.
+      chord: { steps: on4(0,16,32,48), chords: ['Cm','Ab','Eb','Bb'], pad: true, gain: 0.3 },
     },
   },
 
@@ -368,6 +372,8 @@ export const GENRE_GROOVES = {
           'Eb5','C5','Ab4','F4',
         ],
       },
+      // Warm sustained pad under the piano stabs, tracking Fm7–Bbm7–Eb7–Abmaj7.
+      chord: { steps: on4(0,16,32,48), chords: ['Fm','Bbm','Eb','Ab'], pad: true, gain: 0.28 },
     },
   },
 
@@ -434,6 +440,8 @@ export const GENRE_GROOVES = {
           'D5','G5','D5',
         ],
       },
+      // Sustained pad under the organ stabs, tracking Gm–Cm–Eb–D7.
+      chord: { steps: on4(0,16,32,48), chords: ['Gm','Cm','Eb','D'], pad: true, gain: 0.28 },
     },
   },
 
@@ -495,6 +503,8 @@ export const GENRE_GROOVES = {
         ],
         chop: true, pluck: true,
       },
+      // Sustained rave pad under the donk/stab, tracking Am–G–F–G.
+      chord: { steps: on4(0,16,32,48), chords: ['Am','G','F','G'], pad: true, gain: 0.28 },
     },
   },
 
@@ -553,6 +563,8 @@ export const GENRE_GROOVES = {
         notes: ['C5','D#5', 'G4','A#4', 'C5','G5', 'A#4','C5'],
         pluck: true,
       },
+      // Sustained pad — Cm roller with the bar-4 A# (bVII) lift, sitting back.
+      chord: { steps: on4(0,16,32,48), chords: ['Cm','Cm','Cm','A#'], pad: true, gain: 0.28 },
     },
   },
 
@@ -648,6 +660,8 @@ export const GENRE_GROOVES = {
         steps: on4(2, 18, 34, 50,58),
         notes: ['E5', 'B4', 'D5', 'G4','E5'],
       },
+      // Sustained dark pad under the hoover, tracking Em–G–D–Em.
+      chord: { steps: on4(0,16,32,48), chords: ['Em','G','D','Em'], pad: true, gain: 0.28 },
     },
   },
 
@@ -701,6 +715,13 @@ export const GENRE_GROOVES = {
           'Cm','Cm','A#','Gm',
         ],
         rave: true,
+      },
+      // Sustained industrial pad grinding Cm–A#–Gm–Cm under the stabs.
+      chord: { steps: on4(0,16,32,48), chords: ['Cm','A#','Gm','Cm'], pad: true, gain: 0.26 },
+      // Sparse pitched vocal-stab hook in Cm, two hits per bar.
+      vox: {
+        steps: on4(0,12, 16,28, 32,44, 48,60),
+        notes: ['C5','D#5', 'G4','A#4', 'C5','G5', 'A#4','C5'],
       },
     },
   },
