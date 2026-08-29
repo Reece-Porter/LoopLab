@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LoopLab — Current Design Polished</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #fff; }
+    .search-input::placeholder { color: #444; }
+    .search-input { color: #ccc; }
+    .search-input:focus { outline: none; }
+
+    .genre-card { transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease; }
+    .genre-card:hover { transform: translateY(-2px); }
+    .genre-card-trap:hover     { background: linear-gradient(to bottom, rgba(168,85,247,0.08), #111118) !important; box-shadow: 0 -4px 20px rgba(168,85,247,0.25) !important; }
+    .genre-card-house:hover    { background: linear-gradient(to bottom, rgba(245,158,11,0.08), #111118) !important; box-shadow: 0 -4px 20px rgba(245,158,11,0.20) !important; }
+    .genre-card-dnb:hover      { background: linear-gradient(to bottom, rgba(6,182,212,0.08), #111118) !important; box-shadow: 0 -4px 20px rgba(6,182,212,0.20) !important; }
+    .genre-card-techno:hover   { background: linear-gradient(to bottom, rgba(249,115,22,0.08), #111118) !important; box-shadow: 0 -4px 20px rgba(249,115,22,0.20) !important; }
+    .genre-card-ukg:hover      { background: linear-gradient(to bottom, rgba(236,72,153,0.08), #111118) !important; box-shadow: 0 -4px 20px rgba(236,72,153,0.20) !important; }
+    .genre-card-lofi:hover     { background: linear-gradient(to bottom, rgba(99,102,241,0.08), #111118) !important; box-shadow: 0 -4px 20px rgba(99,102,241,0.20) !important; }
+    .genre-card-ambient:hover  { background: linear-gradient(to bottom, rgba(34,211,238,0.08), #111118) !important; box-shadow: 0 -4px 20px rgba(34,211,238,0.18) !important; }
+    .genre-card-afro:hover     { background: linear-gradient(to bottom, rgba(132,204,22,0.08), #111118) !important; box-shadow: 0 -4px 20px rgba(132,204,22,0.18) !important; }
+
+    .quicklink-card { transition: background 0.15s ease, transform 0.15s ease; }
+    .quicklink-card:hover { background: #18181f !important; transform: translateX(4px); }
+    .quicklink-card:hover .arrow-hint { color: #888; }
+    .arrow-hint { transition: color 0.15s ease; color: transparent; }
+
+    .logo-ring {
+      box-shadow:
+        0 0 0 1px rgba(124,58,237,0.4),
+        0 0 0 4px rgba(124,58,237,0.1),
+        0 0 30px rgba(124,58,237,0.35),
+        0 0 60px rgba(124,58,237,0.15);
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Nav -->
+  <header style="border-bottom: 1px solid #111118;">
+    <div class="max-w-5xl mx-auto px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs text-white" style="background: linear-gradient(135deg, #7c3aed, #ea580c);">LL</div>
+        <span class="text-white font-semibold text-sm tracking-tight">LoopLab</span>
+      </div>
+      <nav class="flex items-center gap-6">
+        <a href="#" class="text-sm transition-colors" style="color:#555;">Genres</a>
+        <a href="#" class="text-sm transition-colors" style="color:#555;">BPM Guide</a>
+        <a href="#" class="text-sm transition-colors" style="color:#555;">Theory</a>
+        <a href="#" class="text-sm transition-colors" style="color:#555;">Tools</a>
+        <button class="text-sm px-4 py-1.5 rounded-md font-semibold text-white" style="background:#7c3aed;">Sign in</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-8">
+
+    <!-- Hero with centered logo -->
+    <div class="flex flex-col items-center py-14 text-center">
+      <div class="logo-ring rounded-2xl mb-7 flex items-center justify-center font-black text-2xl text-white" style="width:80px; height:80px; background: linear-gradient(135deg, #7c3aed, #ea580c);">LL</div>
+      <p class="text-xs font-semibold tracking-widest uppercase mb-3" style="background: linear-gradient(90deg, #a855f7, #ea580c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Music Production Reference</p>
+      <h1 class="text-4xl font-bold tracking-tight mb-3" style="letter-spacing:-0.03em;">LoopLab</h1>
+      <p class="text-sm max-w-md leading-relaxed" style="color:#555;">
+        Genre guides, BPM references, chord progressions, and production templates — all in one place.
+      </p>
+    </div>
+
+    <!-- Search -->
+    <div class="mb-12 flex justify-center">
+      <div class="flex items-center gap-3 w-full max-w-lg px-4 py-3 rounded-lg border" style="background:#111118; border-color:#1e1e28;">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="#444" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search genres, BPM, techniques…" class="search-input bg-transparent text-sm w-full border-0" />
+        <span class="text-xs px-2 py-1 rounded" style="color:#555; background:#0d0d12; border:1px solid #252530;">⌘K</span>
+      </div>
+    </div>
+
+    <!-- Quick links -->
+    <div class="mb-12">
+      <p class="text-xs font-semibold uppercase tracking-widest mb-5" style="background: linear-gradient(90deg, #a855f7, #ea580c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Quick Access</p>
+      <div class="grid grid-cols-2 gap-3">
+
+        <a href="#" class="quicklink-card flex items-center gap-4 px-5 py-4 rounded-lg border" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #7c3aed;">
+          <div>
+            <p class="text-sm font-semibold">BPM Reference</p>
+            <p class="text-xs mt-0.5" style="color:#555;">Tempos for every genre</p>
+          </div>
+          <span class="arrow-hint ml-auto text-sm">→</span>
+        </a>
+
+        <a href="#" class="quicklink-card flex items-center gap-4 px-5 py-4 rounded-lg border" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #f59e0b;">
+          <div>
+            <p class="text-sm font-semibold">Chord Progressions</p>
+            <p class="text-xs mt-0.5" style="color:#555;">Genre-specific harmony</p>
+          </div>
+          <span class="arrow-hint ml-auto text-sm">→</span>
+        </a>
+
+        <a href="#" class="quicklink-card flex items-center gap-4 px-5 py-4 rounded-lg border" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #06b6d4;">
+          <div>
+            <p class="text-sm font-semibold">Drum Patterns</p>
+            <p class="text-xs mt-0.5" style="color:#555;">Grooves and programming tips</p>
+          </div>
+          <span class="arrow-hint ml-auto text-sm">→</span>
+        </a>
+
+        <a href="#" class="quicklink-card flex items-center gap-4 px-5 py-4 rounded-lg border" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #84cc16;">
+          <div>
+            <p class="text-sm font-semibold">Mix Templates</p>
+            <p class="text-xs mt-0.5" style="color:#555;">Ready-to-use DAW setups</p>
+          </div>
+          <span class="arrow-hint ml-auto text-sm">→</span>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Genre cards — 4-col grid with colored left borders + glow -->
+    <div class="mb-16">
+      <div class="flex items-center justify-between mb-6">
+        <p class="text-xs font-semibold uppercase tracking-widest" style="background: linear-gradient(90deg, #a855f7, #ea580c); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Genre Guides</p>
+        <a href="#" class="text-xs font-medium" style="color:#555;">View all →</a>
+      </div>
+      <div class="grid grid-cols-4 gap-4">
+
+        <!-- Trap -->
+        <a href="#" class="genre-card genre-card-trap rounded-xl p-5 border cursor-pointer" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #a855f7; box-shadow: -3px 0 16px rgba(168,85,247,0.12);">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-2xl">🎵</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded" style="background:rgba(168,85,247,0.12); color:#a855f7;">140</span>
+          </div>
+          <p class="text-sm font-semibold mb-1">Trap</p>
+          <p class="text-xs" style="color:#555;">808s, hi-hats, dark melodies</p>
+        </a>
+
+        <!-- House -->
+        <a href="#" class="genre-card genre-card-house rounded-xl p-5 border cursor-pointer" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #f59e0b; box-shadow: -3px 0 16px rgba(245,158,11,0.10);">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-2xl">🏠</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded" style="background:rgba(245,158,11,0.12); color:#f59e0b;">128</span>
+          </div>
+          <p class="text-sm font-semibold mb-1">House</p>
+          <p class="text-xs" style="color:#555;">4-on-the-floor, soulful chords</p>
+        </a>
+
+        <!-- Drum & Bass -->
+        <a href="#" class="genre-card genre-card-dnb rounded-xl p-5 border cursor-pointer" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #06b6d4; box-shadow: -3px 0 16px rgba(6,182,212,0.10);">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-2xl">🥁</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded" style="background:rgba(6,182,212,0.12); color:#06b6d4;">174</span>
+          </div>
+          <p class="text-sm font-semibold mb-1">Drum &amp; Bass</p>
+          <p class="text-xs" style="color:#555;">Amen breaks, sub bass</p>
+        </a>
+
+        <!-- Techno -->
+        <a href="#" class="genre-card genre-card-techno rounded-xl p-5 border cursor-pointer" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #f97316; box-shadow: -3px 0 16px rgba(249,115,22,0.10);">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-2xl">⚡</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded" style="background:rgba(249,115,22,0.12); color:#f97316;">140</span>
+          </div>
+          <p class="text-sm font-semibold mb-1">Techno</p>
+          <p class="text-xs" style="color:#555;">Industrial, hypnotic, driven</p>
+        </a>
+
+        <!-- UK Garage -->
+        <a href="#" class="genre-card genre-card-ukg rounded-xl p-5 border cursor-pointer" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #ec4899; box-shadow: -3px 0 16px rgba(236,72,153,0.10);">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-2xl">🇬🇧</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded" style="background:rgba(236,72,153,0.12); color:#ec4899;">130</span>
+          </div>
+          <p class="text-sm font-semibold mb-1">UK Garage</p>
+          <p class="text-xs" style="color:#555;">2-step, skip beats, vocals</p>
+        </a>
+
+        <!-- Lofi Hip-Hop -->
+        <a href="#" class="genre-card genre-card-lofi rounded-xl p-5 border cursor-pointer" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #6366f1; box-shadow: -3px 0 16px rgba(99,102,241,0.10);">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-2xl">🌙</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded" style="background:rgba(99,102,241,0.12); color:#6366f1;">75</span>
+          </div>
+          <p class="text-sm font-semibold mb-1">Lofi Hip-Hop</p>
+          <p class="text-xs" style="color:#555;">Dusty samples, vinyl crackle</p>
+        </a>
+
+        <!-- Ambient -->
+        <a href="#" class="genre-card genre-card-ambient rounded-xl p-5 border cursor-pointer" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #22d3ee; box-shadow: -3px 0 16px rgba(34,211,238,0.08);">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-2xl">🌊</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded" style="background:rgba(34,211,238,0.12); color:#22d3ee;">90</span>
+          </div>
+          <p class="text-sm font-semibold mb-1">Ambient</p>
+          <p class="text-xs" style="color:#555;">Pads, texture, space</p>
+        </a>
+
+        <!-- Afrobeats -->
+        <a href="#" class="genre-card genre-card-afro rounded-xl p-5 border cursor-pointer" style="background:#111118; border-color:#1e1e28; border-left: 3px solid #84cc16; box-shadow: -3px 0 16px rgba(132,204,22,0.08);">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-2xl">🌍</span>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded" style="background:rgba(132,204,22,0.12); color:#84cc16;">100</span>
+          </div>
+          <p class="text-sm font-semibold mb-1">Afrobeats</p>
+          <p class="text-xs" style="color:#555;">Percussion, groove, warmth</p>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex items-center justify-between py-8" style="border-top: 1px solid #111118;">
+      <p class="text-xs" style="color:#444;">Last updated June 2026 · 48 genre guides</p>
+      <p class="text-xs" style="color:#444;">Built for producers</p>
+    </div>
+
+  </main>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LoopLab — Minimal Editorial</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #080808; color: #fff; }
+    .genre-row:hover { background: #0f0f0f; }
+    .pill-link:hover { background: #1c1c1c; color: #fff; }
+    .search-input:focus { outline: none; }
+    .search-input::placeholder { color: #444; }
+    .search-input { color: #aaa; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <!-- Top nav -->
+  <header style="border-bottom: 1px solid #141414;">
+    <div class="max-w-5xl mx-auto px-8 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm text-white" style="background: linear-gradient(135deg, #7c3aed, #ea580c);">LL</div>
+        <span class="text-white font-semibold text-base tracking-tight">LoopLab</span>
+      </div>
+      <nav class="flex items-center gap-6">
+        <a href="#" class="text-sm transition-colors" style="color:#555;">Genres</a>
+        <a href="#" class="text-sm transition-colors" style="color:#555;">BPM Guide</a>
+        <a href="#" class="text-sm transition-colors" style="color:#555;">Theory</a>
+        <a href="#" class="text-sm transition-colors" style="color:#555;">Tools</a>
+        <button class="text-sm px-4 py-1.5 rounded-md font-medium text-white" style="background:#7c3aed;">Sign in</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-8 py-16">
+
+    <!-- Hero -->
+    <div class="mb-14">
+      <p class="text-xs font-medium tracking-widest uppercase mb-4" style="color:#555;">Music Production Reference</p>
+      <h1 class="text-4xl font-semibold tracking-tight leading-tight mb-4" style="letter-spacing:-0.03em;">
+        Everything you need<br/>to produce better music.
+      </h1>
+      <p class="text-sm max-w-md leading-relaxed" style="color:#555;">
+        Genre guides, BPM references, chord progressions, and production templates — all in one place.
+      </p>
+    </div>
+
+    <!-- Search -->
+    <div class="mb-14">
+      <div class="flex items-center gap-3 max-w-lg px-4 py-3 rounded-lg border" style="background:#0d0d0d; border-color:#1f1f1f;">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="#555" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search genres, BPM, techniques…" class="search-input bg-transparent text-sm w-full border-0" />
+        <span class="text-xs px-2 py-1 rounded" style="color:#555; background:#161616; border:1px solid #2a2a2a;">⌘K</span>
+      </div>
+    </div>
+
+    <!-- Quick links -->
+    <div class="mb-14">
+      <p class="text-xs font-medium uppercase tracking-widest mb-4" style="color:#555;">Quick access</p>
+      <div class="flex flex-wrap gap-2">
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">BPM Reference</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Chord Progressions</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Drum Patterns</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Sample Packs</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Mix Templates</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Scale Reference</a>
+        <a href="#" class="pill-link text-xs px-4 py-2 rounded-full border transition-colors" style="border-color:#242424; color:#888; background:#0d0d0d;">Reverb Settings</a>
+      </div>
+    </div>
+
+    <!-- Genre list -->
+    <div class="mb-14">
+      <div class="flex items-center justify-between mb-6">
+        <p class="text-xs font-medium uppercase tracking-widest" style="color:#555;">Genre Guides</p>
+        <a href="#" class="text-xs transition-colors" style="color:#555;">View all →</a>
+      </div>
+      <div class="rounded-lg border overflow-hidden" style="border-color:#1a1a1a;">
+
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#a855f7;"></div>
+          <span class="text-sm font-medium flex-1">Trap</span>
+          <span class="text-xs mr-8" style="color:#a855f7;">140 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#f59e0b;"></div>
+          <span class="text-sm font-medium flex-1">House</span>
+          <span class="text-xs mr-8" style="color:#f59e0b;">128 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#06b6d4;"></div>
+          <span class="text-sm font-medium flex-1">Drum &amp; Bass</span>
+          <span class="text-xs mr-8" style="color:#06b6d4;">174 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#f97316;"></div>
+          <span class="text-sm font-medium flex-1">Techno</span>
+          <span class="text-xs mr-8" style="color:#f97316;">140 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#ec4899;"></div>
+          <span class="text-sm font-medium flex-1">UK Garage</span>
+          <span class="text-xs mr-8" style="color:#ec4899;">130 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#6366f1;"></div>
+          <span class="text-sm font-medium flex-1">Lofi Hip-Hop</span>
+          <span class="text-xs mr-8" style="color:#6366f1;">75 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+
+        <div class="genre-row flex items-center px-5 py-4 border-b cursor-pointer transition-colors" style="border-color:#1a1a1a;">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#22d3ee;"></div>
+          <span class="text-sm font-medium flex-1">Ambient</span>
+          <span class="text-xs mr-8" style="color:#22d3ee;">90 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+
+        <div class="genre-row flex items-center px-5 py-4 cursor-pointer transition-colors">
+          <div class="w-2 h-2 rounded-full flex-shrink-0 mr-5" style="background:#84cc16;"></div>
+          <span class="text-sm font-medium flex-1">Afrobeats</span>
+          <span class="text-xs mr-8" style="color:#84cc16;">100 BPM</span>
+          <svg class="w-4 h-4" fill="none" stroke="#555" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="flex items-center justify-between pt-8" style="border-top: 1px solid #141414;">
+      <p class="text-xs" style="color:#444;">Last updated June 2026 · 48 genre guides</p>
+      <p class="text-xs" style="color:#444;">Built for producers</p>
+    </div>
+
+  </main>
+</body>
+</html>

@@ -5,10 +5,13 @@ import { getContext } from './synth'
 import * as S from './synth'
 import { noteToFreq, chordToFreqs } from './theory'
 import { grooveFor } from './grooves'
+import { playKitVoice } from './drumKit'
+import { playChordSampled, playFreqSampled } from './sampler'
 
 // Decide which synth voice a part uses, from its name.
 export function voiceFor(partName) {
   const n = partName.toLowerCase()
+  if (n.includes('drum')) return 'kick'   // e.g. "Drums" in lo-fi
   if (n.includes('808')) return 'eight08'
   if (n.includes('kick')) return 'kick'
   if (n.includes('clap')) return 'clap'
@@ -19,14 +22,18 @@ export function voiceFor(partName) {
   if (n.includes('donk') || n.includes('bounce')) return 'donk'
   if (n.includes('piano')) return 'piano'
   if (n.includes('organ')) return 'piano'
-  if (n.includes('reese')) return 'reese'
+  if (n.includes('reese') || (n.includes('mid') && n.includes('bass'))) return 'reese'
   if (n.includes('sub') || n.includes('bass')) return 'bass'
   if (n.includes('rumble')) return 'kick'
-  if (n.includes('fx') || n.includes('riser') || n.includes('atmos')) return 'riser'
-  if (n.includes('chord') || n.includes('pad') || n.includes('key')) return 'chord'
-  if (n.includes('vocal') || n.includes('vox') || n.includes('voice')) return 'vox'
+  if (n.includes('bell')) return 'bell'
+  // Pad/chord/string/key takes precedence over atmos/fx so a "Pads/Atmos" track
+  // plays the held pad chords rather than a riser (which the groove may not define).
+  if (n.includes('string') || n.includes('chord') || n.includes('pad') || n.includes('key')) return 'chord'
+  if (n.includes('fx') || n.includes('riser') || n.includes('atmos') || n.includes('texture')) return 'riser'
+  if (n.includes('vocal') || n.includes('vox') || n.includes('voice') || n.includes('vocals')) return 'vox'
   if (n.includes('hoover') || n.includes('stab') || n.includes('rave') ||
       n.includes('acid')) return 'supersaw'
+  if (n.includes('lead') && n.includes('synth')) return 'supersaw'  // "Lead Synth" → detuned supersaw
   if (n.includes('lead') || n.includes('melody') || n.includes('synth') ||
       n.includes('sample')) return 'pluck'
   return 'pluck'
@@ -152,47 +159,107 @@ export function playPattern(pattern, partName, bpm, { withClick = true, onStep }
 // absolute audio time. Used by both the genre arrangement and the custom
 // arrangement builder so they always sound identical.
 function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
-  // User-recorded vocal clip — play the raw AudioBuffer directly.
+  // Recorded vocal clip or hardcoded sample — play the AudioBuffer directly.
+  //   evt.rate       pitch-shift (so a one-shot can follow a hook melody)
+  //   evt.gain       level trim
+  //   evt.offset     start position into the buffer, in seconds (for chops)
+  //   evt.gateSteps  gate length in steps — slices the sample into a short,
+  //                  enveloped chop instead of playing it in full
   if (evt.vocalBuffer || evt.vocalClipId) {
     const buf = evt.vocalBuffer
-    if (!buf) return // buffer not yet decoded, skip silently
+    if (!buf) return // buffer not yet decoded / file missing, skip silently
     const src = ctx.createBufferSource()
     src.buffer = buf
-    const g = ctx.createGain(); g.gain.value = 0.85
+    if (evt.rate && evt.rate > 0) src.playbackRate.value = evt.rate
+    const peak = (evt.gain != null ? evt.gain : 1) * 0.85
+    const off = evt.offset || 0
+    const g = ctx.createGain()
     src.connect(g); g.connect(out)
-    src.start(t)
+    if (evt.gateSteps != null) {
+      const dur = evt.gateSteps * stepDur
+      const a = 0.006                       // tiny attack to avoid clicks
+      const r = Math.min(0.06, dur * 0.4)   // short release tail
+      g.gain.setValueAtTime(0, t)
+      g.gain.linearRampToValueAtTime(peak, t + a)
+      g.gain.setValueAtTime(peak, Math.max(t + a, t + dur - r))
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur)
+      src.start(t, off)
+      src.stop(t + dur + 0.05)
+    } else {
+      g.gain.value = peak
+      src.start(t, off)
+    }
     return
   }
   if (evt.drum) {
-    if (voice === 'kick') return S.kick(ctx, t, out, 1)
-    if (voice === 'clap') return S.clap(ctx, t, out, 0.6)
-    if (voice === 'perc') return S.hat(ctx, t, out, 0.32, true)
-    if (voice === 'snare') return (snareAsClap ? S.clap : S.snare)(ctx, t, out, 0.6)
-    if (voice === 'hat') return S.hat(ctx, t, out, 0.3, !!evt.open)
+    const tone = evt.tone
+    // Sampled kit first (when one is selected); falls back to the synth voices.
+    // Trap hat rolls stay on the synth (fast retrigs sound wrong from one-shots).
+    if (voice === 'kick') { if (playKitVoice(ctx, 'kick', t, out, 0.95)) return; return S.kick(ctx, t, out, 1, tone) }
+    if (voice === 'clap') { if (playKitVoice(ctx, 'clap', t, out, 0.6)) return; return S.clap(ctx, t, out, 0.6) }
+    if (voice === 'perc') {
+      if (playKitVoice(ctx, 'perc', t, out, 0.5)) return
+      if (tone === 'conga') return S.conga(ctx, t, out, 0.45, 200 + (evt.level || 0.5) * 80)
+      return S.hat(ctx, t, out, 0.32, true, tone)
+    }
+    if (voice === 'snare') { if (playKitVoice(ctx, snareAsClap ? 'clap' : 'snare', t, out, 0.6)) return; return (snareAsClap ? S.clap : S.snare)(ctx, t, out, 0.6, tone) }
+    if (voice === 'hat') {
+      if (evt.roll) { // trap roll: fast retrigs filling the step (synth only)
+        for (let r = 0; r < evt.roll; r++) S.hat(ctx, t + (r * stepDur) / evt.roll, out, 0.22, false, tone)
+        return
+      }
+      if (playKitVoice(ctx, evt.open ? 'hatOpen' : 'hatClosed', t, out, 0.45)) return
+      return S.hat(ctx, t, out, 0.3, !!evt.open, tone)
+    }
     if (voice === 'break') {
       const isSnare = evt.breakSnare || (evt.breakStep != null && evt.breakStep % 8 >= 4)
-      return isSnare ? S.snare(ctx, t, out, 0.55) : S.kick(ctx, t, out, 0.9)
+      if (playKitVoice(ctx, isSnare ? 'snare' : 'kick', t, out, 0.85)) return
+      return isSnare ? S.snare(ctx, t, out, 0.55, evt.tone || 'dnb') : S.kick(ctx, t, out, 0.9, evt.tone || 'dnb')
     }
-    return S.kick(ctx, t, out, 1)
+    if (playKitVoice(ctx, 'kick', t, out, 0.95)) return
+    return S.kick(ctx, t, out, 1, tone)
   }
   if (evt.freqs) {
-    if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24, evt.pad ? stepDur * 8 : stepDur * 3)
-    if (evt.pad) return S.synthPad(ctx, t, out, evt.freqs, 0.20, stepDur * 12)
-    if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.22, stepDur * 6)
-    return S.chordStab(ctx, t, out, evt.freqs, 0.26, stepDur * 4, true)
+    const vg = evt.gain != null ? evt.gain : 1 // per-pattern gain trim
+    // Sampled instruments first (when in 'samples' mode and loaded); else synth.
+    const chordInst = evt.organ ? 'organ' : (evt.rhodes || evt.keys) ? 'rhodes' : evt.pad ? 'pad' : evt.rave ? 'supersaw' : 'piano'
+    if (playChordSampled(ctx, chordInst, evt.freqs, t, out, 0.5 * vg, evt.pad ? stepDur * 10 : stepDur * 4)) return
+    if (evt.organ) return S.organ(ctx, t, out, evt.freqs, 0.3 * vg, stepDur * 2.5)
+    if (evt.rhodes) return S.rhodes(ctx, t, out, evt.freqs, 0.24 * vg, stepDur * 7)
+    if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24 * vg, evt.pad ? stepDur * 8 : stepDur * 3)
+    if (evt.pad) return S.synthPad(ctx, t, out, evt.freqs, 0.20 * vg, stepDur * 12)
+    if (evt.rave) return S.supersawChord(ctx, t, out, evt.freqs, 0.13 * vg, stepDur * 3.2)
+    if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.17 * vg, stepDur * 6)
+    return S.chordStab(ctx, t, out, evt.freqs, 0.18 * vg, stepDur * 4, true)
   }
   if (voice === 'riser') return S.riser(ctx, t, out, 0.14, stepDur * 64)
   if (evt.freq != null) {
     const f = evt.freq
-    if (evt.bell) return S.bell(ctx, t, out, f, 0.30, stepDur * 10)
+    // Sampled tonal voices first; else synth.
+    const noteInst = evt.hoover ? 'hoover' : evt.acid ? 'acid'
+      : (evt.sub || voice === 'bass') ? 'bass'
+      : voice === 'reese' ? 'reese'
+      : voice === 'eight08' ? 'moog'
+      : voice === 'supersaw' ? 'supersaw'
+      : voice === 'piano' ? 'piano' : null
+    if (noteInst) {
+      const g = (noteInst === 'bass' || noteInst === 'moog') ? 0.55 : noteInst === 'hoover' ? 0.32 : 0.42
+      const isLongBass = voice === 'bass' || evt.sub || voice === 'eight08'
+      const dur = isLongBass ? (evt.long ? stepDur * 5 : stepDur * 1.6) : stepDur * 1.9
+      if (playFreqSampled(ctx, noteInst, f, t, out, g, dur)) return
+    }
+    if (evt.bell) return S.bell(ctx, t, out, f, 0.32, stepDur * 10)
     if (evt.hoover) return S.hoover(ctx, t, out, f, 0.26, stepDur * 2.2)
+    if (evt.acid) return S.acid(ctx, t, out, f, 0.38, stepDur * 1.7, evt.accent)
+    if (evt.sub) return S.sub(ctx, t, out, f, 0.55, evt.long ? stepDur * 6 : stepDur * 2)
     if (voice === 'reese') return S.reese(ctx, t, out, f, 0.4, stepDur * 3)
     if (voice === 'donk') return S.donk(ctx, t, out, f, 0.5, stepDur * 1.4)
     if (voice === 'eight08') return S.eight08(ctx, t, out, f, 0.9, evt.long ? stepDur * 6 : 0.5)
     if (voice === 'bass') return S.bass(ctx, t, out, f, 0.5, evt.long ? stepDur * 4 : stepDur * 1.5)
     if (voice === 'supersaw') return S.supersaw(ctx, t, out, f, 0.28, stepDur * 1.8)
     if (voice === 'piano') return S.piano(ctx, t, out, [f], 0.22, stepDur * 3)
-    if (voice === 'vox') return S.vox(ctx, t, out, f, 0.2, stepDur * (evt.sustain || 6), evt.vowel || 'oo', true)
+    if (voice === 'vox' && evt.pluck) return S.pluck(ctx, t, out, f, 0.22, stepDur * 2)
+    if (voice === 'vox') return S.vox(ctx, t, out, f, 0.15, stepDur * (evt.sustain || 5), evt.vowel || 'oo', false)
     return S.pluck(ctx, t, out, f, 0.3, stepDur * 2)
   }
 }
@@ -205,7 +272,7 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
 // a live map { trackName: clip16 } and mutedRef.current a live { name: true }
 // map — both are read fresh every step so the user can swap example patterns
 // and mute/unmute tracks while the song keeps playing.
-export function playArrangement(genreId, arrangement, tracks, { onStep, startStep = 0, clipsRef, mutedRef, bpm: bpmOverride } = {}) {
+export function playArrangement(genreId, arrangement, tracks, { onStep, startStep = 0, clipsRef, mutedRef, gainsRef, bpm: bpmOverride } = {}) {
   const ctx = getContext()
   const groove = grooveFor(genreId)
   const bpm = bpmOverride || groove.bpm
@@ -214,6 +281,17 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
   const out = ctx.createGain()
   out.gain.value = 0.8
   out.connect(ctx.destination)
+
+  // Per-track gain bus so each part has its own live volume fader.
+  const trackOuts = {}
+  function outFor(name) {
+    let n = trackOuts[name]
+    if (!n) { n = ctx.createGain(); n.connect(out); trackOuts[name] = n }
+    const gains = gainsRef ? gainsRef.current : null
+    const v = gains && gains[name] != null ? gains[name] : 1
+    if (n.gain.value !== v) n.gain.value = v
+    return n
+  }
 
   // Map bar index → section index.
   const sections = arrangement.sections
@@ -232,9 +310,9 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
 
   // Play a single pre-normalised clip event for a voice at a given time,
   // applying this genre's swing on the off-steps.
-  function fire(voice, evt, stepInBar, time) {
+  function fire(voice, evt, stepInBar, time, dest) {
     const t = time + (stepInBar % 2 === 1 ? swing * stepDur : 0)
-    fireEvent(ctx, out, voice, evt, t, stepDur, genreId === 'deep-house')
+    fireEvent(ctx, dest || out, voice, evt, t, stepDur, genreId === 'deep-house')
   }
 
   function scheduler() {
@@ -261,7 +339,7 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
         // phase-locked to the song grid.
         const evt = clip && clip[g % clip.length]
         if (!evt) return
-        fire(track.voice, evt, stepInBar, nextStepTime)
+        fire(track.voice, evt, stepInBar, nextStepTime, outFor(track.name))
       })
 
       if (onStep) {
@@ -299,11 +377,22 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
 // track for the whole song), this plays a *different* clip per bar per track,
 // so the user can paint distinct example patterns into each bar. gridRef is a
 // live ref: gridRef.current = { trackName: [clip16 | null, ... per bar] }.
-export function playCustom(tracks, bars, bpm, { onStep, gridRef, mutedRef, snareAsClap = false, startStep = 0 } = {}) {
+export function playCustom(tracks, bars, bpm, { onStep, gridRef, mutedRef, gainsRef, snareAsClap = false, startStep = 0 } = {}) {
   const ctx = getContext()
   const out = ctx.createGain()
   out.gain.value = 0.8
   out.connect(ctx.destination)
+
+  // Per-track gain bus so each lane has its own live volume fader.
+  const trackOuts = {}
+  function outFor(name) {
+    let n = trackOuts[name]
+    if (!n) { n = ctx.createGain(); n.connect(out); trackOuts[name] = n }
+    const gains = gainsRef ? gainsRef.current : null
+    const v = gains && gains[name] != null ? gains[name] : 1
+    if (n.gain.value !== v) n.gain.value = v
+    return n
+  }
 
   const totalSteps = Math.max(16, bars * 16)
   const stepDur = 60 / bpm / 4
@@ -330,7 +419,7 @@ export function playCustom(tracks, bars, bpm, { onStep, gridRef, mutedRef, snare
         const clip = lane && lane[bar]
         const evt = clip && clip[stepInBar]
         if (!evt) return
-        fireEvent(ctx, out, track.voice, evt, nextStepTime, stepDur, snareAsClap)
+        fireEvent(ctx, outFor(track.name), track.voice, evt, nextStepTime, stepDur, snareAsClap)
       })
 
       if (onStep) {

@@ -2,7 +2,34 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { usePlayer } from '../audio/usePlayer'
 import { voiceFor } from '../audio/player'
 import { buildTrackClip } from '../audio/arrangementClip'
+import { vocalPresetFor } from '../audio/samplePresets'
+import { loadSample } from '../audio/sampleLoader'
+import { exportGrooveMidi } from '../audio/midiExport'
+import { getContext } from '../audio/synth'
 import PlayButton from './PlayButton'
+import KitPicker from './KitPicker'
+
+// Turn a synth vocal clip into one that triggers a real vocal sample, pitched
+// per note to follow the written hook (rate clamped so it never chipmunks).
+// When an event is flagged `chop`, the sample is sliced into a short, gated
+// stab (cycling through a few in-sample offsets for movement) — the classic
+// vocal-chop hook. Otherwise it's gated to the note's own sustain so held
+// vowels breathe with the phrase instead of droning over each other.
+const CHOP_GATE = 1.5                          // chop length, in 16th steps
+const CHOP_OFFSETS = [0.08, 0.24, 0.14, 0.32]  // seconds into the vowel
+function sampleiseVocalClip(clip, buf, baseFreq) {
+  if (!clip) return clip
+  let hit = 0
+  return clip.map(evt => {
+    if (!evt || evt.freq == null) return evt
+    const rate = Math.min(2, Math.max(0.5, evt.freq / baseFreq))
+    const chop = !!evt.chop
+    const gateSteps = chop ? CHOP_GATE : Math.min(8, evt.sustain || 4)
+    const offset = chop ? CHOP_OFFSETS[hit % CHOP_OFFSETS.length] : 0
+    hit++
+    return { vocalBuffer: buf, rate, gain: chop ? 0.85 : 0.9, gateSteps, offset, level: evt.level }
+  })
+}
 
 const LABEL_W_DESKTOP = 176 // px — track-name column on ≥640px
 const LABEL_W_MOBILE  = 100 // px — track-name column on <640px
@@ -67,11 +94,28 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   const containerRef = useRef(null)
   const clipsRef = useRef({})  // live: trackName -> clip16
   const mutedRef = useRef({})  // live: trackName -> true
+  const gainsRef = useRef({})  // live: trackName -> volume (0..1.5)
+  const [volumes, setVolumes] = useState({}) // trackName -> volume
 
   const [frac, setFrac] = useState(null) // smooth playhead 0..1
   const [startBar, setStartBar] = useState(0) // where playback begins
-  const [follow, setFollow] = useState(true) // auto-scroll to track the playhead
+  const [follow, setFollow] = useState(false) // auto-scroll to track the playhead
   const [labelW, setLabelW] = useState(LABEL_W_DESKTOP)
+
+  // Real vocal sample for this genre — plays on the Vocals track instead of the
+  // synth voice when enabled (default on). Falls back to the synth if not loaded.
+  const vocalPreset = useMemo(() => vocalPresetFor(genreId), [genreId])
+  const [vocalSample, setVocalSample] = useState({ src: null, buf: null })
+  const [useSampleVox, setUseSampleVox] = useState(true)
+  useEffect(() => {
+    let live = true
+    loadSample(getContext(), vocalPreset.src).then(buf => {
+      if (live) setVocalSample({ src: vocalPreset.src, buf })
+    })
+    return () => { live = false }
+  }, [vocalPreset])
+  // Ignore a stale buffer from the previous genre until the new one resolves.
+  const vocalBuf = vocalSample.src === vocalPreset.src ? vocalSample.buf : null
 
   // Respond to container width changes so the label column narrows on mobile.
   useEffect(() => {
@@ -93,6 +137,11 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   const lineup = useMemo(
     () => arrangement.tracks.map(t => ({ name: t.name, voice: voiceFor(t.name), sections: t.sections })),
     [arrangement.tracks],
+  )
+
+  const hasVocalTrack = useMemo(
+    () => lineup.some(t => t.voice === 'vox'),
+    [lineup],
   )
 
   // For each track, the matching part (for its selectable example patterns).
@@ -121,10 +170,14 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
       const source = (sel != null && sel !== 'groove' && options[sel])
         ? { type: 'pattern', pattern: options[sel] }
         : { type: 'groove', genreId, override: songGroove }
-      map[t.name] = buildTrackClip(v, source)
+      let clip = buildTrackClip(v, source)
+      if (v === 'vox' && useSampleVox && vocalBuf) {
+        clip = sampleiseVocalClip(clip, vocalBuf, vocalPreset.baseFreq)
+      }
+      map[t.name] = clip
     })
     return map
-  }, [arrangement.tracks, selection, partFor, genreId, songGroove])
+  }, [arrangement.tracks, selection, partFor, genreId, songGroove, useSampleVox, vocalBuf, vocalPreset])
 
   // Keep the live clips ref in sync with React state.
   useEffect(() => {
@@ -135,9 +188,10 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
     Object.keys(hidden).forEach(k => { if (hidden[k]) m[k] = true })
     mutedRef.current = m
   }, [hidden])
+  useEffect(() => { gainsRef.current = volumes }, [volumes])
 
   const play = (fromBar = startBar) =>
-    start('arrangement', { genreId, arrangement, tracks: lineup, startStep: fromBar * 16, clipsRef, mutedRef, bpm })
+    start('arrangement', { genreId, arrangement, tracks: lineup, startStep: fromBar * 16, clipsRef, mutedRef, gainsRef, bpm })
 
   const onPlay = () => (playing ? stop() : play())
 
@@ -184,32 +238,62 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   }, [frac, timelineWidth, follow, labelW])
 
   return (
-    <div ref={containerRef} className="rounded-2xl border border-white/10 bg-black/40 overflow-hidden">
+    <div ref={containerRef} className=" border border-hairline bg-black/40 overflow-hidden">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-5 py-3 border-b border-white/10">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 sm:px-5 py-3 border-b border-hairline">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-lg">🎼</span>
           <div className="min-w-0">
             <span className="text-sm sm:text-base font-semibold text-white">Arrangement</span>
-            <span className="text-xs text-gray-600 ml-2">
+            <span className="text-xs text-faint ml-2">
               {totalBars} bars · {bpm} BPM
               {currentBar >= 0
-                ? <span className="text-purple-300 ml-1">▸ {currentBar + 1}</span>
+                ? <span className="text-acid ml-1">▸ {currentBar + 1}</span>
                 : <span className="text-cyan-300/80 ml-1">▷ {startBar + 1}</span>}
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <KitPicker className="mr-1" />
+          {hasVocalTrack && (
+            <button
+              data-tutorial="sample-toggle"
+              onClick={() => setUseSampleVox(v => !v)}
+              disabled={!vocalBuf}
+              className={`text-xs px-2.5 py-1.5  border transition-colors ${
+                !vocalBuf
+                  ? 'border-hairline bg-surface text-faint cursor-wait'
+                  : useSampleVox
+                    ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-200'
+                    : 'border-hairline bg-surface text-dim hover:text-ink'
+              }`}
+              title={
+                !vocalBuf ? 'Loading vocal sample…'
+                : useSampleVox ? `Vocals: real sample (${vocalPreset.name}) — click for synth`
+                : 'Vocals: synth — click for real sample'
+              }
+            >
+              🎤<span className="hidden sm:inline ml-1">{useSampleVox ? 'Sample' : 'Synth'}</span>
+            </button>
+          )}
           <button
+            data-tutorial="follow-toggle"
             onClick={() => setFollow(f => !f)}
-            className={`text-xs px-2.5 py-1.5 rounded-lg border transition-colors ${
+            className={`text-xs px-2.5 py-1.5  border transition-colors ${
               follow
-                ? 'border-purple-500/50 bg-purple-500/15 text-purple-200'
-                : 'border-white/10 bg-white/5 text-gray-400 hover:text-gray-200'
+                ? 'border-acid/50 bg-acid/15 text-acid'
+                : 'border-hairline bg-surface text-dim hover:text-ink'
             }`}
             title="When on, the view scrolls to follow the playhead. Turn off to scroll/edit freely while it plays."
           >
             {follow ? '🔒' : '🔓'}<span className="hidden sm:inline ml-1">{follow ? 'Following' : 'Free scroll'}</span>
+          </button>
+          <button
+            data-tutorial="midi-export"
+            onClick={() => exportGrooveMidi(genreId)}
+            className="text-xs px-2.5 py-1.5  border border-hairline bg-surface text-dim hover:text-ink transition-colors"
+            title="Download groove as MIDI — drag into FL Studio"
+          >
+            ↓ MIDI
           </button>
           <PlayButton playing={playing} onClick={onPlay} accentClass={accentClass} label="Play arrangement" />
         </div>
@@ -219,9 +303,9 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
         <div className="relative" style={{ minWidth: labelW + timelineWidth }}>
 
           {/* Section ruler */}
-          <div className="flex border-b border-white/10 bg-white/5">
+          <div className="flex border-b border-hairline bg-surface">
             <div
-              className="shrink-0 px-4 py-2.5 text-xs text-gray-500 border-r border-white/10 font-semibold uppercase tracking-wider"
+              className="shrink-0 px-4 py-2.5 text-xs text-dim border-r border-hairline font-semibold uppercase tracking-wider"
               style={{ width: labelW }}
             >
               Track
@@ -232,11 +316,11 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
                 return (
                   <div
                     key={i}
-                    className={`border-r border-white/10 px-2 py-2.5 text-center overflow-hidden transition-colors ${live ? 'bg-white/10' : ''}`}
+                    className={`border-r border-hairline px-2 py-2.5 text-center overflow-hidden transition-colors ${live ? 'bg-surface-2' : ''}`}
                     style={{ flex: section.bars }}
                   >
-                    <div className={`text-xs font-semibold truncate ${live ? 'text-white' : 'text-gray-300'}`}>{section.name}</div>
-                    <div className="text-[10px] text-gray-600">{section.bars} bars</div>
+                    <div className={`text-xs font-semibold truncate ${live ? 'text-white' : 'text-dim'}`}>{section.name}</div>
+                    <div className="text-[10px] text-faint">{section.bars} bars</div>
                   </div>
                 )
               })}
@@ -250,9 +334,9 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
             const options = partFor[track.name] || []
             const sel = selection[track.name] ?? 'groove'
             return (
-              <div key={track.name} className={`flex border-b border-white/5 group ${isHidden ? 'opacity-40' : ''}`}>
+              <div key={track.name} className={`flex border-b border-hairline group ${isHidden ? 'opacity-40' : ''}`}>
                 <div
-                  className="shrink-0 flex flex-col justify-center gap-1 px-2 sm:px-3 py-2 border-r border-white/10"
+                  className="shrink-0 flex flex-col justify-center gap-1 px-2 sm:px-3 py-2 border-r border-hairline"
                   style={{ width: labelW }}
                 >
                   <button
@@ -266,7 +350,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
                     >
                       {isHidden ? '' : '✓'}
                     </span>
-                    <span className={`text-xs sm:text-sm truncate ${isHidden ? 'text-gray-600 line-through' : 'text-gray-200'}`}>
+                    <span className={`text-xs sm:text-sm truncate ${isHidden ? 'text-faint line-through' : 'text-ink'}`}>
                       {labelW > 110 && <span>{track.icon} </span>}{track.name}
                     </span>
                   </button>
@@ -275,6 +359,18 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
                       {track.instrument}
                     </span>
                   )}
+                  {/* Per-track volume fader (live while playing) */}
+                  <div className="flex items-center gap-1" title={`Volume: ${Math.round((volumes[track.name] ?? 1) * 100)}%`}>
+                    <span className="text-[9px] text-faint">🔊</span>
+                    <input
+                      type="range"
+                      min={0} max={1.5} step={0.05}
+                      value={volumes[track.name] ?? 1}
+                      onChange={e => setVolumes(v => ({ ...v, [track.name]: Number(e.target.value) }))}
+                      className="w-full h-1 accent-acid cursor-pointer"
+                      aria-label={`${track.name} volume`}
+                    />
+                  </div>
                   {options.length > 0 && labelW > 110 && (
                     <select
                       value={sel}
@@ -282,7 +378,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
                         const v = e.target.value === 'groove' ? 'groove' : Number(e.target.value)
                         setSelection(s => ({ ...s, [track.name]: v }))
                       }}
-                      className="w-full bg-gray-900 border border-white/10 rounded px-1.5 py-1 text-[11px] text-gray-300 focus:outline-none focus:border-purple-500 cursor-pointer"
+                      className="w-full bg-surface-2 border border-hairline rounded px-1.5 py-1 text-[11px] text-dim focus:outline-none focus:border-acid cursor-pointer"
                       title="Choose which example pattern this track plays"
                     >
                       <option value="groove">Default groove</option>
@@ -322,14 +418,14 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
           })}
 
           {/* Bar counter */}
-          <div className="flex border-t border-white/5 bg-black/20">
-            <div className="shrink-0 border-r border-white/10 px-4 py-1.5 text-[10px] text-gray-700 uppercase tracking-wider" style={{ width: labelW }}>Bar</div>
+          <div className="flex border-t border-hairline bg-black/20">
+            <div className="shrink-0 border-r border-hairline px-4 py-1.5 text-[10px] text-faint uppercase tracking-wider" style={{ width: labelW }}>Bar</div>
             <div className="flex" style={{ width: timelineWidth }}>
               {arrangement.sections.map((section, i) => {
                 const barsBefore = arrangement.sections.slice(0, i).reduce((s, x) => s + x.bars, 0)
                 return (
-                  <div key={i} className="border-r border-white/5 px-2 py-1.5" style={{ flex: section.bars }}>
-                    <span className="text-xs text-gray-600 font-mono">{barsBefore + 1}</span>
+                  <div key={i} className="border-r border-hairline px-2 py-1.5" style={{ flex: section.bars }}>
+                    <span className="text-xs text-faint font-mono">{barsBefore + 1}</span>
                   </div>
                 )
               })}
@@ -367,9 +463,9 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
         </div>
       </div>
 
-      <div className="px-5 py-3 border-t border-white/5 flex gap-4 flex-wrap items-center">
-        <span className="text-xs text-gray-600">Tick a track to mute/un-mute it live while playing · pick an example pattern per track from its dropdown · click the timeline to set where playback starts (cyan marker)</span>
-        <button onClick={() => setHidden({})} className="text-xs text-gray-500 hover:text-gray-300 transition-colors ml-auto">Show all</button>
+      <div className="px-5 py-3 border-t border-hairline flex gap-4 flex-wrap items-center">
+        <span className="text-xs text-faint">Tick a track to mute/un-mute it live while playing · pick an example pattern per track from its dropdown · click the timeline to set where playback starts (cyan marker)</span>
+        <button onClick={() => setHidden({})} className="text-xs text-dim hover:text-dim transition-colors ml-auto">Show all</button>
       </div>
     </div>
   )

@@ -49,18 +49,29 @@ export function grooveClip(voice, gp) {
   for (let i = 0; i < len; i++) {
     if (!gp.steps[i]) continue
     if (voice === 'break') {
-      clip[i] = { drum: true, breakSnare: !!(gp.snares && gp.snares.includes(i)), level: DRUM_LEVEL.break }
+      clip[i] = { drum: true, breakSnare: !!(gp.snares && gp.snares.includes(i)), tone: gp.tone, level: DRUM_LEVEL.break }
     } else if (isDrum(voice)) {
-      clip[i] = { drum: true, open: voice === 'hat' && !!gp.open && i % 4 === 2, level: DRUM_LEVEL[voice] }
+      clip[i] = {
+        drum: true,
+        open: voice === 'hat' && !!gp.open && i % 4 === 2,
+        tone: gp.tone,
+        roll: gp.rolls && gp.rolls.includes(i) ? 3 : undefined, // trap hat roll: 3 fast retrigs
+        level: DRUM_LEVEL[voice],
+      }
     } else if (gp.chords) {
       const sym = gp.chords[hit % gp.chords.length]
-      const freqs = sym ? chordToFreqs(sym, gp.pad ? 4 : 3) : null
-      clip[i] = { freqs, keys: !!gp.keys, pad: !!gp.pad, level: freqs ? freqLevel(freqs[0]) : 0.6 }
+      const freqs = sym ? chordToFreqs(sym, gp.pad ? 4 : gp.rave ? 4 : 3) : null
+      clip[i] = { freqs, keys: !!gp.keys, pad: !!gp.pad, rave: !!gp.rave, organ: !!gp.organ, rhodes: !!gp.rhodes, gain: gp.gain, level: freqs ? freqLevel(freqs[0]) : 0.6 }
       hit++
     } else {
       const name = gp.notes ? gp.notes[hit % gp.notes.length] : null
       const f = name ? noteToFreq(name) : null
-      clip[i] = { freq: f, long: gp.long, bell: !!gp.bell, hoover: !!gp.hoover, level: freqLevel(f) }
+      clip[i] = {
+        freq: f, long: gp.long, bell: !!gp.bell, hoover: !!gp.hoover,
+        acid: !!gp.acid, sub: !!gp.sub, pluck: !!gp.pluck, chop: !!gp.chop,
+        accent: !!(gp.accents && gp.accents.includes(i)),
+        level: freqLevel(f),
+      }
       hit++
     }
   }
