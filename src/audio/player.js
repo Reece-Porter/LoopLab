@@ -349,24 +349,28 @@ export function playArrangement(genreId, arrangement, tracks, { onStep, startSte
         S.vinyl(ctx, nextStepTime, out, 0.03, stepDur * 8)
       }
 
-      // Long sung-vocal phrase over drops/breakdowns: trigger at the section's
-      // phrase boundaries, grid-locked to genre tempo (rate = bpm / phrase.bpm),
-      // and gated so it never spills past the section end.
+      // Long sung-vocal phrase over drops/breakdowns: KEY-LOCKED (pitched into
+      // the genre's key by `semitones`), re-triggered to fill the section and
+      // re-synced to the bar grid each time. Gated so it never spills past the
+      // section end. Replaces the per-note vocal in these sections.
       const vp = vocalPhraseRef && vocalPhraseRef.current
       const phraseHere = vp && vp.buf && voxTrack && phraseSection[sectionIdx] && voxTrack.sections[sectionIdx]
       if (phraseHere && stepInBar === 0 && !muted[voxTrack.name]) {
+        const rate = Math.pow(2, (vp.semitones || 0) / 12)
+        const barSec = 16 * stepDur
+        const audible = vp.buf.duration / rate                 // heard length in seconds
+        const everyBars = Math.max(1, Math.round(audible / barSec))
         const local = bar - sectionStartBar[sectionIdx]
-        if (local % vp.bars === 0) {
+        if (local % everyBars === 0) {
           const secEnd = sectionStartBar[sectionIdx] + sections[sectionIdx].bars
-          const playBars = Math.min(vp.bars, secEnd - bar)
-          const dur = playBars * 16 * stepDur
+          const dur = Math.min(audible, (secEnd - bar) * barSec)
           const src = ctx.createBufferSource()
           src.buffer = vp.buf
-          src.playbackRate.value = bpm / vp.bpm
+          src.playbackRate.value = rate
           const pg = ctx.createGain()
           pg.gain.setValueAtTime(0, nextStepTime)
           pg.gain.linearRampToValueAtTime(0.9, nextStepTime + 0.02)
-          pg.gain.setValueAtTime(0.9, nextStepTime + Math.max(0.05, dur - 0.08))
+          pg.gain.setValueAtTime(0.9, nextStepTime + Math.max(0.05, dur - 0.12))
           pg.gain.exponentialRampToValueAtTime(0.0001, nextStepTime + dur)
           src.connect(pg); pg.connect(outFor(voxTrack.name))
           src.start(nextStepTime); src.stop(nextStepTime + dur + 0.05)

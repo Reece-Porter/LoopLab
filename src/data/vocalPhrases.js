@@ -1,29 +1,32 @@
 // Long sung-vocal phrases (Cymatics "Euphoria" pack) that play over the DROP and
 // BREAKDOWN sections of a genre's arrangement instead of the per-note vocal — a
-// real sung hook rather than single notes. Each phrase is pre-trimmed to a whole
-// number of bars at its own BPM; the player grid-locks it by playing at
-// rate = genreBPM / phrase.bpm, so it lands on the bars (pitch drifts a little
-// when the BPMs differ, which is why each genre is matched to a close phrase).
+// real sung hook rather than single notes.
 //
-// Genres with no good BPM+key match (schranz, drum-and-bass), or no drop/chorus
-// sections to carry a big sung hook (lo-fi hip-hop), keep the per-note vocal
-// everywhere and are simply absent here.
+// KEY-LOCKED, not tempo-locked: each phrase is pitched (by `semitones`) so it
+// lands in the genre's own key — a minor genre uses either a matching minor
+// phrase or its RELATIVE major (same notes), so it always sits in key. The
+// player pitches it (rate = 2^(semitones/12)) and re-triggers it to fill the
+// section, re-syncing to the bar grid each time. Shifts are tiny (0–1 semitone)
+// so the voice stays natural. Lo-fi has no drop-type section to carry a hook and
+// keeps the per-note vocal.
 
 const BASE = import.meta.env.BASE_URL
 
-// genreId → { file, bpm (of the recording), bars (length of the trimmed clip) }
+// genreId → { file, semitones } (pitch shift to reach the genre's key)
 export const VOCAL_PHRASES = {
-  eurodance:      { file: 'remember-days',   bpm: 140, bars: 2 },
-  'speed-garage': { file: 'remember-days',   bpm: 140, bars: 2 },
-  'deep-house':   { file: 'remember-days',   bpm: 140, bars: 2 },
-  house:          { file: 'remember-days',   bpm: 140, bars: 2 },
-  'hard-groove':  { file: 'turn-up',         bpm: 130, bars: 4 },
-  'tech-house':   { file: 'turn-up',         bpm: 130, bars: 4 },
-  'hard-techno':  { file: 'turn-up',         bpm: 130, bars: 4 },
-  'hard-house':   { file: 'i-dont-know',     bpm: 128, bars: 8 },
-  techno:         { file: 'i-dont-know',     bpm: 128, bars: 8 },
-  trap:           { file: 'i-dont-know',     bpm: 128, bars: 8 },
-  'bouncy-techno':{ file: 'let-me-love',     bpm: 150, bars: 2 },
+  eurodance:       { file: 'let-me-love',     semitones: 0 },  // Gm ← Gm
+  'speed-garage':  { file: 'let-me-love',     semitones: 0 },  // Gm ← Gm
+  'deep-house':    { file: 'like-that',       semitones: -1 }, // Fm ← F#m −1
+  house:           { file: 'like-that',       semitones: -1 }, // Fm ← F#m −1
+  'hard-groove':   { file: 'baby-all-i-want', semitones: 0 },  // Dm ← F maj (rel.)
+  'drum-and-bass': { file: 'baby-all-i-want', semitones: 0 },  // Dm ← F maj (rel.)
+  'hard-house':    { file: 'stuck',           semitones: 1 },  // Cm ← Eb maj (rel.)
+  'tech-house':    { file: 'stuck',           semitones: 1 },  // Cm ← Eb maj (rel.)
+  schranz:         { file: 'stuck',           semitones: 1 },  // Cm ← Eb maj (rel.)
+  trap:            { file: 'stuck',           semitones: 1 },  // Cm ← Eb maj (rel.)
+  'bouncy-techno': { file: 'i-dont-know',     semitones: 0 },  // Am ← Am
+  techno:          { file: 'i-dont-know',     semitones: 0 },  // Am ← Am
+  'hard-techno':   { file: 'turn-up',         semitones: 1 },  // Em ← D#m +1
 }
 
 export function vocalPhraseFor(genreId) {

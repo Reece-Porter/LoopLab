@@ -95,7 +95,7 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
     if (!p) return
     let live = true
     loadSample(getContext(), p.src).then(buf => {
-      if (live && buf) vocalPhraseRef.current = { buf, bpm: p.bpm, bars: p.bars }
+      if (live && buf) vocalPhraseRef.current = { buf, semitones: p.semitones }
     })
     return () => { live = false }
   }, [genreId])
