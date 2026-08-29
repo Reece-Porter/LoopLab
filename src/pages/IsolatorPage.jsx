@@ -6,8 +6,9 @@ import { saveClip, loadAllClips, deleteClip, deserialise } from '../audio/vocalS
 import { backendFetch, accessMessage } from '../lib/backend'
 import { useSeo } from '../utils/useSeo'
 
-// Draw a mono waveform with the selected [start..end] region highlighted.
-function drawWave(canvas, buffer, start, end) {
+// Draw a mono waveform with the selected [start..end] region highlighted and an
+// optional playhead (head, a 0..1 fraction) showing the current play position.
+function drawWave(canvas, buffer, start, end, head = null) {
   if (!canvas || !buffer) return
   const g = canvas.getContext('2d')
   const W = canvas.width, H = canvas.height
@@ -26,6 +27,10 @@ function drawWave(canvas, buffer, start, end) {
   g.fillStyle = 'rgba(0,0,0,0.45)'
   g.fillRect(0, 0, sx, H); g.fillRect(ex, 0, W - ex, H)
   g.fillStyle = '#fff'; g.fillRect(sx, 0, 2, H); g.fillRect(ex - 2, 0, 2, H)
+  if (head != null) {
+    const hx = Math.round(head * W)
+    g.fillStyle = '#ff5db1'; g.fillRect(hx, 0, 2, H)   // playhead
+  }
 }
 
 function download(blob, name) {
@@ -50,25 +55,40 @@ export default function IsolatorPage() {
   const [saved, setSaved] = useState([])
   const [aiState, setAiState] = useState('idle') // idle | uploading | processing | done | error
   const [aiError, setAiError] = useState('')
+  const [hasFile, setHasFile] = useState(false)  // an uploadable File is loaded (vs a saved clip)
 
   const canvasRef = useRef(null)
   const srcRef = useRef(null)
   const dragRef = useRef(false)
   const fileRef = useRef(null)   // original File, for AI upload
   const pollRef = useRef(null)
+  const viewRef = useRef({ buffer: null, a: 0, b: 1 }) // current draw state (avoids stale closures)
+  const rafRef = useRef(null)
+  const playRef = useRef(null)   // { start, a, b, dur } while a buffer is playing
 
   const ctx = getContext()
 
   const refreshSaved = useCallback(() => { loadAllClips().then(setSaved).catch(() => {}) }, [])
   useEffect(() => { refreshSaved() }, [refreshSaved])
 
-  // Redraw the waveform whenever the buffer or selection changes.
-  useEffect(() => { drawWave(canvasRef.current, vocal, sel.a, sel.b) }, [vocal, sel])
+  const redraw = useCallback((head = null) => {
+    const v = viewRef.current
+    drawWave(canvasRef.current, v.buffer, v.a, v.b, head)
+  }, [])
+
+  // Keep the draw state in sync and repaint (without a playhead) on any change.
+  useEffect(() => {
+    viewRef.current = { buffer: vocal, a: sel.a, b: sel.b }
+    if (!playRef.current) redraw(null)
+  }, [vocal, sel, redraw])
 
   const stop = useCallback(() => {
     if (srcRef.current) { try { srcRef.current.stop() } catch { /* already stopped */ } srcRef.current = null }
+    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null }
+    playRef.current = null
     setPlaying(false)
-  }, [])
+    redraw(null)
+  }, [redraw])
   useEffect(() => () => stop(), [stop])
 
   const cancelPoll = useCallback(() => { if (pollRef.current) { clearTimeout(pollRef.current); pollRef.current = null } }, [])
@@ -77,7 +97,7 @@ export default function IsolatorPage() {
   async function onFile(file) {
     if (!file) return
     cancelPoll(); setAiState('idle'); setAiError('')
-    fileRef.current = file
+    fileRef.current = file; setHasFile(true)
     stop(); setError(''); setVocal(null); setBusy(true); setName(file.name.replace(/\.[^.]+$/, ''))
     try {
       const arr = await file.arrayBuffer()
@@ -132,12 +152,24 @@ export default function IsolatorPage() {
   function play(fromSel = true) {
     if (!vocal) return
     stop()
-    const buf = fromSel ? trimBuffer(ctx, vocal, sel.a, sel.b) : vocal
+    const a = fromSel ? sel.a : 0, b = fromSel ? sel.b : 1
+    const buf = fromSel ? trimBuffer(ctx, vocal, a, b) : vocal
     if (ctx.state === 'suspended') ctx.resume()
     const src = ctx.createBufferSource()
     src.buffer = buf; src.connect(ctx.destination); src.start()
-    src.onended = () => setPlaying(false)
+    src.onended = () => stop()
     srcRef.current = src; setPlaying(true)
+    // Animate the playhead across the played region.
+    playRef.current = { start: ctx.currentTime, a, b, dur: buf.length / buf.sampleRate }
+    const tick = () => {
+      const p = playRef.current
+      if (!p) return
+      const elapsed = ctx.currentTime - p.start
+      const head = p.a + Math.min(1, elapsed / p.dur) * (p.b - p.a)
+      redraw(head)
+      if (elapsed < p.dur) rafRef.current = requestAnimationFrame(tick)
+    }
+    rafRef.current = requestAnimationFrame(tick)
   }
 
   // Canvas selection by click-drag.
@@ -166,6 +198,14 @@ export default function IsolatorPage() {
   function downloadFull() {
     if (!vocal) return
     download(encodeWav(vocal), (name || 'vocal') + ' (isolated).wav')
+  }
+
+  // Load a saved clip into the player above so you can scrub/play/re-chop it.
+  function openSaved(clip) {
+    stop(); cancelPoll(); setAiState('idle'); setAiError(''); setError('')
+    fileRef.current = null; setHasFile(false)
+    setVocal(deserialise(ctx, clip)); setName(clip.name); setChunkName(clip.name); setSel({ a: 0, b: 1 })
+    if (canvasRef.current) canvasRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   const dur = vocal ? vocal.length / vocal.sampleRate : 0
@@ -204,7 +244,7 @@ export default function IsolatorPage() {
         {error && <p className="text-red-400 text-xs mb-6">{error}</p>}
 
         {/* Method: quick (browser, already shown) vs clean (AI on the backend) */}
-        {name && (
+        {hasFile && (
           <div className="border border-hairline bg-surface p-4 sm:p-5 mb-6">
             <div className="flex flex-wrap items-center gap-3">
               {aiState === 'uploading' || aiState === 'processing' ? (
@@ -266,10 +306,10 @@ export default function IsolatorPage() {
             <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-faint mb-3">Your vocals · {saved.length}</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {saved.map(clip => (
-                <SavedChunk key={clip.id} clip={clip} ctx={ctx} onDelete={async id => { await deleteClip(id); refreshSaved() }} />
+                <SavedChunk key={clip.id} clip={clip} ctx={ctx} onOpen={() => openSaved(clip)} onDelete={async id => { await deleteClip(id); refreshSaved() }} />
               ))}
             </div>
-            <p className="text-faint text-[11px] mt-3">Saved chunks also show up in the <strong className="text-dim">Your Vocals</strong> row on any genre page, ready to drop into an arrangement.</p>
+            <p className="text-faint text-[11px] mt-3">Click a chunk's name to open it in the player above and scrub through it. Saved chunks also show up in the <strong className="text-dim">Your Vocals</strong> row on any genre page, ready to drop into an arrangement.</p>
           </div>
         )}
       </div>
@@ -277,7 +317,7 @@ export default function IsolatorPage() {
   )
 }
 
-function SavedChunk({ clip, ctx, onDelete }) {
+function SavedChunk({ clip, ctx, onOpen, onDelete }) {
   const [previewing, setPreviewing] = useState(false)
   const srcRef = useRef(null)
   function preview() {
@@ -292,9 +332,9 @@ function SavedChunk({ clip, ctx, onDelete }) {
   return (
     <div className="flex items-center gap-2 bg-surface border border-hairline px-3 py-2">
       <span className="text-base">🎤</span>
-      <span className="text-xs text-dim truncate flex-1 min-w-0" title={clip.name}>{clip.name}</span>
+      <button onClick={onOpen} className="text-xs text-dim hover:text-acid truncate flex-1 min-w-0 text-left" title={`Open “${clip.name}” in the player`}>{clip.name}</button>
       <span className="text-[10px] text-faint shrink-0">{(clip.length / clip.sampleRate).toFixed(1)}s</span>
-      <button onClick={preview} className={`text-xs shrink-0 ${previewing ? 'text-acid' : 'text-dim hover:text-white'}`} title="Preview">{previewing ? '⏹' : '▶'}</button>
+      <button onClick={preview} className={`text-xs shrink-0 ${previewing ? 'text-acid' : 'text-dim hover:text-white'}`} title="Quick preview">{previewing ? '⏹' : '▶'}</button>
       <button onClick={dl} className="text-[11px] text-faint hover:text-acid shrink-0" title="Download WAV">↓</button>
       <button onClick={() => onDelete(clip.id)} className="text-[10px] text-faint hover:text-red-400 shrink-0" title="Delete">✕</button>
     </div>

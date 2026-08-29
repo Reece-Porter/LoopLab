@@ -423,6 +423,9 @@ app.get('/api/fetch', (req, res) => {
 const ISO_DIR = join(tmpdir(), 'looplab-isolate')
 const upload = multer({ dest: join(ISO_DIR, 'uploads'), limits: { fileSize: 80 * 1024 * 1024 } })
 const DEMUCS_MODEL = process.env.DEMUCS_MODEL || 'htdemucs'
+// Test-time augmentation: more shifts = cleaner separation (less instrumental
+// bleed) but proportionally slower. 1 is a good default; 0 is fastest.
+const DEMUCS_SHIFTS = String(Math.max(0, Math.min(5, Number(process.env.DEMUCS_SHIFTS) || 1)))
 // Cap track length so a huge file can't OOM the 2 GB box. Override via env.
 const MAX_ISOLATE_SECONDS = Number(process.env.MAX_ISOLATE_SECONDS) || 390 // 6.5 min
 const jobs = new Map() // id → { state, dir, out, error, created }
@@ -482,7 +485,7 @@ app.post('/api/isolate', upload.single('audio'), async (req, res) => {
 
     // --two-stems=vocals: only split vocals vs the rest (half the work/memory).
     // --segment 7: cap the analysis window so peak RAM fits a 2 GB instance.
-    const args = ['-d', 'cpu', '--two-stems', 'vocals', '--segment', '7',
+    const args = ['-d', 'cpu', '--two-stems', 'vocals', '--segment', '7', '--shifts', DEMUCS_SHIFTS,
       '--mp3', '--mp3-bitrate', '192', '-n', DEMUCS_MODEL, '-o', join(dir, 'out'), input]
     const proc = spawn('demucs', args)
     let err = ''
