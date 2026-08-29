@@ -110,6 +110,8 @@ write('/tips', render({ path: '/tips', title: 'FL Studio Tips & Shortcuts | Loop
 urls.push({ loc: ORIGIN + '/tips', priority: '0.6' })
 write('/tools', render({ path: '/tools', title: 'Production Tools & Resources | LoopLab', description: 'A curated set of free tools and resources for electronic music producers.', contentHtml: staticContent('Production Tools') }))
 urls.push({ loc: ORIGIN + '/tools', priority: '0.6' })
+write('/isolator', render({ path: '/isolator', title: 'Vocal Isolator — LoopLab', description: 'Pull a rough vocal out of a track in your browser, chop it live and save or download the chunks. Free, no upload.', contentHtml: staticContent('Vocal Isolator') }))
+urls.push({ loc: ORIGIN + '/isolator', priority: '0.6' })
 
 // Genre pages
 for (const g of genres) {

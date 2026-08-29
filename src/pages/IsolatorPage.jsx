@@ -1,0 +1,237 @@
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { getContext } from '../audio/synth'
+import { isolateVocalCentre, trimBuffer, encodeWav } from '../audio/vocalIsolate'
+import { saveClip, loadAllClips, deleteClip, deserialise } from '../audio/vocalStore'
+import { useSeo } from '../utils/useSeo'
+
+// Draw a mono waveform with the selected [start..end] region highlighted.
+function drawWave(canvas, buffer, start, end) {
+  if (!canvas || !buffer) return
+  const g = canvas.getContext('2d')
+  const W = canvas.width, H = canvas.height
+  const data = buffer.getChannelData(0)
+  const step = Math.max(1, Math.floor(data.length / W))
+  g.clearRect(0, 0, W, H)
+  g.fillStyle = '#0f0f1a'; g.fillRect(0, 0, W, H)
+  const sx = Math.floor(start * W), ex = Math.ceil(end * W)
+  for (let x = 0; x < W; x++) {
+    let max = 0
+    for (let s = 0; s < step; s++) { const v = Math.abs(data[x * step + s] || 0); if (v > max) max = v }
+    const h = Math.max(1, max * (H - 4) * 0.92)
+    g.fillStyle = (x >= sx && x < ex) ? '#c6f24e' : '#2d2d4a'
+    g.fillRect(x, (H - h) / 2, 1, h)
+  }
+  g.fillStyle = 'rgba(0,0,0,0.45)'
+  g.fillRect(0, 0, sx, H); g.fillRect(ex, 0, W - ex, H)
+  g.fillStyle = '#fff'; g.fillRect(sx, 0, 2, H); g.fillRect(ex - 2, 0, 2, H)
+}
+
+function download(blob, name) {
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url; a.download = name
+  document.body.appendChild(a); a.click(); a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 4000)
+}
+
+export default function IsolatorPage() {
+  const navigate = useNavigate()
+  useSeo('Vocal Isolator — LoopLab', 'Pull a rough vocal out of a track in your browser, chop it live, and save or download the chunks. Free, no upload.')
+
+  const [name, setName] = useState('')        // source file name
+  const [vocal, setVocal] = useState(null)    // isolated AudioBuffer
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const [sel, setSel] = useState({ a: 0, b: 1 }) // selection fractions
+  const [playing, setPlaying] = useState(false)
+  const [chunkName, setChunkName] = useState('')
+  const [saved, setSaved] = useState([])
+
+  const canvasRef = useRef(null)
+  const srcRef = useRef(null)
+  const dragRef = useRef(false)
+
+  const ctx = getContext()
+
+  const refreshSaved = useCallback(() => { loadAllClips().then(setSaved).catch(() => {}) }, [])
+  useEffect(() => { refreshSaved() }, [refreshSaved])
+
+  // Redraw the waveform whenever the buffer or selection changes.
+  useEffect(() => { drawWave(canvasRef.current, vocal, sel.a, sel.b) }, [vocal, sel])
+
+  const stop = useCallback(() => {
+    if (srcRef.current) { try { srcRef.current.stop() } catch { /* already stopped */ } srcRef.current = null }
+    setPlaying(false)
+  }, [])
+  useEffect(() => () => stop(), [stop])
+
+  async function onFile(file) {
+    if (!file) return
+    stop(); setError(''); setVocal(null); setBusy(true); setName(file.name.replace(/\.[^.]+$/, ''))
+    try {
+      const arr = await file.arrayBuffer()
+      const decoded = await ctx.decodeAudioData(arr)
+      const iso = await isolateVocalCentre(decoded)
+      setVocal(iso); setSel({ a: 0, b: 1 }); setChunkName(file.name.replace(/\.[^.]+$/, '') + ' vocal')
+    } catch (err) {
+      setError('Could not read that file — try a WAV or MP3. (' + err.message + ')')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  function play(fromSel = true) {
+    if (!vocal) return
+    stop()
+    const buf = fromSel ? trimBuffer(ctx, vocal, sel.a, sel.b) : vocal
+    if (ctx.state === 'suspended') ctx.resume()
+    const src = ctx.createBufferSource()
+    src.buffer = buf; src.connect(ctx.destination); src.start()
+    src.onended = () => setPlaying(false)
+    srcRef.current = src; setPlaying(true)
+  }
+
+  // Canvas selection by click-drag.
+  function posFromEvent(e) {
+    const rect = canvasRef.current.getBoundingClientRect()
+    return Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width))
+  }
+  function onDown(e) { dragRef.current = true; const p = posFromEvent(e); setSel({ a: p, b: p }) }
+  function onMove(e) {
+    if (!dragRef.current) return
+    const p = posFromEvent(e)
+    setSel(s => (p >= s.a ? { a: s.a, b: p } : { a: p, b: s.a }))
+  }
+  function onUp() { dragRef.current = false; setSel(s => (s.b - s.a < 0.005 ? { a: 0, b: 1 } : s)) }
+
+  async function saveChunk() {
+    if (!vocal) return
+    const buf = trimBuffer(ctx, vocal, sel.a, sel.b)
+    try { await saveClip(chunkName || 'Vocal', buf); refreshSaved() }
+    catch (err) { setError('Could not save: ' + err.message) }
+  }
+  function downloadChunk() {
+    if (!vocal) return
+    download(encodeWav(trimBuffer(ctx, vocal, sel.a, sel.b)), (chunkName || 'vocal') + '.wav')
+  }
+  function downloadFull() {
+    if (!vocal) return
+    download(encodeWav(vocal), (name || 'vocal') + ' (isolated).wav')
+  }
+
+  const dur = vocal ? vocal.length / vocal.sampleRate : 0
+  const selDur = dur * (sel.b - sel.a)
+
+  return (
+    <div className="min-h-screen bg-base text-ink">
+      <div className="w-full max-w-4xl mx-auto px-5 sm:px-8 lg:px-12">
+        <nav className="flex items-center justify-between py-5 border-b border-hairline">
+          <button onClick={() => navigate('/')} className="flex items-center hover:opacity-80 transition-opacity duration-150">
+            <img src={`${import.meta.env.BASE_URL}logo-wordmark.png`} alt="LoopLab" className="h-7 w-auto" />
+          </button>
+          <button onClick={() => navigate('/')} className="font-mono text-[11px] uppercase tracking-[0.16em] text-faint hover:text-acid transition-colors duration-150">← Back</button>
+        </nav>
+
+        <div className="py-8 sm:py-10">
+          <div className="inline-flex items-center gap-2.5 mb-4">
+            <span className="w-1.5 h-1.5 bg-acid" />
+            <span className="font-mono text-[11px] uppercase tracking-[0.24em] text-dim">Vocal Isolator</span>
+          </div>
+          <h1 className="font-display text-4xl sm:text-6xl font-bold uppercase tracking-tight leading-[0.9] mb-3">Isolate a vocal</h1>
+          <p className="text-dim text-sm max-w-lg leading-relaxed">Drop in a track, pull a rough vocal out of it in your browser, then drag to select a section and chop it into chunks. Save them to your vocals or download as WAV.</p>
+        </div>
+
+        {/* Upload */}
+        <label
+          onDragOver={e => { e.preventDefault() }}
+          onDrop={e => { e.preventDefault(); onFile(e.dataTransfer.files[0]) }}
+          className="block border border-dashed border-hairline hover:border-dim bg-surface p-8 text-center cursor-pointer transition-colors duration-150 mb-6"
+        >
+          <input type="file" accept="audio/*,.mp3,.wav,.m4a,.ogg,.flac" className="hidden" onChange={e => onFile(e.target.files[0])} />
+          <p className="font-mono text-[12px] uppercase tracking-[0.14em] text-dim">{busy ? 'Isolating…' : name ? `↻ ${name} — drop another to replace` : '↑ Drop an audio file or click to choose'}</p>
+          <p className="text-faint text-[11px] mt-2">Stays on your device — nothing is uploaded. WAV, MP3, M4A, FLAC.</p>
+        </label>
+
+        {error && <p className="text-red-400 text-xs mb-6">{error}</p>}
+
+        {/* Rough-method notice */}
+        <p className="text-faint text-[11px] leading-relaxed mb-6 max-w-xl">
+          Heads up: this is the quick browser method — it keeps the centred vocal and filters the rest, so centred drums and bass can leak through and it needs a stereo track. Cleaner AI separation is coming later.
+        </p>
+
+        {vocal && (
+          <div className="border border-hairline bg-surface p-5 sm:p-6 mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-dim">Isolated vocal · {dur.toFixed(1)}s</span>
+              <span className="font-mono text-[11px] text-faint">selection {selDur.toFixed(1)}s</span>
+            </div>
+
+            <canvas
+              ref={canvasRef} width={900} height={140}
+              className="w-full h-[110px] border border-hairline cursor-crosshair mb-4 touch-none"
+              onMouseDown={onDown} onMouseMove={onMove} onMouseUp={onUp} onMouseLeave={onUp}
+            />
+
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              {playing ? (
+                <button onClick={stop} className="font-display font-semibold uppercase tracking-wide text-sm bg-surface-2 border border-hairline text-ink px-5 py-3">■ Stop</button>
+              ) : (
+                <button onClick={() => play(true)} className="font-display font-semibold uppercase tracking-wide text-sm bg-acid text-base px-5 py-3 hover:bg-acid-dim transition-colors duration-150">▶ Play selection</button>
+              )}
+              <button onClick={() => play(false)} className="font-mono text-[11px] uppercase tracking-[0.14em] text-faint hover:text-acid transition-colors duration-150">▶ Play whole</button>
+              <button onClick={() => setSel({ a: 0, b: 1 })} className="font-mono text-[11px] uppercase tracking-[0.14em] text-faint hover:text-acid transition-colors duration-150">↺ Select all</button>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <input
+                value={chunkName} onChange={e => setChunkName(e.target.value)} placeholder="Chunk name"
+                className="flex-1 min-w-[140px] bg-surface-2 border border-hairline px-3 py-2 text-sm text-ink placeholder:text-faint focus:border-dim outline-none"
+              />
+              <button onClick={saveChunk} className="font-display font-semibold uppercase tracking-wide text-sm bg-acid text-base px-4 py-2 hover:bg-acid-dim transition-colors duration-150">Save chunk</button>
+              <button onClick={downloadChunk} className="font-display font-semibold uppercase tracking-wide text-sm border border-acid/50 text-acid px-4 py-2 hover:bg-acid hover:text-base transition-colors duration-150">↓ Chunk WAV</button>
+              <button onClick={downloadFull} className="font-mono text-[11px] uppercase tracking-[0.14em] text-faint hover:text-acid transition-colors duration-150 px-2 py-2">↓ Full vocal</button>
+            </div>
+          </div>
+        )}
+
+        {/* Saved chunks */}
+        {saved.length > 0 && (
+          <div className="mb-16">
+            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-faint mb-3">Your vocals · {saved.length}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {saved.map(clip => (
+                <SavedChunk key={clip.id} clip={clip} ctx={ctx} onDelete={async id => { await deleteClip(id); refreshSaved() }} />
+              ))}
+            </div>
+            <p className="text-faint text-[11px] mt-3">Saved chunks also show up in the <strong className="text-dim">Your Vocals</strong> row on any genre page, ready to drop into an arrangement.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function SavedChunk({ clip, ctx, onDelete }) {
+  const [previewing, setPreviewing] = useState(false)
+  const srcRef = useRef(null)
+  function preview() {
+    if (previewing) { try { srcRef.current?.stop() } catch { /* gone */ } srcRef.current = null; setPreviewing(false); return }
+    const src = ctx.createBufferSource()
+    src.buffer = deserialise(ctx, clip); src.connect(ctx.destination); src.start()
+    src.onended = () => setPreviewing(false)
+    srcRef.current = src; setPreviewing(true)
+  }
+  function dl() { download(encodeWav(deserialise(ctx, clip)), clip.name + '.wav') }
+  useEffect(() => () => { try { srcRef.current?.stop() } catch { /* gone */ } }, [])
+  return (
+    <div className="flex items-center gap-2 bg-surface border border-hairline px-3 py-2">
+      <span className="text-base">🎤</span>
+      <span className="text-xs text-dim truncate flex-1 min-w-0" title={clip.name}>{clip.name}</span>
+      <span className="text-[10px] text-faint shrink-0">{(clip.length / clip.sampleRate).toFixed(1)}s</span>
+      <button onClick={preview} className={`text-xs shrink-0 ${previewing ? 'text-acid' : 'text-dim hover:text-white'}`} title="Preview">{previewing ? '⏹' : '▶'}</button>
+      <button onClick={dl} className="text-[11px] text-faint hover:text-acid shrink-0" title="Download WAV">↓</button>
+      <button onClick={() => onDelete(clip.id)} className="text-[10px] text-faint hover:text-red-400 shrink-0" title="Delete">✕</button>
+    </div>
+  )
+}

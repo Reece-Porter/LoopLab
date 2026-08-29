@@ -11,6 +11,7 @@ import CommunityPage from './pages/CommunityPage'
 import AuthPage from './pages/AuthPage'
 import AdminPage from './pages/AdminPage'
 import GeneratePage from './pages/GeneratePage'
+import IsolatorPage from './pages/IsolatorPage'
 import { stopAllPlayback } from './audio/usePlayer'
 
 export default function App() {
@@ -49,6 +50,7 @@ export default function App() {
       <Route path="/login" element={<AuthPage />} />
       <Route path="/admin" element={<AdminPage />} />
       <Route path="/generate" element={<GeneratePage />} />
+      <Route path="/isolator" element={<IsolatorPage />} />
     </Routes>
   )
 }
