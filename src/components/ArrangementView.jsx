@@ -2,34 +2,11 @@ import { useState, useRef, useEffect, useMemo } from 'react'
 import { usePlayer } from '../audio/usePlayer'
 import { voiceFor } from '../audio/player'
 import { buildTrackClip } from '../audio/arrangementClip'
-import { vocalPresetFor } from '../audio/samplePresets'
-import { loadSample } from '../audio/sampleLoader'
+import { preloadInstruments } from '../audio/sampler'
 import { exportGrooveMidi } from '../audio/midiExport'
 import { getContext } from '../audio/synth'
 import PlayButton from './PlayButton'
 import KitPicker from './KitPicker'
-
-// Turn a synth vocal clip into one that triggers a real vocal sample, pitched
-// per note to follow the written hook (rate clamped so it never chipmunks).
-// When an event is flagged `chop`, the sample is sliced into a short, gated
-// stab (cycling through a few in-sample offsets for movement) — the classic
-// vocal-chop hook. Otherwise it's gated to the note's own sustain so held
-// vowels breathe with the phrase instead of droning over each other.
-const CHOP_GATE = 1.5                          // chop length, in 16th steps
-const CHOP_OFFSETS = [0.08, 0.24, 0.14, 0.32]  // seconds into the vowel
-function sampleiseVocalClip(clip, buf, baseFreq) {
-  if (!clip) return clip
-  let hit = 0
-  return clip.map(evt => {
-    if (!evt || evt.freq == null) return evt
-    const rate = Math.min(2, Math.max(0.5, evt.freq / baseFreq))
-    const chop = !!evt.chop
-    const gateSteps = chop ? CHOP_GATE : Math.min(8, evt.sustain || 4)
-    const offset = chop ? CHOP_OFFSETS[hit % CHOP_OFFSETS.length] : 0
-    hit++
-    return { vocalBuffer: buf, rate, gain: chop ? 0.85 : 0.9, gateSteps, offset, level: evt.level }
-  })
-}
 
 const LABEL_W_DESKTOP = 176 // px — track-name column on ≥640px
 const LABEL_W_MOBILE  = 100 // px — track-name column on <640px
@@ -102,20 +79,11 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
   const [follow, setFollow] = useState(false) // auto-scroll to track the playhead
   const [labelW, setLabelW] = useState(LABEL_W_DESKTOP)
 
-  // Real vocal sample for this genre — plays on the Vocals track instead of the
-  // synth voice when enabled (default on). Falls back to the synth if not loaded.
-  const vocalPreset = useMemo(() => vocalPresetFor(genreId), [genreId])
-  const [vocalSample, setVocalSample] = useState({ src: null, buf: null })
+  // Vocals play the real sung multisample (Cymatics "Euphoria") by default; the
+  // toggle switches the Vocals track to the synth choir instead. Preload the
+  // multisample so it's ready on the first Play (decodes on a suspended context).
   const [useSampleVox, setUseSampleVox] = useState(true)
-  useEffect(() => {
-    let live = true
-    loadSample(getContext(), vocalPreset.src).then(buf => {
-      if (live) setVocalSample({ src: vocalPreset.src, buf })
-    })
-    return () => { live = false }
-  }, [vocalPreset])
-  // Ignore a stale buffer from the previous genre until the new one resolves.
-  const vocalBuf = vocalSample.src === vocalPreset.src ? vocalSample.buf : null
+  useEffect(() => { preloadInstruments(getContext(), ['vocal']) }, [])
 
   // Respond to container width changes so the label column narrows on mobile.
   useEffect(() => {
@@ -171,13 +139,15 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
         ? { type: 'pattern', pattern: options[sel] }
         : { type: 'groove', genreId, override: songGroove }
       let clip = buildTrackClip(v, source)
-      if (v === 'vox' && useSampleVox && vocalBuf) {
-        clip = sampleiseVocalClip(clip, vocalBuf, vocalPreset.baseFreq)
+      // In synth mode, tag vocal notes so the player uses the synth choir; by
+      // default they play the real sung multisample (handled in the player).
+      if (v === 'vox' && !useSampleVox) {
+        clip = clip.map(e => (e && e.freq != null ? { ...e, synthVox: true } : e))
       }
       map[t.name] = clip
     })
     return map
-  }, [arrangement.tracks, selection, partFor, genreId, songGroove, useSampleVox, vocalBuf, vocalPreset])
+  }, [arrangement.tracks, selection, partFor, genreId, songGroove, useSampleVox])
 
   // Keep the live clips ref in sync with React state.
   useEffect(() => {
@@ -258,17 +228,13 @@ export default function ArrangementView({ arrangement, accentClass, bpm, genreId
             <button
               data-tutorial="sample-toggle"
               onClick={() => setUseSampleVox(v => !v)}
-              disabled={!vocalBuf}
               className={`text-xs px-2.5 py-1.5  border transition-colors ${
-                !vocalBuf
-                  ? 'border-hairline bg-surface text-faint cursor-wait'
-                  : useSampleVox
-                    ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-200'
-                    : 'border-hairline bg-surface text-dim hover:text-ink'
+                useSampleVox
+                  ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-200'
+                  : 'border-hairline bg-surface text-dim hover:text-ink'
               }`}
               title={
-                !vocalBuf ? 'Loading vocal sample…'
-                : useSampleVox ? `Vocals: real sample (${vocalPreset.name}) — click for synth`
+                useSampleVox ? 'Vocals: real sung sample — click for synth'
                 : 'Vocals: synth — click for real sample'
               }
             >

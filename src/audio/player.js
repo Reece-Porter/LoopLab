@@ -258,8 +258,19 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
     if (voice === 'bass') return S.bass(ctx, t, out, f, 0.5, evt.long ? stepDur * 4 : stepDur * 1.5)
     if (voice === 'supersaw') return S.supersaw(ctx, t, out, f, 0.28, stepDur * 1.8)
     if (voice === 'piano') return S.piano(ctx, t, out, [f], 0.22, stepDur * 3)
-    if (voice === 'vox' && evt.pluck) return S.pluck(ctx, t, out, f, 0.22, stepDur * 2)
-    if (voice === 'vox') return S.vox(ctx, t, out, f, 0.15, stepDur * (evt.sustain || 5), evt.vowel || 'oo', false)
+    if (voice === 'vox') {
+      // Real sung vocal multisample (Cymatics) first; `synthVox` forces the synth
+      // (the arrangement's Vocals: Synth toggle), and it's also the fallback.
+      // Fold the written note into the sample's natural female range (~F3–F#4)
+      // so a hook written up in octave 5 doesn't chipmunk.
+      const vdur = stepDur * (evt.chop ? 1.6 : Math.min(8, evt.sustain || 4))
+      let vf = f
+      while (vf > 370) vf /= 2
+      while (vf < 175) vf *= 2
+      if (!evt.synthVox && playFreqSampled(ctx, 'vocal', vf, t, out, 0.5, vdur)) return
+      if (evt.pluck) return S.pluck(ctx, t, out, f, 0.22, stepDur * 2)
+      return S.vox(ctx, t, out, f, 0.15, stepDur * (evt.sustain || 5), evt.vowel || 'oo', false)
+    }
     return S.pluck(ctx, t, out, f, 0.3, stepDur * 2)
   }
 }

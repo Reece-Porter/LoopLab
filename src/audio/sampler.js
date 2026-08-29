@@ -24,6 +24,8 @@ export const INSTRUMENTS = {
   organ:    [36, 42, 48, 54, 60],
   pad:      [30, 42, 54, 66],
   rhodes:   [48, 54, 60, 66, 72, 78],
+  // Real sung vocal — Cymatics "Euphoria" dry tonal one-shots, one per note.
+  vocal:    [55, 57, 58, 60, 61, 62, 63, 64, 66],
 }
 
 const buffers = {} // id → { midi → AudioBuffer }
