@@ -620,45 +620,66 @@ export function hoover(context, time, out, freq, gain = 0.3, dur = 0.3) {
 
 // Metallic bell tone — triangle fundamental + detuned sine partial for shimmer.
 // Sharp percussive strike, long ring-out, no distortion.
-export function bell(context, time, out, freq, gain = 0.3, dur = 2.0) {
+// Struck metallic bell. Real bells have an INHARMONIC spectrum — the partials
+// are not whole-number multiples of the fundamental — and the upper ones die
+// away fastest. That combination is what makes a strike read as metal rather
+// than as a plain synth tone, so the partials below use tubular-bell style
+// ratios with progressively shorter decays. `delayTime` should be handed the
+// song's own tempo (a dotted 8th works well) so the dub echoes land musically
+// instead of drifting against the grid.
+export function bell(context, time, out, freq, gain = 0.3, dur = 2.0, delayTime = 0.22) {
   const bus = context.createGain()
   bus.gain.value = 1
 
-  // Triangle fundamental — warm but with clear pitch
-  const tri = context.createOscillator()
-  tri.type = 'triangle'
-  tri.frequency.value = freq
-  const triG = context.createGain()
-  triG.gain.value = 0.65
-  tri.connect(triG).connect(bus)
+  // [ratio, level, decay fraction]
+  const PARTIALS = [
+    [1.00, 0.55, 1.00],
+    [2.00, 0.20, 0.70],
+    [2.76, 0.26, 0.50],
+    [5.40, 0.12, 0.28],
+  ]
+  const oscs = []
+  for (const [ratio, amp, dec] of PARTIALS) {
+    const o = context.createOscillator()
+    o.type = 'sine'
+    o.frequency.value = freq * ratio
+    const g = context.createGain()
+    g.gain.setValueAtTime(0, time)
+    g.gain.linearRampToValueAtTime(gain * amp, time + 0.002)
+    g.gain.exponentialRampToValueAtTime(0.0001, time + Math.max(0.05, dur * dec))
+    o.connect(g).connect(bus)
+    oscs.push(o)
+  }
 
-  // Slightly detuned sine an octave up — adds shimmer/metallic ring
-  const upper = context.createOscillator()
-  upper.type = 'sine'
-  upper.frequency.value = freq * 2.01
-  const upG = context.createGain()
-  upG.gain.value = 0.35
-  upper.connect(upG).connect(bus)
+  // Slightly detuned octave — beats against the fundamental for a restless,
+  // ringing edge rather than a dead-still tone.
+  const shimmer = context.createOscillator()
+  shimmer.type = 'sine'
+  shimmer.frequency.value = freq * 2.01
+  const sg = context.createGain()
+  sg.gain.setValueAtTime(0, time)
+  sg.gain.linearRampToValueAtTime(gain * 0.16, time + 0.002)
+  sg.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.6)
+  shimmer.connect(sg).connect(bus)
+  oscs.push(shimmer)
 
-  // Sharp strike, long exponential decay
-  const env = context.createGain()
-  env.gain.setValueAtTime(0, time)
-  env.gain.linearRampToValueAtTime(gain, time + 0.002)
-  env.gain.exponentialRampToValueAtTime(0.0001, time + dur)
-  bus.connect(env).connect(out)
+  bus.connect(out)
 
-  // Dotted-8th delay at 137 BPM (≈ 0.22s) with gentle feedback
+  // Tempo-locked dub delay, darkening as it repeats.
   const dly = context.createDelay(1)
-  dly.delayTime.value = 0.22
+  dly.delayTime.value = Math.min(0.99, Math.max(0.01, delayTime))
+  const damp = context.createBiquadFilter()
+  damp.type = 'lowpass'
+  damp.frequency.value = 3200
   const fb = context.createGain()
-  fb.gain.value = 0.22
+  fb.gain.value = 0.3
   const wet = context.createGain()
-  wet.gain.value = 0.35
-  env.connect(dly)
-  dly.connect(fb).connect(dly)
+  wet.gain.value = 0.3
+  bus.connect(dly)
+  dly.connect(damp).connect(fb).connect(dly)
   dly.connect(wet).connect(out)
 
-  ;[tri, upper].forEach(o => { o.start(time); o.stop(time + dur + 0.5) })
+  oscs.forEach(o => { o.start(time); o.stop(time + dur + 0.5) })
 }
 
 // Lush detuned-saw trance pad — slow attack, airy octave, no muddiness.

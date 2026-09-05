@@ -486,7 +486,7 @@ export const GENRE_SONGS = {
         { name: 'Hi-Hats',    instrument: '909 open hats, offbeat 8ths',      sections: [0,1,1,1,1,1,1] },
         { name: 'Percussion', instrument: '909 claps through delay',          sections: [0,0,1,0,1,1,1] },
         { name: 'Sub Bass',   instrument: 'Pounding A1 sub pulse',            sections: [0,1,1,0,1,1,0] },
-        { name: 'Bell Riff',  instrument: 'System 100m ring-mod bell (THE riff)', sections: [0,1,1,1,1,1,0] },
+        { name: 'Bell Riff',  instrument: 'Ring-mod metallic bell (THE riff)', sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',      instrument: '(none — pure machine)',            sections: [0,0,0,0,0,0,0] },
       ],
       // Full custom arrangement modelled on the actual record (7:39 @ 136):
@@ -511,17 +511,21 @@ export const GENRE_SONGS = {
           { name: 'Claps',       icon: '👏', color: '#ef4444', instrument: '909 claps on 2 & 4',                   sections: [0,1,1,1,0,0,1,1,0] },
           { name: 'Delay Perc',  icon: '🪘', color: '#84cc16', instrument: 'Clap delay echoes (dub send)',         sections: [0,0,1,1,0,1,1,1,0] },
           { name: 'Sub Bass',    icon: '🎸', color: '#a855f7', instrument: 'Pounding A1 sub pulse',                sections: [0,1,1,1,0,1,1,1,0] },
-          { name: 'Bell Riff',   icon: '⚡', color: '#06b6d4', instrument: 'System 100m ring-mod bell (THE riff)', sections: [0,0,1,1,1,1,1,1,0] },
+          { name: 'Bell Riff',   icon: '⚡', color: '#06b6d4', instrument: 'Ring-mod metallic bell (THE riff)', sections: [0,0,1,1,1,1,1,1,0] },
           { name: 'String Stab', icon: '🎻', color: '#ec4899', instrument: 'String-machine Am swells',             sections: [0,0,0,0,1,1,1,0,0] },
         ],
       },
-      // Confirmed 136 BPM, A minor. Ring-modulated sine bell (Roland System 100m
-      // style — see synth.js bell()). The 5-note cell A–G#–A–F–A comes from the
-      // Attack Magazine Synth Secrets analysis; G# is correct (harmonic minor
-      // leading tone → A gives the riff its tension and release).
-      // The riff runs over a 2-bar phrase (32 steps). A 9-hit cycle placed so it
-      // doesn't divide evenly into the 4/4 grid is what makes it "float" — the
-      // downbeats keep drifting forward each time round, exactly as in the record.
+      // 136 BPM, A minor. Metallic struck bell through a tempo-locked dub delay
+      // (see synth.js bell()).
+      //
+      // NOTE ON THE RIFF: this is a best-judgement RECONSTRUCTION of the
+      // record's character — it has NOT been transcribed note-for-note from the
+      // audio, so don't read it as definitive.
+      //
+      // It must live under the `bell` key: the arrangement's track is called
+      // "Bell Riff", and voiceFor() matches 'bell' before it ever reaches the
+      // stab→supersaw rule, so a riff written under `supersaw` here would be
+      // silently ignored and the genre's default bell line would play instead.
       groove: {
         // Pounding 4/4 sub on the kick — the relentless engine of the track.
         bass: { steps: on(0,4,8,12), notes: ['A1','A1','A1','A1'], long: true },
@@ -529,14 +533,17 @@ export const GENRE_SONGS = {
         // the dub-delay tail can drop in and out across the arrangement.
         clap: { steps: on(4,12) },
         perc: { steps: on(6,7,14,15) },
-        // THE riff — a relentless, rolling one-bar phrase that hammers every
-        // bar (that insistence IS the hook — it never stops, never varies).
-        // Straight driving 8ths with a late 16th double-hit skip into the
-        // downbeat. Pitch cell from A harmonic minor: the C5 lift, the G#
-        // leading-tone tension and the F4 dip all resolving back to A.
-        supersaw: {
-          steps: on(0,2,4,6,8,10,13,14),
-          notes: ['A4','C5','A4','G#4','A4','F4','G#4','A4'],
+        // THE riff. Hits fall in three-note groups on a 4/4 16th grid
+        // (1-2-3, rest), so the cell keeps landing on a different part of the
+        // beat as it repeats — that push against the grid is what makes it churn
+        // and feel like it's drifting forward rather than politely looping.
+        // A minor throughout: the A–C–E arpeggio hammers, the G# leading tone
+        // bites once every two bars, and the octave A5 is the peak of the phrase.
+        bell: {
+          steps: on2(0,1,2, 4,5,6, 8,9,10, 12,13,14,
+                     16,17,18, 20,21,22, 24,25,26, 28,29,30),
+          notes: ['A4','C5','E5', 'A4','C5','E5', 'A4','C5','E5', 'A4','C5','D5',
+                  'A4','C5','E5', 'A4','C5','E5', 'A4','C5','G#4', 'A4','C5','A5'],
           bell: true,
         },
         // String-machine swell — one long Am pad every 2 bars (the breakdown).

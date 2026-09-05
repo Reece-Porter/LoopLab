@@ -255,7 +255,10 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
       if (noteInst === 'ravelead') while (nf > 500) nf /= 2
       if (playFreqSampled(ctx, noteInst, nf, t, out, g, dur)) return
     }
-    if (evt.bell) return S.bell(ctx, t, out, f, 0.32, stepDur * 10)
+    // Dotted-8th (3 sixteenths) delay lands the echo on the next note group, so
+    // the riff reinforces itself instead of smearing. Tail kept shorter than the
+    // old 10 steps because the riff runs dense 16ths and would otherwise wash out.
+    if (evt.bell) return S.bell(ctx, t, out, f, 0.30, stepDur * 7, stepDur * 3)
     if (evt.hoover) return S.hoover(ctx, t, out, f, 0.26, stepDur * 2.2)
     if (evt.acid) return S.acid(ctx, t, out, f, 0.38, stepDur * 1.7, evt.accent)
     if (evt.sub) return S.sub(ctx, t, out, f, 0.55, evt.long ? stepDur * 6 : stepDur * 2)
