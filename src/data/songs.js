@@ -485,7 +485,7 @@ export const GENRE_SONGS = {
         { name: 'Kick',       instrument: 'Hammering TR-909 kick (4/4)',      sections: [1,1,1,1,1,1,1] },
         { name: 'Hi-Hats',    instrument: '909 open hats, offbeat 8ths',      sections: [0,1,1,1,1,1,1] },
         { name: 'Percussion', instrument: '909 claps through delay',          sections: [0,0,1,0,1,1,1] },
-        { name: 'Sub Bass',   instrument: 'A#/E tritone sub pulse',            sections: [0,1,1,0,1,1,0] },
+        { name: 'Sub Bass',   instrument: 'Sustained A# sub pulse',            sections: [0,1,1,0,1,1,0] },
         { name: 'Bell Riff',  instrument: 'Ring-mod metallic bell (THE riff)', sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',      instrument: '(none — pure machine)',            sections: [0,0,0,0,0,0,0] },
       ],
@@ -510,43 +510,47 @@ export const GENRE_SONGS = {
           { name: 'Hi-Hats',     icon: '🔔', color: '#eab308', instrument: '909 open hats, offbeat 8ths',          sections: [1,1,1,1,0,1,1,1,1] },
           { name: 'Claps',       icon: '👏', color: '#ef4444', instrument: '909 claps on 2 & 4',                   sections: [0,1,1,1,0,0,1,1,0] },
           { name: 'Delay Perc',  icon: '🪘', color: '#84cc16', instrument: 'Clap delay echoes (dub send)',         sections: [0,0,1,1,0,1,1,1,0] },
-          { name: 'Sub Bass',    icon: '🎸', color: '#a855f7', instrument: 'A#/E tritone sub pulse',                sections: [0,1,1,1,0,1,1,1,0] },
+          { name: 'Sub Bass',    icon: '🎸', color: '#a855f7', instrument: 'Sustained A# sub pulse',                sections: [0,1,1,1,0,1,1,1,0] },
           { name: 'Bell Riff',   icon: '⚡', color: '#06b6d4', instrument: 'Ring-mod metallic bell (THE riff)', sections: [0,0,1,1,1,1,1,1,0] },
           { name: 'String Stab', icon: '🎻', color: '#ec4899', instrument: 'String-machine A# swells',             sections: [0,0,0,0,1,1,1,0,0] },
         ],
       },
-      // 136 BPM. Pitches and step positions below are read off the community
-      // "The Bells [Recreated]" sequencer transcription — one person's reading of
-      // the record rather than the master — instead of being guessed at.
+      // 136 BPM. Pitch centre (A#, with the E tritone and B semitone above) comes
+      // from a community sequencer transcription; the RHYTHM and voicing below are
+      // tuned by ear for how they sit against the kick in this app, not copied
+      // step-for-step off that grid. Treat it as a faithful-feeling reference
+      // rather than an exact reproduction.
       //
-      // It is chromatic rather than in a tidy key: everything centres on A#,
-      // with an E a tritone below it and a B a semitone above. That refusal to
-      // settle into a mode is a lot of why the track feels so machine-like, and
-      // it's why the bass and pad sit on A# too — an A-minor bed underneath
-      // would fight the riff a semitone at a time.
+      // It is chromatic rather than in a tidy key, and that refusal to settle
+      // into a mode is a lot of why the track feels so machine-like. It's also
+      // why the bass and pad sit on A# — an A-minor bed underneath would fight
+      // the riff a semitone at a time.
       //
       // The riff must live under the `bell` key: the arrangement's track is
       // called "Bell Riff", and voiceFor() matches 'bell' before it ever reaches
       // the stab→supersaw rule, so a riff written under `supersaw` would be
       // silently ignored and the genre's default bell line would play instead.
       groove: {
-        // Low layer: A# on every beat, E a tritone below on every off-beat.
-        // Dropped an octave from the source grid (A#3/E3) so it sits as this
-        // app's sub instead of crowding the bell.
-        bass: { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
-                notes: ['A#2','E2','A#2','E2','A#2','E2','A#2','E2',
-                        'A#2','E2','A#2','E2','A#2','E2','A#2','E2'] },
+        // Sub holds A# on the beat and sustains. It deliberately does NOT copy
+        // the source grid's A#/E alternation: leaping a tritone every 8th note
+        // down here just turns to mud — a sub's job is to lock with the kick and
+        // hold. The tritone lives in the bell instead, where you can hear it.
+        bass: { steps: on(0,4,8,12), notes: ['A#1','A#1','A#1','A#1'], long: true },
         // Claps on 2 & 4, with their delay echoes as a separate perc lane so
         // the dub-delay tail can drop in and out across the arrangement.
         clap: { steps: on(4,12) },
         perc: { steps: on(6,7,14,15) },
-        // THE riff, as it reads on the grid: A#5 on the downbeat and then on
-        // every off-beat, with a B5 flicking up a semitone immediately after the
-        // off-beat once every two beats. Two-bar phrase.
+        // THE riff: A# on the beat, E a tritone below on the off-beat, ringing
+        // back and forth. Two alternating pitches is what actually reads as
+        // "bells", and the tritone is what makes it cold rather than pretty. A
+        // B5 semitone flick lands once a bar for bite.
+        // Locked to the beat rather than floating between beats — this is tuned
+        // by ear for how it sits against the kick in this app, not copied step
+        // for step off the sequencer grid.
         bell: {
-          steps: on2(0,2,3,6, 10,11,14, 18,19,22, 26,27,30),
-          notes: ['A#5','A#5','B5','A#5', 'A#5','B5','A#5',
-                  'A#5','B5','A#5', 'A#5','B5','A#5'],
+          steps: on2(0,2,4,6,7,8,10,12,14, 16,18,20,22,23,24,26,28,30),
+          notes: ['A#5','E5','A#5','E5','B5','A#5','E5','A#5','E5',
+                  'A#5','E5','A#5','E5','B5','A#5','E5','A#5','E5'],
           bell: true,
         },
         // String-machine swell under the breakdown.
