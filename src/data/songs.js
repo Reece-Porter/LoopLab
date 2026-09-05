@@ -480,12 +480,12 @@ export const GENRE_SONGS = {
       artist: 'Jeff Mills',
       year: 1996,
       bpm: 136,
-      key: 'A minor',
+      key: 'A# (chromatic)',
       tracks: [
         { name: 'Kick',       instrument: 'Hammering TR-909 kick (4/4)',      sections: [1,1,1,1,1,1,1] },
         { name: 'Hi-Hats',    instrument: '909 open hats, offbeat 8ths',      sections: [0,1,1,1,1,1,1] },
         { name: 'Percussion', instrument: '909 claps through delay',          sections: [0,0,1,0,1,1,1] },
-        { name: 'Sub Bass',   instrument: 'Pounding A1 sub pulse',            sections: [0,1,1,0,1,1,0] },
+        { name: 'Sub Bass',   instrument: 'A#/E tritone sub pulse',            sections: [0,1,1,0,1,1,0] },
         { name: 'Bell Riff',  instrument: 'Ring-mod metallic bell (THE riff)', sections: [0,1,1,1,1,1,0] },
         { name: 'Vocal',      instrument: '(none — pure machine)',            sections: [0,0,0,0,0,0,0] },
       ],
@@ -510,44 +510,47 @@ export const GENRE_SONGS = {
           { name: 'Hi-Hats',     icon: '🔔', color: '#eab308', instrument: '909 open hats, offbeat 8ths',          sections: [1,1,1,1,0,1,1,1,1] },
           { name: 'Claps',       icon: '👏', color: '#ef4444', instrument: '909 claps on 2 & 4',                   sections: [0,1,1,1,0,0,1,1,0] },
           { name: 'Delay Perc',  icon: '🪘', color: '#84cc16', instrument: 'Clap delay echoes (dub send)',         sections: [0,0,1,1,0,1,1,1,0] },
-          { name: 'Sub Bass',    icon: '🎸', color: '#a855f7', instrument: 'Pounding A1 sub pulse',                sections: [0,1,1,1,0,1,1,1,0] },
+          { name: 'Sub Bass',    icon: '🎸', color: '#a855f7', instrument: 'A#/E tritone sub pulse',                sections: [0,1,1,1,0,1,1,1,0] },
           { name: 'Bell Riff',   icon: '⚡', color: '#06b6d4', instrument: 'Ring-mod metallic bell (THE riff)', sections: [0,0,1,1,1,1,1,1,0] },
-          { name: 'String Stab', icon: '🎻', color: '#ec4899', instrument: 'String-machine Am swells',             sections: [0,0,0,0,1,1,1,0,0] },
+          { name: 'String Stab', icon: '🎻', color: '#ec4899', instrument: 'String-machine A# swells',             sections: [0,0,0,0,1,1,1,0,0] },
         ],
       },
-      // 136 BPM, A minor. Metallic struck bell through a tempo-locked dub delay
-      // (see synth.js bell()).
+      // 136 BPM. Pitches and step positions below are read off the community
+      // "The Bells [Recreated]" sequencer transcription — one person's reading of
+      // the record rather than the master — instead of being guessed at.
       //
-      // NOTE ON THE RIFF: this is a best-judgement RECONSTRUCTION of the
-      // record's character — it has NOT been transcribed note-for-note from the
-      // audio, so don't read it as definitive.
+      // It is chromatic rather than in a tidy key: everything centres on A#,
+      // with an E a tritone below it and a B a semitone above. That refusal to
+      // settle into a mode is a lot of why the track feels so machine-like, and
+      // it's why the bass and pad sit on A# too — an A-minor bed underneath
+      // would fight the riff a semitone at a time.
       //
-      // It must live under the `bell` key: the arrangement's track is called
-      // "Bell Riff", and voiceFor() matches 'bell' before it ever reaches the
-      // stab→supersaw rule, so a riff written under `supersaw` here would be
+      // The riff must live under the `bell` key: the arrangement's track is
+      // called "Bell Riff", and voiceFor() matches 'bell' before it ever reaches
+      // the stab→supersaw rule, so a riff written under `supersaw` would be
       // silently ignored and the genre's default bell line would play instead.
       groove: {
-        // Pounding 4/4 sub on the kick — the relentless engine of the track.
-        bass: { steps: on(0,4,8,12), notes: ['A1','A1','A1','A1'], long: true },
+        // Low layer: A# on every beat, E a tritone below on every off-beat.
+        // Dropped an octave from the source grid (A#3/E3) so it sits as this
+        // app's sub instead of crowding the bell.
+        bass: { steps: on2(0,2,4,6,8,10,12,14, 16,18,20,22,24,26,28,30),
+                notes: ['A#2','E2','A#2','E2','A#2','E2','A#2','E2',
+                        'A#2','E2','A#2','E2','A#2','E2','A#2','E2'] },
         // Claps on 2 & 4, with their delay echoes as a separate perc lane so
         // the dub-delay tail can drop in and out across the arrangement.
         clap: { steps: on(4,12) },
         perc: { steps: on(6,7,14,15) },
-        // THE riff. Hits fall in three-note groups on a 4/4 16th grid
-        // (1-2-3, rest), so the cell keeps landing on a different part of the
-        // beat as it repeats — that push against the grid is what makes it churn
-        // and feel like it's drifting forward rather than politely looping.
-        // A minor throughout: the A–C–E arpeggio hammers, the G# leading tone
-        // bites once every two bars, and the octave A5 is the peak of the phrase.
+        // THE riff, as it reads on the grid: A#5 on the downbeat and then on
+        // every off-beat, with a B5 flicking up a semitone immediately after the
+        // off-beat once every two beats. Two-bar phrase.
         bell: {
-          steps: on2(0,1,2, 4,5,6, 8,9,10, 12,13,14,
-                     16,17,18, 20,21,22, 24,25,26, 28,29,30),
-          notes: ['A4','C5','E5', 'A4','C5','E5', 'A4','C5','E5', 'A4','C5','D5',
-                  'A4','C5','E5', 'A4','C5','E5', 'A4','C5','G#4', 'A4','C5','A5'],
+          steps: on2(0,2,3,6, 10,11,14, 18,19,22, 26,27,30),
+          notes: ['A#5','A#5','B5','A#5', 'A#5','B5','A#5',
+                  'A#5','B5','A#5', 'A#5','B5','A#5'],
           bell: true,
         },
-        // String-machine swell — one long Am pad every 2 bars (the breakdown).
-        chord: { steps: on2(0), chords: ['Am'], pad: true },
+        // String-machine swell under the breakdown.
+        chord: { steps: on2(0), chords: ['A#m'], pad: true },
       },
     },
     {
