@@ -26,6 +26,11 @@ export const INSTRUMENTS = {
   rhodes:   [48, 54, 60, 66, 72, 78],
   // Real sung vocal — Cymatics "Euphoria" dry tonal one-shots, one per note.
   vocal:    [55, 57, 58, 60, 61, 62, 63, 64, 66],
+  // Rave-synths multisamples: a real supersaw lead and a lush string pad.
+  ravelead: [36, 43, 48, 55, 60, 67, 71],
+  ravepad:  [36, 43, 48, 55],
+  // Reverse-vocal swell used as the build-up riser (single one-shot).
+  riserfx:  [60],
 }
 
 const buffers = {} // id → { midi → AudioBuffer }
@@ -104,4 +109,23 @@ export function playChordSampled(ctx, id, freqs, time, out, gain = 0.5, dur = 0.
 export function playFreqSampled(ctx, id, freq, time, out, gain = 0.5, dur = 0.5) {
   if (mode !== 'samples' || !buffers[id] || !freq) return false
   return playNote(ctx, id, freqToMidi(freq), time, out, gain, dur)
+}
+
+// Play the reverse-vocal riser swell as-is (no pitch-stretch — it's an FX). A
+// gentle fade-out only; the sample already crescendos. Returns true if played.
+export function playRiser(ctx, time, out, gain = 0.5) {
+  if (mode !== 'samples') return false
+  const inst = buffers.riserfx
+  const buf = inst && inst[60]
+  if (!buf) return false
+  const src = ctx.createBufferSource()
+  src.buffer = buf
+  const g = ctx.createGain()
+  const end = time + buf.duration
+  g.gain.setValueAtTime(gain, time)
+  g.gain.setValueAtTime(gain, Math.max(time, end - 0.12))
+  g.gain.exponentialRampToValueAtTime(0.0001, end)
+  src.connect(g); g.connect(out)
+  src.start(time); src.stop(end + 0.05)
+  return true
 }

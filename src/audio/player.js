@@ -6,7 +6,7 @@ import * as S from './synth'
 import { noteToFreq, chordToFreqs } from './theory'
 import { grooveFor } from './grooves'
 import { playKitVoice } from './drumKit'
-import { playChordSampled, playFreqSampled } from './sampler'
+import { playChordSampled, playFreqSampled, playRiser } from './sampler'
 
 // Decide which synth voice a part uses, from its name.
 export function voiceFor(partName) {
@@ -222,8 +222,11 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
   if (evt.freqs) {
     const vg = evt.gain != null ? evt.gain : 1 // per-pattern gain trim
     // Sampled instruments first (when in 'samples' mode and loaded); else synth.
-    const chordInst = evt.organ ? 'organ' : (evt.rhodes || evt.keys) ? 'rhodes' : evt.pad ? 'pad' : evt.rave ? 'supersaw' : 'piano'
-    if (playChordSampled(ctx, chordInst, evt.freqs, t, out, 0.5 * vg, evt.pad ? stepDur * 10 : stepDur * 4)) return
+    const chordInst = evt.organ ? 'organ' : (evt.rhodes || evt.keys) ? 'rhodes' : evt.pad ? 'ravepad' : evt.rave ? 'supersaw' : 'piano'
+    // The lush string pad was sampled low (≤G3); fold chord tones down into its
+    // range so octave-4 chords play warm instead of stretched thin.
+    const chordFreqs = evt.pad ? evt.freqs.map(f => { let x = f; while (x > 210) x /= 2; return x }) : evt.freqs
+    if (playChordSampled(ctx, chordInst, chordFreqs, t, out, 0.5 * vg, evt.pad ? stepDur * 10 : stepDur * 4)) return
     if (evt.organ) return S.organ(ctx, t, out, evt.freqs, 0.3 * vg, stepDur * 2.5)
     if (evt.rhodes) return S.rhodes(ctx, t, out, evt.freqs, 0.24 * vg, stepDur * 7)
     if (voice === 'piano') return S.piano(ctx, t, out, evt.freqs, 0.24 * vg, evt.pad ? stepDur * 8 : stepDur * 3)
@@ -232,7 +235,7 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
     if (evt.keys) return S.softKeys(ctx, t, out, evt.freqs, 0.17 * vg, stepDur * 6)
     return S.chordStab(ctx, t, out, evt.freqs, 0.18 * vg, stepDur * 4, true)
   }
-  if (voice === 'riser') return S.riser(ctx, t, out, 0.14, stepDur * 64)
+  if (voice === 'riser') { if (playRiser(ctx, t, out, 0.5)) return; return S.riser(ctx, t, out, 0.14, stepDur * 64) }
   if (evt.freq != null) {
     const f = evt.freq
     // Sampled tonal voices first; else synth.
@@ -240,13 +243,17 @@ function fireEvent(ctx, out, voice, evt, t, stepDur, snareAsClap = false) {
       : (evt.sub || voice === 'bass') ? 'bass'
       : voice === 'reese' ? 'reese'
       : voice === 'eight08' ? 'moog'
-      : voice === 'supersaw' ? 'supersaw'
+      : voice === 'supersaw' ? 'ravelead'
       : voice === 'piano' ? 'piano' : null
     if (noteInst) {
-      const g = (noteInst === 'bass' || noteInst === 'moog') ? 0.55 : noteInst === 'hoover' ? 0.32 : 0.42
+      const g = (noteInst === 'bass' || noteInst === 'moog') ? 0.55 : noteInst === 'hoover' ? 0.32 : noteInst === 'ravelead' ? 0.34 : 0.42
       const isLongBass = voice === 'bass' || evt.sub || voice === 'eight08'
       const dur = isLongBass ? (evt.long ? stepDur * 5 : stepDur * 1.6) : stepDur * 1.9
-      if (playFreqSampled(ctx, noteInst, f, t, out, g, dur)) return
+      // The rave lead was sampled only up to B4; fold higher notes down an octave
+      // so the top of a lead line stays real instead of chipmunking.
+      let nf = f
+      if (noteInst === 'ravelead') while (nf > 500) nf /= 2
+      if (playFreqSampled(ctx, noteInst, nf, t, out, g, dur)) return
     }
     if (evt.bell) return S.bell(ctx, t, out, f, 0.32, stepDur * 10)
     if (evt.hoover) return S.hoover(ctx, t, out, f, 0.26, stepDur * 2.2)

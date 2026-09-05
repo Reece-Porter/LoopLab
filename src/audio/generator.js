@@ -8,7 +8,7 @@ import { getContext, kick, hat, clap, bass, chordStab, supersawChord, rhodes, sy
 import { noteToFreq, chordToFreqs, chordToMidi } from './theory'
 import { GENERATOR } from '../data/generator'
 import { playKitVoice } from './drumKit'
-import { playChordSampled, playFreqSampled } from './sampler'
+import { playChordSampled, playFreqSampled, playRiser } from './sampler'
 
 const CHROMA = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 const PC = { C: 0, 'C#': 1, D: 2, 'D#': 3, E: 4, F: 5, 'F#': 6, G: 7, 'G#': 8, A: 9, 'A#': 10, B: 11 }
@@ -193,7 +193,7 @@ export function playStarter(out, { onStep } = {}) {
   const chordOct = 4
   const risers = riserStartBars(arrangement)
   const chordInst = chordTimbre === 'rhodes' ? 'rhodes' : chordTimbre === 'supersaw' ? 'supersaw' : chordTimbre === 'pad' ? 'pad' : 'piano'
-  const leadInst = chordTimbre === 'rhodes' ? 'rhodes' : 'supersaw'
+  const leadInst = chordTimbre === 'rhodes' ? 'rhodes' : 'ravelead'
 
   let cur = 0
   let next = ctx.currentTime + 0.1
@@ -210,7 +210,7 @@ export function playStarter(out, { onStep } = {}) {
       const fill = localBar % 8 === 7
 
       // Riser into a drop (4 bars long, once at the section-relative start).
-      if (inBar === 0 && risers.has(bar)) riser(ctx, next, busEl, 0.14, stepDur * 64)
+      if (inBar === 0 && risers.has(bar) && !playRiser(ctx, next, busEl, 0.5)) riser(ctx, next, busEl, 0.14, stepDur * 64)
 
       if (parts.has('kick') && kickSet.has(inBar)) { if (!playKitVoice(ctx, 'kick', next, busEl, 0.95)) kick(ctx, next, busEl, 0.9, '909') }
       if (parts.has('hats') && hatSet.has(inBar)) {
@@ -230,7 +230,9 @@ export function playStarter(out, { onStep } = {}) {
       }
       if (parts.has('pad') && inBar === 0) {
         const freqs = chordToFreqs(progression[bar % progression.length], chordOct)
-        if (!playChordSampled(ctx, 'pad', freqs, next, busEl, 0.4, stepDur * 16)) synthPad(ctx, next, busEl, freqs, 0.16, stepDur * 16)
+        // Fold chord tones into the low-sampled string pad's range.
+        const padFreqs = freqs.map(f => { let x = f; while (x > 210) x /= 2; return x })
+        if (!playChordSampled(ctx, 'ravepad', padFreqs, next, busEl, 0.4, stepDur * 16)) synthPad(ctx, next, busEl, freqs, 0.16, stepDur * 16)
       }
       if (parts.has('bass') && bassSet.has(inBar)) {
         const notes = bassNotesPerBar[bar % bassNotesPerBar.length]
@@ -244,7 +246,8 @@ export function playStarter(out, { onStep } = {}) {
         const ph = leadPhrase(progression[bar % progression.length], bar)
         const i = ph ? ph.steps.indexOf(inBar) : -1
         if (i >= 0) {
-          const f = noteToFreq(ph.notes[i])
+          let f = noteToFreq(ph.notes[i])
+          if (f && leadInst === 'ravelead') while (f > 500) f /= 2   // fold into the lead's sampled range
           if (f && !playFreqSampled(ctx, leadInst, f, next, busEl, 0.32, stepDur * 1.8)) supersaw(ctx, next, busEl, f, 0.2, stepDur * 1.8)
         }
       }
