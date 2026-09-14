@@ -4,8 +4,10 @@ import HomePage from './pages/HomePage'
 import GenrePage from './pages/GenrePage'
 import TipsPage from './pages/TipsPage'
 import ToolsPage from './pages/ToolsPage'
-import DJDeckPage from './pages/DJDeckPage'
-import DJDecksPage from './pages/DJDecksPage'
+// Player & Downloader and DJ Deck are disabled for now — see the commented-out
+// routes below. Restore these two imports along with them.
+// import DJDeckPage from './pages/DJDeckPage'
+// import DJDecksPage from './pages/DJDecksPage'
 import SuggestPage from './pages/SuggestPage'
 import CommunityPage from './pages/CommunityPage'
 import AuthPage from './pages/AuthPage'
@@ -43,8 +45,10 @@ export default function App() {
       <Route path="/genre/:id" element={<GenrePage />} />
       <Route path="/tips" element={<TipsPage />} />
       <Route path="/tools" element={<ToolsPage />} />
-      <Route path="/player" element={<DJDeckPage />} />
-      <Route path="/dj" element={<DJDecksPage />} />
+      {/* Disabled for now so both are unreachable. Uncomment these two routes
+          and their imports at the top of this file to bring them back. */}
+      {/* <Route path="/player" element={<DJDeckPage />} /> */}
+      {/* <Route path="/dj" element={<DJDecksPage />} /> */}
       <Route path="/suggest" element={<SuggestPage />} />
       <Route path="/community" element={<CommunityPage />} />
       <Route path="/login" element={<AuthPage />} />
